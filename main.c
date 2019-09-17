@@ -20,7 +20,7 @@ typedef int mytype;
 #define U_CONST 2
 #define W_CONST 2
 #define CONST_RE 1000.0
-#define CONST_GY 10
+#define CONST_GY 0
 #define CONST_GX 0
 #define T_END 100.0
 #define TAU 0.7
@@ -56,6 +56,7 @@ int		imax = 10;
 int		jmax = 10;
 
 
+
 typedef struct		s_iter
 {
 	int				last;
@@ -70,6 +71,8 @@ typedef struct		s_fluid
 	mytype			dy;
 	REAL			eps;
 	REAL			deltat;
+	REAL			max_u;
+	REAL			max_v;
 	int				**map;
 	int				**flags;
 	REAL			**tmp;
@@ -81,9 +84,6 @@ typedef struct		s_fluid
 	REAL			**flow_g;
 	REAL			**rhs;
 }					t_fluid;
-
-
-
 
 
 
@@ -157,7 +157,7 @@ void	ft_arr_set(REAL **arr, int columns, REAL value)
 	while (*arr)
 	{
 		i = 0;
-		while (i < columns)
+		while (i <= columns)
 		{
 			(*arr)[i] = value;
 			i++;
@@ -309,6 +309,7 @@ void	ft_fill_obstacle_in_center(t_fluid *fluid, int j, int i)
 void	ft_top_boundary(t_fluid *fluid, int j, int i)
 {
 	fluid->press_p[jmax + 1][i] = fluid->press_p[jmax][i];
+	fluid->tmp[jmax + 1][i] = fluid->press_p[jmax][i];
 	fluid->speed_u[jmax + 1][i] = -fluid->speed_u[jmax][i];
 	fluid->speed_v[jmax][i] = 0;
 	fluid->flow_g[jmax][i] = fluid->speed_v[jmax][i];
@@ -319,6 +320,7 @@ void	ft_top_boundary(t_fluid *fluid, int j, int i)
 void	ft_down_boundary(t_fluid *fluid, int j, int i)
 {
 	fluid->press_p[0][i] = fluid->press_p[1][i];
+	fluid->tmp[0][i] = fluid->press_p[1][i];
 	fluid->speed_u[0][i] = -fluid->speed_u[1][i];
 	fluid->speed_v[0][i] = 0;
 	fluid->flow_g[0][i] = fluid->speed_v[0][i];
@@ -329,6 +331,7 @@ void	ft_down_boundary(t_fluid *fluid, int j, int i)
 void	ft_left_boundary(t_fluid *fluid, int j, int i)
 {
 	fluid->press_p[j][0] = fluid->press_p[j][1];
+	fluid->tmp[j][0] = fluid->press_p[j][1];
 	fluid->speed_u[j][0] = 0;
 	fluid->speed_v[j][0] = -fluid->speed_v[j][1];
 	fluid->flow_f[j][0] = fluid->speed_u[j][0];
@@ -339,6 +342,7 @@ void	ft_left_boundary(t_fluid *fluid, int j, int i)
 void	ft_right_boundary(t_fluid *fluid, int j, int i)
 {
 	fluid->press_p[j][imax + 1] = fluid->press_p[j][imax];
+	fluid->tmp[j][imax + 1] = fluid->press_p[j][imax];
 	fluid->speed_u[j][imax] = 0;
 	fluid->speed_v[j][imax + 1] = -fluid->speed_v[j][imax];
 	fluid->flow_f[j][imax] = fluid->speed_u[j][imax];
@@ -355,8 +359,6 @@ void	ft_inisialization(t_fluid *fluid)
 	ft_fill_iterations(&j, 1, fluid->jmax);
 	ft_iteration(fluid, &ft_fill_watercell_in_center, &j, &i);
 }
-
-
 
 void	ft_fill_watercell(t_fluid *fluid)
 {
@@ -393,8 +395,8 @@ void	ft_flow_f_and_flow_g(t_fluid *fluid, int j, int i)
 	//сумма двойных дифференциалов
 	ft_summ_of_differential(fluid, j, i);
 	//потоки горизонтальный и вертикальный
-	fluid->flow_f[j][i] = fluid->speed_u[j][i] + fluid->d2u_dx2_d2v_dy2[j][i];
-	fluid->flow_g[j][i] = fluid->speed_v[j][i] + fluid->d2u_dx2_d2v_dy2[j][i];
+	fluid->flow_f[j][i] = fluid->speed_u[j][i] + fluid->d2u_dx2_d2v_dy2[j][i] + CONST_GX;
+	fluid->flow_g[j][i] = fluid->speed_v[j][i] + fluid->d2u_dx2_d2v_dy2[j][i] + CONST_GY;
 }
 
 void	ft_flow_f_or_flow_g(t_fluid *fluid, int j, int i)
@@ -403,9 +405,9 @@ void	ft_flow_f_or_flow_g(t_fluid *fluid, int j, int i)
 	ft_summ_of_differential(fluid, j, i);
 	//потоки горизонтальный и вертикальный
 	if (i < fluid->imax)
-		fluid->flow_f[j][i] = fluid->speed_u[j][i] + fluid->d2u_dx2_d2v_dy2[j][i];
+		fluid->flow_f[j][i] = fluid->speed_u[j][i] + fluid->d2u_dx2_d2v_dy2[j][i] + CONST_GX;
 	if (j < fluid->jmax)
-		fluid->flow_g[j][i] = fluid->speed_v[j][i] + fluid->d2u_dx2_d2v_dy2[j][i];
+		fluid->flow_g[j][i] = fluid->speed_v[j][i] + fluid->d2u_dx2_d2v_dy2[j][i] + CONST_GY;
 }
 
 
@@ -418,7 +420,7 @@ void	ft_right_hand_side(t_fluid *fluid, int j, int i)
 
 
 
-void	ft_residual_pressure2(t_fluid *fluid, int j, int i)
+void	ft_residual_pressure_center(t_fluid *fluid, int j, int i)
 {
 	REAL r_it;
 
@@ -466,7 +468,7 @@ void	ft_residual_pressure_boundary(t_fluid *fluid, int j, int i)
 }
 
 
-REAL	ft_residual_pressure3(t_fluid *fluid)
+REAL	ft_residual_pressure(t_fluid *fluid)
 {
 	t_iter i;
 	t_iter j;
@@ -474,7 +476,7 @@ REAL	ft_residual_pressure3(t_fluid *fluid)
 	fluid->eps = 0;
 	ft_fill_iterations(&i, 2, fluid->imax - 1);
 	ft_fill_iterations(&j, 2, fluid->jmax - 1);
-	ft_iteration(fluid, &ft_residual_pressure2, &j, &i);
+	ft_iteration(fluid, &ft_residual_pressure_center, &j, &i);
 	ft_fill_iterations(&j, 1, fluid->jmax);
 	ft_iteration_j(fluid, &ft_residual_pressure_boundary, &j, 0);
 	ft_iteration_j(fluid, &ft_residual_pressure_boundary, &j, fluid->imax);
@@ -517,17 +519,19 @@ REAL	**ft_new_pressure(t_fluid *fluid)
 	t_iter i;
 	t_iter j;
 
-///////////////
-//надо заполнить p0i, pi0, p0imax, pjmax0
-///////////
+	//заполняем столбец 1 и строку 1
+	ft_fill_iterations(&j, 1, fluid->jmax);
+	ft_iteration_j(fluid, &ft_boundary_aproximation_press, &j, 1);
+	ft_fill_iterations(&i, 1, fluid->imax);
+	ft_iteration_i(fluid, &ft_boundary_aproximation_press, 1, &i);
+
 	ft_fill_iterations(&i, 2, fluid->imax - 1);
 	ft_fill_iterations(&j, 2, fluid->jmax - 1);
 	ft_iteration(fluid, &ft_aproximation_press, &j, &i);
+	//заполняем столбец imax и строку jmax
 	ft_fill_iterations(&j, 1, fluid->jmax);
-	ft_iteration_j(fluid, &ft_boundary_aproximation_press, &j, 0);
 	ft_iteration_j(fluid, &ft_boundary_aproximation_press, &j, fluid->imax);
 	ft_fill_iterations(&i, 1, fluid->imax);
-	ft_iteration_i(fluid, &ft_boundary_aproximation_press, 0, &i);
 	ft_iteration_i(fluid, &ft_boundary_aproximation_press, fluid->jmax, &i);
 	return (fluid->tmp);
 }
@@ -545,14 +549,15 @@ void	ft_successive_overrelaxation(t_fluid *fluid)
 		new = ft_new_pressure(fluid);
 		fluid->tmp = fluid->press_p;
 		fluid->press_p = new;
+		ft_arr_set(fluid->tmp, fluid->imax + 1, 0.0);
 		//смотрим разброс и повторяем расчет, в случае необходимости
-		fluid->eps = ft_residual_pressure3(fluid);
+		fluid->eps = ft_residual_pressure(fluid);
 		it++;
 	}
 }
 
 
-void	ft_solver(t_fluid *fluid)
+void	ft_flows(t_fluid *fluid)
 {
 	t_iter i;
 	t_iter j;
@@ -567,10 +572,58 @@ void	ft_solver(t_fluid *fluid)
 	ft_fill_iterations(&j, 1, fluid->jmax);
 	ft_iteration_j(fluid, &ft_flow_f_or_flow_g, &j, fluid->imax);
 	ft_iteration(fluid, &ft_right_hand_side, &j, &i);
-	ft_successive_overrelaxation(fluid);
 }
 
 
+void	ft_max_speed(t_fluid *fluid, REAL speed_u, REAL speed_v)
+{
+	if (speed_u < 0)
+		speed_u = -speed_u;
+	if (fluid->max_u < speed_u)
+		fluid->max_u = speed_u;
+	if (speed_v < 0)
+		speed_v = -speed_v;
+	if (fluid->max_v < speed_v)
+		fluid->max_v = speed_v;
+}
+
+
+void	ft_speed_u_and_speed_v(t_fluid *fluid, int j, int i)
+{
+	fluid->speed_u[j][i] = fluid->flow_f[j][i] - fluid->deltat / dx *
+	(fluid->press_p[j][i + 1] - fluid->press_p[j][i]);
+	fluid->speed_v[j][i] = fluid->flow_g[j][i] - fluid->deltat / dy *
+	(fluid->press_p[j + 1][i] - fluid->press_p[j][i]);
+	ft_max_speed(fluid, fluid->speed_u[j][i], fluid->speed_v[j][i]);
+}
+
+void	ft_speed_u_or_speed_v(t_fluid *fluid, int j, int i)
+{
+	if (i < fluid->imax)
+		fluid->speed_u[j][i] = fluid->flow_f[j][i] - fluid->deltat / dx *
+		(fluid->press_p[j][i + 1] - fluid->press_p[j][i]);
+	if (j < fluid->jmax)
+		fluid->speed_v[j][i] = fluid->flow_g[j][i] - fluid->deltat / dy *
+		(fluid->press_p[j + 1][i] - fluid->press_p[j][i]);
+	ft_max_speed(fluid, fluid->speed_u[j][i], fluid->speed_v[j][i]);
+}
+
+void	ft_new_velocity(t_fluid *fluid)
+{
+	t_iter i;
+	t_iter j;
+
+	fluid->max_u = 0.0;
+	fluid->max_v = 0.0;
+	//вычисляем потоки и двойные дифференциалы для всех внутренних клеток
+	ft_fill_iterations(&i, 1, fluid->imax - 1);
+	ft_fill_iterations(&j, 1, fluid->jmax - 1);
+	ft_iteration(fluid, &ft_speed_u_and_speed_v, &j, &i);
+	ft_fill_iterations(&i, 1, fluid->imax);
+	ft_iteration_i(fluid, &ft_speed_u_or_speed_v, fluid->jmax, &i);
+	ft_fill_iterations(&j, 1, fluid->jmax);
+	ft_iteration_j(fluid, &ft_speed_u_or_speed_v, &j, fluid->imax);
+}
 
 REAL	ft_time_control(mytype dx, mytype dy, REAL max_u, REAL max_v)
 {
@@ -690,13 +743,12 @@ int main(int argc, char **argv)
 	map = ft_create_map();
 	flags = ft_create_flags(map);
 
-	t_fluid *fluid;
-
-	fluid = ft_initialization(map, flags, imax, jmax);
-
 /*
 **	инициальзация массивов для скоростей и давления
 */
+
+	t_fluid *fluid;
+	fluid = ft_initialization(map, flags, imax, jmax);
 
 
 
@@ -704,15 +756,10 @@ int main(int argc, char **argv)
 	//ft_print_fluid(fluid, fluid->speed_u);
 
 
-
-
-
 	REAL t;
-	REAL max_u;
-	REAL max_v;
 
-	max_u = U_CONST * 5;
-	max_v = U_CONST * 5;
+	fluid->max_u = U_CONST * 5;
+	fluid->max_v = U_CONST * 5;
 	t = 0.0;
 	//ставим одинаковое давление и скорость в клетках воды
 	ft_inisialization(fluid);
@@ -721,13 +768,11 @@ int main(int argc, char **argv)
 	//{
 
 		ft_fill_watercell(fluid);
-		fluid->deltat = ft_time_control(dx, dy, max_u, max_v);
-		ft_solver(fluid);
-		//ft_differential(fluid, fluid->deltat);
-		//ft_right_hand_side(fluid, fluid->deltat);
+		fluid->deltat = ft_time_control(dx, dy, fluid->max_u, fluid->max_v);
+		ft_flows(fluid);
+		ft_successive_overrelaxation(fluid);
+		ft_new_velocity(fluid);
 
-
-		// set boundary values for u and v
 		t = t + fluid->deltat;
 	//}
 
