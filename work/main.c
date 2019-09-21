@@ -12,10 +12,11 @@
 
 #include "ft_mod1.h"
 
-#define CONST_WIDTH 1500
+#define CONST_WIDTH 2000
 #define CONST_HEINTH 1500
 #define CONST_LEN 8
-
+#define KOEFF (2.0 / (DELTA_XY))
+#define SLEEP1
 
 
 /*
@@ -29,11 +30,6 @@
 */
 
 
-
-
-
-//t_line *g_lines;
-//t_vektr *points;
 
 int ft_znak(int num)
 {
@@ -112,7 +108,7 @@ void draw_line_img_lower_45(t_line *line, int *addr)
 	error = 0;
 	while (line->x1 != line->x2)
 	{
-		ft_set_color_to_line(line, 1);
+		//ft_set_color_to_line(line, 1);
 		ft_put_pixel_to_img(addr, line->x1, line->y1, line->color);
 		error = error + line->deltay;
 		if (2 * error >= line->deltax)
@@ -133,7 +129,7 @@ void draw_line_img_over_45(t_line *line, int *addr)
 	error = 0;
 	while (line->y1 != line->y2)
 	{
-		ft_set_color_to_line(line, 0);
+		//ft_set_color_to_line(line, 0);
 		ft_put_pixel_to_img(addr, line->x1, line->y1, line->color);
 		error = error + line->deltax;
 		if (2 * error >= line->deltay)
@@ -155,8 +151,8 @@ int draw_line_img(t_line *line, int *addr)
 	line->y2 = line->p2->abs_y;// + max_y * len / 2;
 	line->diry = ft_znak(line->y2 - line->y1);
 	line->dirx = ft_znak(line->x2 - line->x1);
-	//if (!line->diry && !line->dirx)
-	//	return (0);
+	if (!line->diry && !line->dirx)
+		return (0);
 	line->deltay = line->diry * (line->y2 - line->y1);
 	line->deltax = line->dirx * (line->x2 - line->x1);
 	if (line->deltax >= line->deltay)
@@ -253,10 +249,10 @@ t_line *ft_new_line(t_vektr *p1, t_vektr *p2, int color)
 		return (NULL);
 	line->p1 = p1;
 	line->p2 = p2;
-	if (color == 0)
-		line->color = p1->color;
-	else
+	if (color)
 		line->color = color;
+	else
+		line->color = p1->color;
 	return (line);
 }
 
@@ -374,12 +370,12 @@ int deal_key(int key, void *param)
 }
 
 
-void ft_add_line(t_line **begin, t_vektr *p1, t_vektr *p2)
+void ft_add_line(t_line **begin, t_vektr *p1, t_vektr *p2, int color)
 {
 	t_line *line;
 	t_line *tmp;
 
-	line = ft_new_line(p1, p2, 0xFFFFFF);
+	line = ft_new_line(p1, p2, color);
 
 	if (!line)
 		return ;
@@ -406,7 +402,7 @@ int		ft_read_map_from_file(char *name, t_inf **inf)
 		i++;
 	close(fd);
 	(*inf)->jmax = i - 1;
-	(*inf)->imax = ft_strlen((*inf)->map[0]) - 1;
+	(*inf)->imax = ft_strlen((*inf)->map[1]) - 1;
 	(*inf)->dx = DELTA;
 	(*inf)->dy = DELTA;
 	(*inf)->dx2 = DELTA * DELTA;
@@ -443,7 +439,7 @@ void	ft_create_xyz(t_vis *vis)
 
 
 
-void	ft_create_four_lines_of_cell(void *ptr, int i, int j)
+void	ft_create_four_lines_of_cell(void *ptr, int j, int i)
 {
 	t_vis *vis;
 	t_vektr *p1;
@@ -456,20 +452,20 @@ void	ft_create_four_lines_of_cell(void *ptr, int i, int j)
 	p2 = ft_add_vektor((void *)(&vis->points), i * vis->inf->dx, (j + 1) * vis->inf->dy, 0);
 	p3 = ft_add_vektor((void *)(&vis->points), (i + 1) * vis->inf->dx, j * vis->inf->dy, 0);
 	p4 = ft_add_vektor((void *)(&vis->points), (i + 1) * vis->inf->dx, (j + 1) * vis->inf->dy, 0);
-	ft_add_line(&(vis->lines), p1, p2);
-	ft_add_line(&(vis->lines), p2, p4);
-	ft_add_line(&(vis->lines), p4, p3);
-	ft_add_line(&(vis->lines), p3, p1);
-	if (vis->inf->map[j][i] == '0')
+	ft_add_line(&(vis->lines), p1, p2, 0xFFFFFF);
+	ft_add_line(&(vis->lines), p2, p4, 0xFFFFFF);
+	ft_add_line(&(vis->lines), p4, p3, 0xFFFFFF);
+	ft_add_line(&(vis->lines), p3, p1, 0xFFFFFF);
+	if (vis->inf->map[j][i] == OBSTACLES)
 	{
-		ft_add_line(&(vis->lines), p1, p4);
-		ft_add_line(&(vis->lines), p2, p3);
+		ft_add_line(&(vis->lines), p1, p4, 0xFFFFFF);
+		ft_add_line(&(vis->lines), p2, p3, 0xFFFFFF);
 	}
 }
 
 
 
-void	ft_create_water_in_cell(void *ptr, int i, int j)
+void	ft_create_water_in_cell(void *ptr, int j, int i)
 {
 	int x0;
 	int y0;
@@ -488,23 +484,23 @@ void	ft_create_water_in_cell(void *ptr, int i, int j)
 
 	t_vektr *p1;
 	t_vektr *p2;
-	if (vis->inf->map[j][i] == '1')
+	if (vis->inf->map[j][i] == WATER)
 	{
 		p1 = ft_add_vektor((void *)(&vis->points), x0, y0, 0);
 		p2 = ft_add_vektor((void *)(&vis->points), x0, y0, 0);
-		ft_add_line(&(vis->water), p1, p2);
+		ft_add_line(&(vis->water), p1, p2, 0xFFFF);
 
 		p1 = ft_add_vektor((void *)(&vis->points), x1, y0, 0);
 		p2 = ft_add_vektor((void *)(&vis->points), x1, y0, 0);
-		ft_add_line(&(vis->water), p1, p2);
+		ft_add_line(&(vis->water), p1, p2, 0xFFFF);
 
 		p1 = ft_add_vektor((void *)(&vis->points), x0, y1, 0);
 		p2 = ft_add_vektor((void *)(&vis->points), x0, y1, 0);
-		ft_add_line(&(vis->water), p1, p2);
+		ft_add_line(&(vis->water), p1, p2, 0xFFFF);
 
 		p1 = ft_add_vektor((void *)(&vis->points), x1, y1, 0);
 		p2 = ft_add_vektor((void *)(&vis->points), x1, y1, 0);
-		ft_add_line(&(vis->water), p1, p2);
+		ft_add_line(&(vis->water), p1, p2, 0xFFFF);
 	}
 }
 
@@ -548,32 +544,36 @@ void ft_print_points(t_vis *vis, t_vektr *points)
 }
 */
 
-#define KOEFF (2.0 / (DELTA_XY))
+
 
 void	ft_move_parts_x(t_fluid *fluid, t_vektr *p1, t_vektr *p2)
 {
 	int i;
 	int j;
-	int x1;
-	int x2;
-	int y1;
-	int y2;
+	REAL x1;
+	REAL x2;
+	REAL y1;
+	REAL y2;
 	REAL u;
 
 	i = (int)(p1->otn_x / DELTA);
-	j = (int)((p1->otn_y + DELTA / 2) / DELTA);
-	x1 = (i - 1) * DELTA;
-	x2 = i * DELTA;
-	y1 = (j - 1) * DELTA - DELTA / 2;
-	y2 = j * DELTA - DELTA / 2;
+	j = (int)((p1->otn_y - DELTA / 2) / DELTA) + 1;
 
+	x1 = i * DELTA;
+	x2 = (i + 1) * DELTA;
+	y1 = (j - 0.5) * DELTA;
+	y2 = (j + 0.5) * DELTA;
+
+
+	//printf("x1 = %d_%lf_%lf_%lf\n", j, y2, p1->y ,y1);
 	u = (
-	fluid->speed_u[j - 1][i - 1] * (x2 - p1->otn_x) * (y2 - p1->otn_y) +
-	fluid->speed_u[j - 1][i] * (p1->otn_x - x1) * (y2 - p1->otn_y) +
-	fluid->speed_u[j][i - 1] * (x2 - p1->otn_x) * (p1->otn_y - y1) +
-	fluid->speed_u[j][i] * (p1->otn_x - x1) * (p1->otn_y - y1));
+	fluid->speed_u[j - 1][i - 1] * (x2 - p1->x) * (y2 - p1->y) +
+	fluid->speed_u[j - 1][i] * (p1->x - x1) * (y2 - p1->y) +
+	fluid->speed_u[j][i - 1] * (x2 - p1->x) * (p1->y - y1) +
+	fluid->speed_u[j][i] * (p1->x - x1) * (p1->y - y1));
 
-	p2->otn_x = (int)(p1->x + (u * KOEFF));
+	p2->otn_x = p1->otn_x + (int)(fluid->deltat * (u * KOEFF));
+	//printf("%lf + %d\n",p1->otn_x, i, j);
 }
 
 
@@ -581,26 +581,29 @@ void	ft_move_parts_y(t_fluid *fluid, t_vektr *p1, t_vektr *p2)
 {
 	int i;
 	int j;
-	int x1;
-	int x2;
-	int y1;
-	int y2;
+	REAL x1;
+	REAL x2;
+	REAL y1;
+	REAL y2;
 	REAL v;
 
-	j = (int)(p1->otn_y / DELTA);
-	i = (int)((p1->otn_x + DELTA / 2) / DELTA);
-	y1 = (j - 1) * DELTA;
-	y2 = j * DELTA;
-	x1 = (i - 1) * DELTA - DELTA / 2;
-	x2 = i * DELTA - DELTA / 2;
-	//printf("y1 = %lf\n", p1->x);
+	j = (int)(p1->y / DELTA);
+	i = (int)((p1->x - DELTA / 2) / DELTA) + 1;
+	y1 = j * DELTA;
+	y2 = (j + 1) * DELTA;
+	x1 = (i - 0.5) * DELTA;
+	x2 = (i + 0.5) * DELTA;
+	//printf("x1 = %d_%lf_%lf_%lf\n", j, y2, p1->y ,y1);
 	v = (
-	fluid->speed_v[j - 1][i - 1] * (x2 - p1->otn_x) * (y2 - p1->otn_y) +
-	fluid->speed_v[j - 1][i] * (p1->otn_x - x1) * (y2 - p1->otn_y) +
-	fluid->speed_v[j][i - 1] * (x2 - p1->otn_x) * (p1->otn_y - y1) +
-	fluid->speed_v[j][i] * (p1->otn_x - x1) * (p1->otn_y - y1));
+	fluid->speed_v[j - 1][i - 1] * (x2 - p1->x) * (y2 - p1->y) +
+	fluid->speed_v[j - 1][i] * (p1->x - x1) * (y2 - p1->y) +
+	fluid->speed_v[j][i - 1] * (x2 - p1->x) * (p1->y - y1) +
+	fluid->speed_v[j][i] * (p1->x - x1) * (p1->y - y1));
 	//printf("%lf + %d\n",p1->otn_y, (v * KOEFF));
-	p2->otn_y = (int)(p1->y + (v * KOEFF));
+	//printf("y1 = %d_%2d_%2d_%+5.2le\n", j, p1->otn_y, p1->otn_x, v);
+	//printf("y1 = %d_%d\n", j, p1->otn_y);
+	p2->otn_y = p1->otn_y + (int)(fluid->deltat * (v * KOEFF));
+
 }
 
 
@@ -644,12 +647,16 @@ int loop_hook(void *param)
 	fluid = (t_fluid *)param;
 	vis = fluid->vis;
 
-	ft_recalk_parts(param);
 	ft_solver(fluid);
+	ft_recalk_parts(param);
+	//ft_print_fluid(fluid, fluid->speed_u);
+	//ft_print_fluid(fluid, fluid->speed_v);
 
 
 	ft_refresh_picture(vis);
+	#ifdef SLEEP
 	sleep(1);
+	#endif
 	return (0);
 }
 
@@ -662,9 +669,10 @@ int main()
 	if (ft_read_map_from_file("text.txt", &(vis->inf)) == FAIL)
 		return (0);
 
+	//printf("%d_%d\n", vis->inf->jmax, vis->inf->imax);
 
 	t_fluid *fluid;
-	fluid = ft_initialization(vis->inf->map, vis->inf->imax, vis->inf->jmax);
+	fluid = ft_initialization(vis->inf->map, vis->inf->jmax, vis->inf->imax);
 	fluid->vis = vis;
 
 

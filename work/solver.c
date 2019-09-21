@@ -12,34 +12,6 @@
 
 #include "ft_mod1.h"
 
-//mytype	dx = 5;
-//mytype	dy = 5;
-//mytype	dx2 = 25;
-//mytype	dy2 = 25;
-//int		imax = 10;
-//int		jmax = 10;
-
-
-
-
-#define CONST_GX 0
-
-char		str[10][10] =
-{
-	{'1', '1', '1', '1', '1', '1', '1', '1', '1', '1'},
-	{'1', '1', '1', '1', '1', '1', '1', '1', '1', '1'},
-	{'1', '1', '1', '1', '1', '1', '1', '1', '1', '1'},
-	{'1', '1', '1', '1', '1', '1', '1', '1', '1', '1'},
-	{'1', '1', '1', '1', '1', '1', '1', '1', '1', '1'},
-	{'1', '1', '1', '1', '1', '1', '1', '1', '1', '1'},
-	{'1', '1', '1', '1', '1', '1', '1', '1', '1', '1'},
-	{'1', '1', '1', '1', '1', '1', '1', '1', '1', '1'},
-	{'1', '1', '1', '1', '1', '1', '1', '1', '1', '1'},
-	{'1', '1', '1', '1', '1', '1', '1', '1', '1', '1'}
-};
-
-
-
 void	ft_print_fluid(t_fluid *fluid, REAL **arr)
 {
 	int i;
@@ -48,11 +20,11 @@ void	ft_print_fluid(t_fluid *fluid, REAL **arr)
 	j = 0;
 	while (j <= fluid->jmax + 1)
 	{
-		printf("%d\t", fluid->jmax + 1 - j);
+		printf("%d\t", j);
 		i = 0;
 		while (i <= fluid->imax + 1)
 		{
-			printf("%2.0lf ", arr[j][i]);
+			printf("%+.1le ", arr[j][i]);
 			i++;
 		}
 		printf("\n");
@@ -80,10 +52,6 @@ void	ft_print_flags(t_fluid *fluid, int **arr)
 		j++;
 	}
 }
-
-
-
-//REAL differential(REAL **value, int delta)
 
 void	ft_arr_set(REAL **arr, int columns, REAL value)
 {
@@ -160,10 +128,11 @@ void	ft_fill_watercell_in_center(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
-	if ((fluid->map)[j][i] == '1')
+	if ((fluid->map)[j][i] == WATER)
 	{
 		fluid->press_p[j][i] = P_CONST;
-		fluid->speed_u[j][i] = U_CONST;
+		//if (i < 3)
+		//	fluid->speed_u[j][i] = U_CONST;
 		//fluid->speed_v[j][i] = U_CONST;
 	}
 }
@@ -233,7 +202,7 @@ void	ft_fill_obstacle_in_center(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
-	if ((fluid->map)[j][i] == '0' && fluid->flags[j][i])
+	if ((fluid->map)[j][i] == OBSTACLES && fluid->flags[j][i])
 	{
 		//проставляю давления и скорости
 		//есть недостаток: у каждой клеточкинужно указывать давления и скорости
@@ -253,17 +222,13 @@ void	ft_fill_obstacle_in_center(void *ptr, int j, int i)
 void	ft_top_boundary(void *ptr, int j, int i)
 {
 	t_fluid *fluid;
-	int jmax;
-	int imax;
 
 	fluid = (t_fluid *)ptr;
-	jmax = fluid->jmax;
-	imax = fluid->imax;
-	fluid->press_p[jmax + 1][i] = fluid->press_p[jmax][i];
-	fluid->tmp[jmax + 1][i] = fluid->press_p[jmax][i];
-	fluid->speed_u[jmax + 1][i] = -fluid->speed_u[jmax][i];
-	fluid->speed_v[jmax][i] = 0;
-	fluid->flow_g[jmax][i] = fluid->speed_v[jmax][i];
+	fluid->press_p[j + 1][i] = fluid->press_p[j][i];
+	fluid->tmp[j + 1][i] = fluid->press_p[j][i];
+	fluid->speed_u[j + 1][i] = -fluid->speed_u[j][i];
+	fluid->speed_v[j][i] = 0;
+	fluid->flow_g[j][i] = fluid->speed_v[j][i];
 }
 /*
 **граничные условия на нижней стенке
@@ -289,7 +254,9 @@ void	ft_left_boundary(void *ptr, int j, int i)
 	fluid = (t_fluid *)ptr;
 	fluid->press_p[j][0] = fluid->press_p[j][1];
 	fluid->tmp[j][0] = fluid->press_p[j][1];
-	fluid->speed_u[j][0] = 0;
+	fluid->speed_u[j][1] = U_CONST;
+	fluid->speed_u[j][0] = fluid->speed_u[j][1];
+	//fluid->speed_u[j][0] = 0;
 	fluid->speed_v[j][0] = -fluid->speed_v[j][1];
 	fluid->flow_f[j][0] = fluid->speed_u[j][0];
 }
@@ -299,17 +266,14 @@ void	ft_left_boundary(void *ptr, int j, int i)
 void	ft_right_boundary(void *ptr, int j, int i)
 {
 	t_fluid *fluid;
-	int jmax;
-	int imax;
 
 	fluid = (t_fluid *)ptr;
-	jmax = fluid->jmax;
-	imax = fluid->imax;
-	fluid->press_p[j][imax + 1] = fluid->press_p[j][imax];
-	fluid->tmp[j][imax + 1] = fluid->press_p[j][imax];
-	fluid->speed_u[j][imax] = 0;
-	fluid->speed_v[j][imax + 1] = -fluid->speed_v[j][imax];
-	fluid->flow_f[j][imax] = fluid->speed_u[j][imax];
+	fluid->press_p[j][i + 1] = fluid->press_p[j][i];
+	fluid->tmp[j][i + 1] = fluid->press_p[j][i];
+	fluid->speed_u[j][i] = fluid->speed_u[j][i - 1];
+	//fluid->speed_u[j][i] = 0;
+	fluid->speed_v[j][i + 1] = -fluid->speed_v[j][i];
+	fluid->flow_f[j][i] = fluid->speed_u[j][i];
 }
 
 
@@ -320,6 +284,7 @@ void	ft_inisialization(t_fluid *fluid)
 	//ставим давление, скорости во внутренних клетках воды
 	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
 	ft_iteration((void *)fluid, &ft_fill_watercell_in_center, &iter);
+	ft_fill_watercell(fluid);
 	//fluid->speed_u[3][3] = 2;
 }
 
@@ -358,11 +323,21 @@ void	ft_flow_f_and_flow_g(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
-	fluid->lapl_u[j][i] = ft_laplasian(fluid->speed_u, j, i);
-	fluid->lapl_v[j][i] = ft_laplasian(fluid->speed_v, j, i);
-	//потоки горизонтальный и вертикальный
-	fluid->flow_f[j][i] = fluid->speed_u[j][i] + (fluid->lapl_u[j][i] + CONST_GX) * fluid->deltat;
+
+	fluid->lapl_v[j][i] = 0;
+	if ((fluid->map)[j][i] != OBSTACLES || !(fluid->flags[j][i] & B_N))
+		fluid->lapl_v[j][i] = ft_laplasian(fluid->speed_v, j, i);
 	fluid->flow_g[j][i] = fluid->speed_v[j][i] + (fluid->lapl_v[j][i] + CONST_GY) * fluid->deltat;
+
+	fluid->lapl_u[j][i] = 0;
+	if ((fluid->map)[j][i] != OBSTACLES || !(fluid->flags[j][i] & B_E))
+		fluid->lapl_u[j][i] = ft_laplasian(fluid->speed_u, j, i);
+	fluid->flow_f[j][i] = fluid->speed_u[j][i] + (fluid->lapl_u[j][i] + CONST_GX) * fluid->deltat;
+	//fluid->lapl_u[j][i] = ft_laplasian(fluid->speed_u, j, i);
+	//fluid->lapl_v[j][i] = ft_laplasian(fluid->speed_v, j, i);
+		//потоки горизонтальный и вертикальный
+
+
 }
 
 void	ft_flow_f_or_flow_g(void *ptr, int j, int i)
@@ -373,13 +348,17 @@ void	ft_flow_f_or_flow_g(void *ptr, int j, int i)
 	//потоки горизонтальный или вертикальный
 	if (i < fluid->imax)
 	{
-		fluid->lapl_u[j][i] = ft_laplasian(fluid->speed_u, j, i);
+		fluid->lapl_u[j][i] = 0;
+		if ((fluid->map)[j][i] != OBSTACLES || !(fluid->flags[j][i] & B_E))
+			fluid->lapl_u[j][i] = ft_laplasian(fluid->speed_u, j, i);
 		fluid->flow_f[j][i] = fluid->speed_u[j][i] + (fluid->lapl_u[j][i] + CONST_GX) * fluid->deltat;
 	}
 	if (j < fluid->jmax)
 	{
-		fluid->lapl_v[j][i] = ft_laplasian(fluid->speed_v, j, i);
-		fluid->flow_g[j][i] = fluid->speed_v[j][i] + fluid->lapl_v[j][i] + CONST_GY * fluid->deltat;
+		fluid->lapl_v[j][i] = 0;
+		if ((fluid->map)[j][i] != OBSTACLES || !(fluid->flags[j][i] & B_N))
+			fluid->lapl_v[j][i] = ft_laplasian(fluid->speed_v, j, i);
+		fluid->flow_g[j][i] = fluid->speed_v[j][i] + (fluid->lapl_v[j][i] + CONST_GY) * fluid->deltat;
 	}
 }
 
@@ -390,6 +369,8 @@ void	ft_right_hand_side(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
+	if (!(fluid->flags[j][i]))
+		return ;
 	fluid->rhs[j][i] = ((fluid->flow_f[j][i] - fluid->flow_f[j][i - 1]) / DELTA_X +
 	(fluid->flow_g[j][i] - fluid->flow_g[j - 1][i]) / DELTA_Y) / fluid->deltat;
 }
@@ -402,6 +383,8 @@ void	ft_residual_pressure_center(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
+	if (!(fluid->flags[j][i]))
+		return ;
 	r_it =
 	((fluid->press_p[j][i + 1] - fluid->press_p[j][i]) -
 	(fluid->press_p[j][i] - fluid->press_p[j][i - 1])) / DELTA_X2 +
@@ -439,6 +422,8 @@ void	ft_residual_pressure_boundary(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
+	if (!(fluid->flags[j][i]))
+		return ;
 	ft_check_params(fluid, ewns, i, j);
 	r_it =
 	(ewns[0] * (fluid->press_p[j][i + 1] - fluid->press_p[j][i]) -
@@ -477,6 +462,8 @@ void	ft_boundary_aproximation_press(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
+	if (!(fluid->flags[j][i]))
+		return ;
 	ft_check_params(fluid, ewns, i, j);
 	fluid->tmp[j][i] = (1 - W_CONST) * fluid->press_p[j][i] +
 	W_CONST / ((REAL)(ewns[0] + ewns[1]) / DELTA_X2 +
@@ -499,6 +486,8 @@ void	ft_aproximation_press(void *ptr, int j, int i)
 	(fluid->press_p[j + 1][i] + fluid->tmp[j - 1][i]) * dx2 -
 	fluid->rhs[j][i] * dx2 * dy2) / (2 * (dx2 + dy2));
 */
+	if (!(fluid->flags[j][i]))
+		return ;
 	fluid->tmp[j][i] =
 	((fluid->press_p[j][i + 1] + fluid->tmp[j][i - 1])  * DELTA_Y2 +
 	(fluid->press_p[j + 1][i] + fluid->tmp[j - 1][i]) * DELTA_X2 -
@@ -587,6 +576,8 @@ void	ft_speed_u_and_speed_v(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
+	if (!(fluid->flags[j][i]))
+		return ;
 	fluid->speed_u[j][i] = fluid->flow_f[j][i] - fluid->deltat / DELTA_X *
 	(fluid->press_p[j][i + 1] - fluid->press_p[j][i]);
 	fluid->speed_v[j][i] = fluid->flow_g[j][i] - fluid->deltat / DELTA_Y *
@@ -599,6 +590,8 @@ void	ft_speed_u_or_speed_v(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
+	if (!(fluid->flags[j][i]))
+		return ;
 	if (i < fluid->imax)
 		fluid->speed_u[j][i] = fluid->flow_f[j][i] - fluid->deltat / DELTA_X *
 		(fluid->press_p[j][i + 1] - fluid->press_p[j][i]);
@@ -644,31 +637,6 @@ REAL	ft_time_control(mytype dx, mytype dy, REAL max_u, REAL max_v)
 	return (deltat);
 }
 
-char	**ft_create_map(int jmax, int imax)
-{
-	char **map;
-	int i;
-	int j;
-
-	map = (char **)ft_mem_arr_new(jmax + 2, imax + 2, sizeof(char));
-	if (!map)
-		return (NULL);
-	//столбец i=0 j=0 фиктивные
-	j = 1;
-	while (j <= jmax)
-	{
-		i = 1;
-		while (i <= imax)
-		{
-			map[j][i] = str[j - 1][i - 1];
-			i++;
-		}
-		j++;
-	}
-	return (map);
-}
-
-
 
 int		**ft_create_flags(char **map, int jmax, int imax)
 {
@@ -690,13 +658,13 @@ int		**ft_create_flags(char **map, int jmax, int imax)
 			//	flags[j][i] = C_B;
 			//if (map[j][i])
 			//	flags[j][i] = C_F;
-			if (j > 1 && map[j - 1][i] == '1')
+			if (j > 1 && map[j - 1][i] == WATER)
 				flags[j][i] += B_S;
-			if (j < jmax && map[j + 1][i] == '1')
+			if (j < jmax && map[j + 1][i] == WATER)
 				flags[j][i] += B_N;
-			if (i > 1 && map[j][i - 1] == '1')
+			if (i > 1 && map[j][i - 1] == WATER)
 				flags[j][i] += B_W;
-			if (i < imax && map[j][i + 1] == '1')
+			if (i < imax && map[j][i + 1] == WATER)
 				flags[j][i] += B_E;
 			i++;
 		}
@@ -734,51 +702,9 @@ t_fluid	*ft_initialization(char **map, int jmax, int imax)
 
 void	ft_solver(t_fluid *fluid)
 {
-	ft_fill_watercell(fluid);
-	fluid->deltat = 0.5;//ft_time_control(DELTA_X, DELTA_Y, fluid->max_u, fluid->max_v);
+	fluid->deltat = T_DELTA;//ft_time_control(DELTA_X, DELTA_Y, fluid->max_u, fluid->max_v);
 	ft_flows(fluid);
 	ft_successive_overrelaxation(fluid);
 	ft_new_velocity(fluid);
-	//ft_fill_watercell(fluid);
+	ft_fill_watercell(fluid);
 }
-
-
-/*
-int main(int argc, char **argv)
-{
-
-	char **map;
-
-
-
-	map = ft_create_map();
-
-
-	t_fluid *fluid;
-	fluid = ft_initialization(map, jmax, imax);
-
-
-
-	ft_print_flags(fluid, fluid->flags);
-	ft_print_fluid(fluid, fluid->speed_u);
-	ft_print_fluid(fluid, fluid->press_p);
-
-	REAL t;
-
-
-	t = 0.0;
-
-
-
-	while (t < 100)
-	{
-
-		ft_solver(fluid);
-		//ft_print_fluid(fluid, fluid->speed_u);
-		t = t + fluid->deltat;
-	}
-
-	ft_print_fluid(fluid, fluid->speed_u);
-	return (0);
-}
-*/
