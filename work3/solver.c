@@ -131,91 +131,18 @@ void	ft_fill_watercell_in_center(void *ptr, int j, int i)
 
 	if (fluid->map[j][i] == WATER)
 	{
-		fluid->press_p[j][i] = fluid->jmax + j - P_CONST;
+		fluid->press_p[j][i] = j * DELTA;// - P_CONST;
 		//if (i < 3)
-		//	fluid->speed_u[j][i] = U_CONST;
+			fluid->speed_u[j][i] = U_CONST;
 		//fluid->speed_v[j][i] = U_CONST;
 
 	}
-	if (fluid->map[j][i] == WATER || (fluid->map[j][i] == SURF))
-		fluid->parts[j][i] = PARTS_COUNT;
-}
-
-//более менее понял, что от меня требуется. Проставить значения скоростей, аналогично препятствиям
-void	ft_speed_u_surface_boundary(REAL **speed, int j, int i, int flag)
-{
-	int mask;
-
-	mask = flag & A_NSWE;
-	if (mask == A_NWE)
-	{
-		speed[j][i] = speed[j - 1][i];
-		speed[j][i - 1] = speed[j - 1][i - 1];
-	}
-	else if (mask == A_SWE)
-	{
-		speed[j][i] = speed[j + 1][i];
-		speed[j][i - 1] = speed[j + 1][i - 1];
-	}
-	else
-	{
-		if (mask & A_N)
-			speed[j + 1][i] = speed[j][i];
-		if (flag & A_S)
-			speed[j][i - 1] = speed[j][i];
-		if (flag & A_W)
-		{
-			speed[j][i - 1] = speed[j][i];
-			speed[j - 1][i] = speed[j][i];
-		}
-		if (flag & A_E)
-			speed[j][i + 1] = speed[j][i];
-	}
-}
-
-void	ft_speed_v_surface_boundary(REAL **speed, int j, int i, int flag)
-{
-	int mask;
-
-	mask = flag & A_NSWE;
-	if (mask == A_NSW)
-	{
-		speed[j][i] = speed[j][i + 1];
-		speed[j - 1][i] = speed[j - 1][i + 1];
-	}
-	else if (mask == A_NSE)
-	{
-		speed[j][i] = speed[j][i - 1];
-		speed[j - 1][i] = speed[j - 1][i - 1];
-	}
-	else
-	{
-		if (mask & A_N)
-			speed[j][i] = speed[j - 1][i];
-		if (mask & A_S)
-			speed[j - 1][i] = speed[j][i];
-		if (mask & A_W)
-		{
-			speed[j - 1][i] = speed[j][i];
-			speed[j][i - 1] = speed[j][i];
-		}
-		if (mask & A_E)
-			speed[j][i + 1] = speed[j][i];
-	}
+	//if (fluid->map[j][i] == WATER || (fluid->map[j][i] == SURF))
+	//	fluid->parts[j][i] = PARTS_COUNT;
 }
 
 
 
-
-void	ft_pressure_in_surface(REAL **press, int j, int i, int flag)
-{
-	int mask;
-
-	mask = flag & A_NSWE;
-	if (mask)
-		press[j][i] = 0;
-	return ;
-}
 
 
 
@@ -240,77 +167,11 @@ void	ft_pressure_in_obstacle(REAL **press, int j, int i, int flag)
 }
 
 
-void	ft_speed_u_in_obstacle(REAL **speed, int j, int i, int flag)
-{
-	if (flag & B_N)
-	{
-		speed[j][i] = -speed[j + 1][i];
-		speed[j][i - 1] = -speed[j + 1][i - 1];//хз, возможно лишняя строка
-	}
-	if (flag & B_S)
-	{
-		speed[j][i] = -speed[j - 1][i];
-		speed[j][i - 1] = -speed[j - 1][i - 1];//хз, возможно лишняя строка
-	}
-	if (flag & B_E)
-		speed[j][i] = 0;
-	if (flag & B_W)
-		speed[j][i - 1] = 0;
-}
-
-void	ft_speed_v_in_obstacle(REAL **speed, int j, int i, int flag)
-{
-	if (flag & B_E)
-	{
-		speed[j][i] = -speed[j][i + 1];
-		speed[j - 1][i] = -speed[j - 1][i + 1];//хз, возможно лишняя строка
-	}
-	if (flag & B_W)
-	{
-		speed[j][i] = -speed[j][i - 1];
-		speed[j - 1][i] = -speed[j - 1][i - 1];//хз, возможно лишняя строка
-	}
-	if (flag & B_N)
-		speed[j][i] = 0;
-	if (flag & B_S)
-		speed[j - 1][i] = 0;
-}
-
-void	ft_fill_surface_in_center(void *ptr, int j, int i)
-{
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	//если это препятствие и рядом вода
-	if ((fluid->map)[j][i] == EMPTY || ft_is_surface((fluid->map)[j][i]))
-		fluid->press_p[j][i] = 0;
-	if (ft_is_surface(fluid->flags[j][i]))
-	{
-		ft_speed_uv_surface_boundary(fluid, j, i, fluid->flags[j][i] & A_NSWE);
-		//ft_pressure_in_surface(fluid->press_p, j, i, fluid->flags[j][i]);
-		//ft_speed_u_surface_boundary(fluid->speed_u, j, i, fluid->flags[j][i]);
-		//ft_speed_v_surface_boundary(fluid->speed_v, j, i, fluid->flags[j][i]);
-	}
-}
 
 
-void	ft_fill_obstacle_in_center(void *ptr, int j, int i)
-{
-	t_fluid *fluid;
 
-	fluid = (t_fluid *)ptr;
-	//если это препятствие и рядом вода
-	if ((fluid->map)[j][i] == OBSTACLES && (fluid->flags[j][i] & WATER_MASK))
-	{
-		//проставляю давления и скорости
-		//есть недостаток: у каждой клеточкинужно указывать давления и скорости
-		//на двух ребрах, я ставлю на 3, происходит дублирование
-		//но пока не понятно, где эти флаги еще пригодятся...
-		ft_pressure_in_obstacle(fluid->press_p, j, i, fluid->flags[j][i]);
-		ft_speed_u_in_obstacle(fluid->speed_u, j, i, fluid->flags[j][i]);
-		ft_speed_v_in_obstacle(fluid->speed_v, j, i, fluid->flags[j][i]);
-	}
-}
+
+
 
 
 
@@ -383,17 +244,18 @@ void	ft_init_first_value(t_fluid *fluid)
 	//ставим давление, скорости во внутренних клетках воды
 	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
 	ft_iteration((void *)fluid, &ft_fill_watercell_in_center, &iter);
-	ft_fill_boundary_value(fluid);
+	//ft_fill_boundary_value(fluid);
 	//fluid->speed_u[3][3] = 2;
 }
 
+/*
 void	ft_fill_boundary_value(t_fluid *fluid)
 {
 	t_iter iter;
 
 	//граничные условия на поверхности жидкости
 	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
-	ft_iteration((void *)fluid, &ft_fill_surface_in_center, &iter);
+	//ft_iteration((void *)fluid, &ft_fill_surface_in_center, &iter);
 	//граничные условия на стенках
 	ft_fill_iterations(&iter, 0, fluid->jmax + 1, 0, 0);
 	ft_iteration_j(fluid, &ft_left_boundary, &iter);
@@ -406,7 +268,7 @@ void	ft_fill_boundary_value(t_fluid *fluid)
 	//граничные условия на стенках препятствий внутри жидкости
 	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
 	ft_iteration((void *)fluid, &ft_fill_obstacle_in_center, &iter);
-}
+}*/
 
 
 
@@ -421,7 +283,7 @@ void	ft_residual_pressure_center(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
-	if (!(fluid->flags[j][i]))
+	if (!ft_is_interior_water(fluid->flags[j][i]))
 		return ;
 	r_it =
 	((fluid->press_p[j][i + 1] - fluid->press_p[j][i]) -
@@ -430,6 +292,7 @@ void	ft_residual_pressure_center(void *ptr, int j, int i)
 	(fluid->press_p[j][i] - fluid->press_p[j - 1][i])) / DELTA_Y2 + fluid->rhs[j][i];
 	r_it = r_it * r_it;
 	fluid->eps += r_it;
+	fluid->count++;
 }
 
 
@@ -460,7 +323,7 @@ void	ft_residual_pressure_boundary(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
-	if (!(fluid->flags[j][i]))
+	if (!ft_is_interior_water(fluid->flags[j][i]))
 		return ;
 	ft_check_params(fluid, ewns, i, j);
 	r_it =
@@ -470,6 +333,7 @@ void	ft_residual_pressure_boundary(void *ptr, int j, int i)
 	ewns[3] * (fluid->press_p[j][i] - fluid->press_p[j - 1][i])) / DELTA_Y2 + fluid->rhs[j][i];
 	r_it = r_it * r_it;
 	fluid->eps += r_it;
+	fluid->count++;
 }
 
 
@@ -478,6 +342,7 @@ REAL	ft_residual_pressure(t_fluid *fluid)
 	t_iter iter;
 
 	fluid->eps = 0;
+	fluid->count = 0;
 	ft_fill_iterations(&iter, 2, fluid->jmax - 1, 2, fluid->imax - 1);
 	ft_iteration((void *)fluid, &ft_residual_pressure_center, &iter);
 	ft_fill_iterations(&iter, 1, fluid->jmax, 1, 1);
@@ -488,7 +353,8 @@ REAL	ft_residual_pressure(t_fluid *fluid)
 	ft_iteration_i((void *)fluid, &ft_residual_pressure_boundary, &iter);
 	ft_fill_iterations(&iter, fluid->jmax, fluid->jmax, 1, fluid->imax);
 	ft_iteration_i((void *)fluid, &ft_residual_pressure_boundary, &iter);
-	fluid->eps = sqrt(fluid->eps) / fluid->jmax / fluid->imax;
+	if (fluid->count)
+		fluid->eps = sqrt(fluid->eps) / fluid->count;
 	return (fluid->eps);
 }
 
@@ -500,7 +366,7 @@ void	ft_boundary_aproximation_press(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
-	if (!(fluid->flags[j][i]))
+	if (!ft_is_interior_water(fluid->flags[j][i]))
 		return ;
 	ft_check_params(fluid, ewns, i, j);
 	fluid->tmp[j][i] = (1 - W_CONST) * fluid->press_p[j][i] +
@@ -524,12 +390,25 @@ void	ft_aproximation_press(void *ptr, int j, int i)
 	(fluid->press_p[j + 1][i] + fluid->tmp[j - 1][i]) * dx2 -
 	fluid->rhs[j][i] * dx2 * dy2) / (2 * (dx2 + dy2));
 */
-	if (!(fluid->flags[j][i]))
+	if (!ft_is_interior_water(fluid->flags[j][i]))
 		return ;
-	fluid->tmp[j][i] =
+	/*fluid->tmp[j][i] =
 	((fluid->press_p[j][i + 1] + fluid->tmp[j][i - 1])  * DELTA_Y2 +
 	(fluid->press_p[j + 1][i] + fluid->tmp[j - 1][i]) * DELTA_X2 -
-	fluid->rhs[j][i] * DELTA_X2 * DELTA_Y2) / (2 * (DELTA_X2 + DELTA_Y2));
+	fluid->rhs[j][i] * DELTA_X2 * DELTA_Y2) / (2 * (DELTA_X2 + DELTA_Y2));*/
+
+
+
+	fluid->tmp[j][i] =
+	(-(fluid->press_p[j][i + 1] / (DELTA_X2)
+	+ fluid->press_p[j][i - 1] / (DELTA_X2)
+	+ fluid->press_p[j + 1][i] / (DELTA_Y2)
+	+ fluid->press_p[j - 1][i] / (DELTA_Y2))
+	+ (1.0 / fluid->deltat) * (
+	(fluid->flow_f[j][i] - fluid->flow_f[j][i - 1]) / DELTA_X
+	+ (fluid->flow_g[j][i] - fluid->flow_g[j - 1][i]) / DELTA_Y)) / (-2 / (DELTA_X2) - 2 / (DELTA_Y2));
+
+
 
 }
 
@@ -540,18 +419,18 @@ REAL	**ft_new_pressure(t_fluid *fluid)
 	t_iter iter;
 
 	//заполняем столбец 1 и строку 1
-	ft_fill_iterations(&iter, 1, fluid->jmax, 1, 1);
+	/*ft_fill_iterations(&iter, 1, fluid->jmax, 1, 1);
 	ft_iteration_j((void *)fluid, &ft_boundary_aproximation_press, &iter);
 	ft_fill_iterations(&iter, 1, 1, 1, fluid->imax);
-	ft_iteration_i((void *)fluid, &ft_boundary_aproximation_press, &iter);
+	ft_iteration_i((void *)fluid, &ft_boundary_aproximation_press, &iter);*/
 
-	ft_fill_iterations(&iter, 2, fluid->jmax - 1, 2, fluid->imax - 1);
+	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
 	ft_iteration((void *)fluid, &ft_aproximation_press, &iter);
 	//заполняем столбец imax и строку jmax
-	ft_fill_iterations(&iter, 1, fluid->jmax, fluid->imax, fluid->imax);
-	ft_iteration_j(fluid, &ft_boundary_aproximation_press, &iter);
+	//ft_fill_iterations(&iter, 1, fluid->jmax, fluid->imax, fluid->imax);
+	/*ft_iteration_j(fluid, &ft_boundary_aproximation_press, &iter);
 	ft_fill_iterations(&iter, fluid->jmax, fluid->jmax, 1, fluid->imax);
-	ft_iteration_i(fluid, &ft_boundary_aproximation_press, &iter);
+	ft_iteration_i(fluid, &ft_boundary_aproximation_press, &iter);*/
 	return (fluid->tmp);
 }
 
@@ -563,7 +442,7 @@ void	ft_successive_overrelaxation(t_fluid *fluid)
 	it = 0;
 	fluid->eps = T_INFINITY;
 	/////исправить!!!!
-	while (it < MAX_ITERATIONS && fluid->eps >= TOLERANCE)
+	while (it < MAX_ITERATIONS)// && fluid->eps >= TOLERANCE)
 	{
 		//вычисляем давление приблизительно
 		new = ft_new_pressure(fluid);
@@ -571,7 +450,7 @@ void	ft_successive_overrelaxation(t_fluid *fluid)
 		fluid->press_p = new;
 		ft_arr_set(fluid->tmp, fluid->imax + 1, 0.0);
 		//смотрим разброс и повторяем расчет, в случае необходимости
-		fluid->eps = ft_residual_pressure(fluid);
+		//fluid->eps = ft_residual_pressure(fluid);
 		//printf("%lf\n", fluid->eps);
 		it++;
 	}
@@ -585,14 +464,14 @@ void	ft_fill_boundary_pressure(t_fluid *fluid)
 	int i;
 
 	j = 1;
-	while (j < fluid->jmax)
+	while (j <= fluid->jmax)
 	{
 		fluid->press_p[j][0] = fluid->press_p[j][1];
 		fluid->press_p[j][fluid->imax + 1] = fluid->press_p[j][fluid->imax];
 		j++;
 	}
 	i = 1;
-	while (i < fluid->imax)
+	while (i <= fluid->imax)
 	{
 		fluid->press_p[0][i] = fluid->press_p[1][i];
 		fluid->press_p[fluid->jmax + 1][i] = fluid->press_p[fluid->jmax][i];
@@ -607,22 +486,22 @@ void	ft_fill_obstacles_pressure(void *ptr, int j, int i)
 	fluid = (t_fluid *)ptr;
 	if (fluid->map[j][i] != OBSTACLES)
 		return ;
-	if (fluid->map[j][i - 1] == WATER && fluid->map[j + 1][i] == WATER)
-		fluid->press_p[i][j] = (fluid->press_p[j][i - 1] + fluid->press_p[j + 1][i]) / 2;
-	else if (fluid->map[j][i + 1] == WATER && fluid->map[j + 1][i] == WATER)
-		fluid->press_p[i][j] = (fluid->press_p[j][i + 1] + fluid->press_p[j + 1][i]) / 2;
-	else if (fluid->map[j][i - 1] == WATER && fluid->map[j - 1][i] == WATER)
-		fluid->press_p[i][j] = (fluid->press_p[j][i - 1] + fluid->press_p[j - 1][i]) / 2;
-	else if (fluid->map[j][i + 1] == WATER && fluid->map[j - 1][i] == WATER)
-		fluid->press_p[i][j] = (fluid->press_p[j][i + 1] + fluid->press_p[j - 1][i]) / 2;
-	else if (fluid->map[j][i + 1] == WATER)
-		fluid->press_p[i][j] = fluid->press_p[j][i + 1];
+	if (fluid->map[j][i + 1] == WATER)
+		fluid->press_p[j][i] = fluid->press_p[j][i + 1];
 	else if (fluid->map[j][i - 1] == WATER)
-		fluid->press_p[i][j] = fluid->press_p[j][i - 1];
+		fluid->press_p[j][i] = fluid->press_p[j][i - 1];
 	else if (fluid->map[j + 1][i] == WATER)
-		fluid->press_p[i][j] = fluid->press_p[j + 1][i];
+		fluid->press_p[j][i] = fluid->press_p[j + 1][i];
 	else if (fluid->map[j - 1][i] == WATER)
-		fluid->press_p[i][j] = fluid->press_p[j - 1][i];
+		fluid->press_p[j][i] = fluid->press_p[j - 1][i];
+	if (fluid->map[j][i - 1] == WATER && fluid->map[j + 1][i] == WATER)
+		fluid->press_p[j][i] = (fluid->press_p[j][i - 1] + fluid->press_p[j + 1][i]) / 2;
+	if (fluid->map[j][i + 1] == WATER && fluid->map[j + 1][i] == WATER)
+		fluid->press_p[j][i] = (fluid->press_p[j][i + 1] + fluid->press_p[j + 1][i]) / 2;
+	if (fluid->map[j][i - 1] == WATER && fluid->map[j - 1][i] == WATER)
+		fluid->press_p[j][i] = (fluid->press_p[j][i - 1] + fluid->press_p[j - 1][i]) / 2;
+	if (fluid->map[j][i + 1] == WATER && fluid->map[j - 1][i] == WATER)
+		fluid->press_p[j][i] = (fluid->press_p[j][i + 1] + fluid->press_p[j - 1][i]) / 2;
 }
 
 
@@ -634,7 +513,7 @@ void	ft_poisson(t_fluid *fluid)
 	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
 	ft_iteration((void *)fluid, &ft_fill_obstacles_pressure, &iter);
 
-
+	ft_successive_overrelaxation(fluid);
 }
 
 REAL	ft_laplasian(REAL **speed, int j, int i)
@@ -655,8 +534,23 @@ void	ft_flow_f(void *ptr, int j, int i)
 	if ((fluid->map)[j][i] != WATER || (fluid->map)[j][i + 1] != WATER)
 	 	return ;
 	//поток горизонтальный
-	fluid->lapl_u[j][i] = ft_laplasian(fluid->speed_u, j, i);
-	fluid->speed_u[j][i] = fluid->flow_f[j][i] + (fluid->lapl_u[j][i] + CONST_GX) * fluid->deltat;
+	//fluid->lapl_u[j][i] = ft_laplasian(fluid->speed_u, j, i);
+	//fluid->speed_u[j][i] = fluid->flow_f[j][i] + (fluid->lapl_u[j][i] + CONST_GX) * fluid->deltat;
+
+	REAL cx;
+	REAL cy;
+
+	cx = fluid->deltat / DELTA_X2 / CONST_RE;
+	cy = fluid->deltat / DELTA_Y2 / CONST_RE;
+
+	fluid->speed_u[j][i] = (
+	cx * fluid->speed_u[j][i + 1] +
+	cx * fluid->speed_u[j][i - 1] +
+	cy * fluid->speed_u[j + 1][i] +
+	cy * fluid->speed_u[j - 1][i] +
+	fluid->flow_f[j][i] + fluid->deltat * CONST_GX) / (1 + cx * 2 + cy * 2);
+
+
 }
 
 void	ft_flow_g(void *ptr, int j, int i)
@@ -667,8 +561,22 @@ void	ft_flow_g(void *ptr, int j, int i)
 	if ((fluid->map)[j][i] != WATER || (fluid->map)[j + 1][i] != WATER)
 		return ;
 	//поток вертикальный
-	fluid->lapl_v[j][i] = ft_laplasian(fluid->speed_v, j, i);
-	fluid->speed_v[j][i] = fluid->flow_g[j][i] + (fluid->lapl_v[j][i] + CONST_GY) * fluid->deltat;
+	//fluid->lapl_v[j][i] = ft_laplasian(fluid->speed_v, j, i);
+	//fluid->speed_v[j][i] = fluid->flow_g[j][i] + (fluid->lapl_v[j][i] + CONST_GY) * fluid->deltat;
+
+	REAL cx;
+	REAL cy;
+
+	cx = fluid->deltat / DELTA_X2 / CONST_RE;
+	cy = fluid->deltat / DELTA_Y2 / CONST_RE;
+
+	fluid->speed_v[j][i] = (
+	cx * fluid->speed_v[j][i + 1] +
+	cx * fluid->speed_v[j][i - 1] +
+	cy * fluid->speed_v[j + 1][i] +
+	cy * fluid->speed_v[j - 1][i] +
+	fluid->flow_g[j][i] + fluid->deltat * CONST_GY) / (1 + cx * 2 + cy * 2);
+
 }
 
 
@@ -697,14 +605,14 @@ void	ft_right_hand_side(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
-	//if ((fluid->map)[j][i] != WATER || (fluid->map)[j + 1][i] != WATER)
-	//	return ;
+	if ((fluid->map)[j][i] != WATER || (fluid->map)[j - 1][i] != WATER || (fluid->map)[j][i - 1] != WATER)
+		return ;
 	fluid->rhs[j][i] = ((fluid->flow_f[j][i] - fluid->flow_f[j][i - 1]) / DELTA_X +
 	(fluid->flow_g[j][i] - fluid->flow_g[j - 1][i]) / DELTA_Y) / fluid->deltat;
 }
 
 
-void	ft_flows(t_fluid *fluid)
+void	ft_comp_fg(t_fluid *fluid)
 {
 	t_iter iter;
 	int i;
@@ -715,19 +623,23 @@ void	ft_flows(t_fluid *fluid)
 
 	//вычисляем потоки и двойные дифференциалы
 	i = 0;
-	//while (i < 6) //надо уточнить необходимость 6-и итераций...
-	//{
+	while (i < 6) //надо уточнить необходимость 6-и итераций...
+	{
 		ft_recalc_flows(fluid);
 		i++;
-	//}
+	}
 
 	//сохраняем начальные скорости в потоках
 	ft_fill_iterations(&iter, 0, fluid->jmax + 1, 0, fluid->imax + 1);
 	ft_iteration((void *)fluid, &ft_fill_flows, &iter);
+}
+
+void	ft_comp_rhs(t_fluid *fluid)
+{
+	t_iter iter;
 
 	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
 	ft_iteration(fluid, &ft_right_hand_side, &iter);
-
 }
 
 /*
@@ -749,7 +661,7 @@ void	ft_speed_u(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
-	if ((fluid->map)[j][i] != WATER || (fluid->map)[j + 1][i] != WATER)
+	if ((fluid->map)[j][i] != WATER || (fluid->map)[j][i + 1] != WATER)
 		return;
 	fluid->speed_u[j][i] = fluid->flow_f[j][i] - fluid->deltat / DELTA_X *
 	(fluid->press_p[j][i + 1] - fluid->press_p[j][i]);
@@ -768,7 +680,7 @@ void	ft_speed_v(void *ptr, int j, int i)
 	//ft_max_speed(fluid, 0, fluid->speed_v[j][i]);
 }
 
-void	ft_new_velocity(t_fluid *fluid)
+void	ft_adap_uv(t_fluid *fluid)
 {
 	t_iter iter;
 
@@ -782,7 +694,7 @@ void	ft_new_velocity(t_fluid *fluid)
 	ft_iteration((void *)fluid, &ft_speed_v, &iter);
 }
 
-/*
+
 REAL	ft_time_control(mytype dx, mytype dy, REAL max_u, REAL max_v)
 {
 	REAL deltat;
@@ -797,12 +709,14 @@ REAL	ft_time_control(mytype dx, mytype dy, REAL max_u, REAL max_v)
 		deltat = dx / max_u;
 	if (max_v && (REAL)dy / max_v < deltat)
 		deltat = dy / max_v;
-	tmp = CONST_RE / (1 / ((REAL)(dx * dx)) + 1 / ((REAL)(dy * dy))) / 2;
+	tmp = (REAL)CONST_RE / (1.0 / ((REAL)(dx * dx)) + 1.0 / ((REAL)(dy * dy))) / 2.0;
 	if (tmp < deltat)
 		deltat = tmp;
 	deltat *= TAU;
+	if (!deltat)
+	deltat = T_DELTA;
 	return (deltat);
-}*/
+}
 
 
 
@@ -840,6 +754,13 @@ int		ft_is_water(int flag)
 int		ft_is_surface(int flag)
 {
 	if (ft_is_water(flag) && (flag & C_S))
+		return (TRUE);
+	return (FALSE);
+}
+
+int		ft_is_interior_water(int flag)
+{
+	if (ft_is_water(flag) && !ft_is_surface(flag))
 		return (TRUE);
 	return (FALSE);
 }
@@ -904,6 +825,16 @@ void	ft_clear_water_flag(void *ptr, int j, int i)
 }
 
 
+void	ft_remark_flags(t_fluid *fluid)
+{
+	t_iter iter;
+
+	//проставляем флаги воды, воздуха и земли
+	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
+	ft_iteration((void *)fluid, &ft_mark_cell, &iter);
+}
+
+
 int		**ft_create_flags(t_fluid *fluid)
 {
 	t_iter iter;
@@ -911,9 +842,7 @@ int		**ft_create_flags(t_fluid *fluid)
 	fluid->flags = (int **)ft_mem_arr_new(fluid->jmax + 2, fluid->imax + 2, sizeof(int));
 	if (!fluid->flags)
 		return (NULL);
-	//проставляем флаги воды, воздуха и земли
-	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
-	ft_iteration((void *)fluid, &ft_mark_cell, &iter);
+
 	//проставляем флаги по периметру, как препятствия, надо будет это еще проверить...
 	ft_fill_iterations(&iter, 0, 0, 0, fluid->imax + 1);
 	ft_iteration_i((void *)fluid, &ft_set_flag_to_obstacles, &iter);
@@ -936,6 +865,7 @@ t_fluid	*ft_initialization(char **map, int jmax, int imax)
 	fluid = (t_fluid *)ft_memalloc(sizeof(t_fluid));
 	fluid->imax = imax;
 	fluid->jmax = jmax;
+	//printf("%d_%d\n", jmax, imax);
 	fluid->map = map;
 	fluid->flags = ft_create_flags(fluid);
 	fluid->flags_surface = (int **)ft_mem_arr_new(jmax + 2, imax + 2, sizeof(int));
@@ -994,23 +924,6 @@ void	ft_clear_all_params(void *ptr, int j, int i)
 }
 
 
-void	ft_clear_cell(t_fluid *fluid)
-{
-	t_iter iter;
-
-	//удаляем горизонтальные скорости между пустыми клетками
-	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax - 1);
-	ft_iteration((void *)fluid, &ft_clear_speed_u, &iter);
-
-	//удаляем вертикальные скорости между пустыми клетками
-	ft_fill_iterations(&iter, 1, fluid->jmax - 1, 1, fluid->imax);
-	ft_iteration((void *)fluid, &ft_clear_speed_v, &iter);
-
-	//зачищаем ваще все
-	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
-	ft_iteration((void *)fluid, &ft_clear_all_params, &iter);
-}
-
 
 void	ft_clear_surface(void *ptr, int j, int i)
 {
@@ -1042,9 +955,12 @@ void	ft_surface_speed_and_pressure(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
-	if (!fluid->flags_surface)
+	if (!fluid->flags_surface[j][i])
 		return ;
-	else if (fluid->flags_surface[j][i] == C_N)
+
+	fluid->press_p[j][i] = 0.0;
+
+	if (fluid->flags_surface[j][i] == C_N)
 	{
 		fluid->speed_v[j][i] = fluid->speed_v[j - 1][i];
 		if (fluid->map[j + 1][i - 1] == EMPTY)
@@ -1116,12 +1032,10 @@ void	ft_surface_speed_and_pressure(void *ptr, int j, int i)
 			fluid->speed_v[j - 1][i + 1] = fluid->speed_v[j - 1][i];
 		}
 	}
-
-	fluid->press_p[j][i] = 0.0;
 }
 
 
-void	ft_mark_surface(t_fluid *fluid)
+void	ft_set_uvp_surface(t_fluid *fluid)
 {
 	t_iter iter;
 
@@ -1138,23 +1052,186 @@ void	ft_mark_surface(t_fluid *fluid)
 	ft_iteration((void *)fluid, &ft_surface_speed_and_pressure, &iter);
 }
 
-void	ft_mark_fluid(t_fluid *fluid)
+void	ft_clear_old_cell(t_fluid *fluid)
 {
-	ft_clear_cell(fluid);
-	ft_mark_surface(fluid);
+	t_iter iter;
+
+	//удаляем горизонтальные скорости между пустыми клетками
+	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax - 1);
+	ft_iteration((void *)fluid, &ft_clear_speed_u, &iter);
+
+	//удаляем вертикальные скорости между пустыми клетками
+	ft_fill_iterations(&iter, 1, fluid->jmax - 1, 1, fluid->imax);
+	ft_iteration((void *)fluid, &ft_clear_speed_v, &iter);
+
+	//зачищаем ваще все
+	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
+	ft_iteration((void *)fluid, &ft_clear_all_params, &iter);
+
 }
+
+
+void	ft_fill_boundary_speed_uv(t_fluid *fluid)
+{
+	int j;
+	int i;
+
+	j = 0;
+	while (j <= fluid->jmax + 1)
+	{
+		fluid->speed_u[j][0] = 0.0;
+		fluid->speed_v[j][0] = -fluid->speed_v[j][1];
+
+		fluid->speed_u[j][fluid->imax] = 0.0;
+		//fluid->speed_u[j][fluid->imax + 1] = 0.0;
+		fluid->speed_v[j][fluid->imax + 1] = -fluid->speed_v[j][fluid->imax];
+		j++;
+	}
+	i = 0;
+	while (i <= fluid->imax + 1)
+	{
+		fluid->speed_u[0][i] = -fluid->speed_u[1][i];
+		fluid->speed_v[0][i] = 0.0;
+
+		fluid->speed_u[fluid->jmax][i] = 0.0;
+		fluid->speed_v[fluid->jmax + 1][i] = -fluid->speed_u[fluid->jmax][i];
+		fluid->speed_v[fluid->jmax][i] = 0.0;
+		i++;
+	}
+}
+
+void	ft_speed_u_in_obstacle2(REAL **speed, int j, int i, char **map)
+{
+	if (map[j + 1][i] == WATER)
+	{
+		speed[j][i] = -speed[j + 1][i];
+		speed[j][i - 1] = -speed[j + 1][i - 1];//хз, возможно лишняя строка
+	}
+	if (map[j - 1][i] == WATER)
+	{
+		speed[j][i] = -speed[j - 1][i];
+		speed[j][i - 1] = -speed[j - 1][i - 1];//хз, возможно лишняя строка
+	}
+	if (map[j][i + 1] == WATER)
+		speed[j][i] = 0.0;
+	if (map[j][i - 1] == WATER)
+		speed[j][i - 1] = 0.0;
+}
+
+void	ft_speed_v_in_obstacle2(REAL **speed, int j, int i, char **map)
+{
+	if (map[j][i + 1] == WATER)
+	{
+		speed[j][i] = -speed[j][i + 1];
+		speed[j - 1][i] = -speed[j - 1][i + 1];//хз, возможно лишняя строка
+	}
+	if (map[j][i - 1] == WATER)
+	{
+		speed[j][i] = -speed[j][i - 1];
+		speed[j - 1][i] = -speed[j - 1][i - 1];//хз, возможно лишняя строка
+	}
+	if (map[j + 1][i] == WATER)
+		speed[j][i] = 0.0;
+	if (map[j - 1][i] == WATER)
+		speed[j - 1][i] = 0.0;
+}
+
+
+void	ft_obstacles_speed_uv(void *ptr, int j, int i)
+{
+	t_fluid *fluid;
+
+	fluid = (t_fluid *)ptr;
+	if (fluid->map[j][i] != OBSTACLES)
+		return ;
+	if (fluid->flags[j][i] & WATER_MASK)
+		return ;
+	ft_speed_u_in_obstacle2(fluid->speed_u, j, i, fluid->map);
+	ft_speed_v_in_obstacle2(fluid->speed_v, j, i, fluid->map);
+}
+
+
+
+void	ft_fill_obstacles_speed_uv(t_fluid *fluid)
+{
+	t_iter iter;
+
+	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
+	ft_iteration((void *)fluid, &ft_obstacles_speed_uv, &iter);
+}
+
+
+void	ft_setbcond(t_fluid *fluid)
+{
+
+	ft_fill_boundary_speed_uv(fluid);
+	ft_fill_obstacles_speed_uv(fluid);
+
+}
+
+
+void	ft_clear_water(void *ptr, int j, int i)
+{
+	t_fluid *fluid;
+
+	fluid = (t_fluid *)ptr;
+	if (fluid->map[j][i] == WATER)
+		fluid->map[j][i] = EMPTY;
+}
+
+
+
+void	ft_clear_map_from_water(t_fluid *fluid)
+{
+	t_iter iter;
+
+	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
+	ft_iteration((void *)fluid, &ft_clear_water, &iter);
+}
+
 
 
 void	ft_solver(t_fluid *fluid)
 {
 
 	fluid->deltat = T_DELTA;
+	//проставляем флаги воды, воздуха и земли по карте
+	ft_remark_flags(fluid);
 
-	ft_mark_fluid(fluid);
+	ft_clear_old_cell(fluid);
 
 	//fluid->deltat = ft_time_control(DELTA_X, DELTA_Y, fluid->max_u, fluid->max_v);
-	ft_flows(fluid);
+	//считаем потоки для внутренних клеток воды, не граничащих с воздухом
+	ft_set_uvp_surface(fluid);
+
+	//считаем изменение потоков для внутренних клеток воды, не граничащих с воздухом
+	ft_comp_fg(fluid);
+	//определяем скорости в клетках на границе
+
+	//ft_comp_rhs(fluid);
+
+	//считаем давление для внутренних клеток воды, не граничащих с воздухом
 	ft_poisson(fluid);
-	ft_new_velocity(fluid);
-	ft_fill_boundary_value(fluid);
+	//определяем скорости в клетках на границе
+	ft_setbcond(fluid);
+	//считаем скорости для внутренних клеток воды, не граничащих с воздухом
+	ft_adap_uv(fluid);
+
+	//стираем воду с карты, далее ее восстановят частицы
+	ft_clear_map_from_water(fluid);
 }
+
+
+/*
+	получаем карту
+	создаем частицы по карте
+	инициализируем начальные значения
+
+	{
+		все считаем
+		стираем карту
+		двигаем частицы, восстанавливаем карту
+	}
+
+
+*/
