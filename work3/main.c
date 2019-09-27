@@ -14,7 +14,7 @@
 
 #define CONST_WIDTH 2000
 #define CONST_HEINTH 1500
-#define CONST_LEN 1
+#define CONST_LEN 1.0
 #define KOEFF (1.0 / (DELTA_XY))
 #define SLEEP1
 
@@ -396,9 +396,9 @@ int deal_key(int key, void *param)
 	if (key == 125)
 		vis->cam_y+=10;
 	if (key == 69)
-		vis->len+=1;
+		vis->len*=1.1;
 	if (key == 78)
-		vis->len-=1;
+		vis->len/=1.1;
 	ft_rotate_xyz(vis);
 	return (0);
 }
@@ -673,9 +673,10 @@ void	ft_move_parts(t_fluid *fluid, t_vektr *parts)
 	// на границе интерполировать не нужно, но рядом с препятствиями нужно
 	//u = fluid->speed_u[j][i];
 	//v = fluid->speed_v[j][i];
-	u = ft_move_parts_x(fluid, parts, j, i);
-	v = ft_move_parts_y(fluid, parts, j, i);
-	//printf("%d_%lf_%lf\n", i, i * DELTA, parts->x);
+	u = ft_move_parts_x(fluid, parts, j + 1, i);
+	v = ft_move_parts_y(fluid, parts, j, i + 1);
+	//printf("%d_%lf_%lf_%lf\n", i, i * DELTA, parts->x, u);
+	//printf("%d_%lf_%lf_%lf\n", j, j * DELTA, parts->y, v);
 	parts->x = parts->x + u * fluid->deltat;
 	parts->y = parts->y + v * fluid->deltat;
 	parts->otn_x = (int)parts->x;
@@ -778,8 +779,8 @@ int loop_hook(void *param)
 		printf("%s\n", fluid->map[i] + 1);
 		i++;
 	}
-	//ft_print_fluid(fluid, fluid->flags);
-	//ft_print_flags(fluid, fluid->flags_surface);
+	//ft_print_fluid(fluid, fluid->press_p);
+	//ft_print_flags(fluid, fluid->flags);
 	ft_refresh_picture(vis);
 	//ft_new_pos_of_points(vis);
 	#ifdef SLEEP
@@ -792,6 +793,10 @@ int loop_hook(void *param)
 int main()
 {
 	t_vis *vis;
+
+
+	//printf("%3$d_%2$d_%1$d\n", 5, 2.0, 16, 4.2, 3);
+
 
 	vis = ft_memalloc(sizeof(t_vis));
 	if (ft_read_map_from_file("text.txt", &(vis->inf)) == FAIL)

@@ -131,7 +131,7 @@ void	ft_fill_watercell_in_center(void *ptr, int j, int i)
 
 	if (fluid->map[j][i] == WATER)
 	{
-		fluid->press_p[j][i] = j * DELTA;// - P_CONST;
+		fluid->press_p[j][i] = 0.0;// - P_CONST;
 		//if (i < 3)
 			fluid->speed_u[j][i] = U_CONST;
 		//fluid->speed_v[j][i] = U_CONST;
@@ -390,6 +390,7 @@ void	ft_aproximation_press(void *ptr, int j, int i)
 	(fluid->press_p[j + 1][i] + fluid->tmp[j - 1][i]) * dx2 -
 	fluid->rhs[j][i] * dx2 * dy2) / (2 * (dx2 + dy2));
 */
+	fluid->tmp[j][i] = fluid->press_p[j][i];
 	if (!ft_is_interior_water(fluid->flags[j][i]))
 		return ;
 	/*fluid->tmp[j][i] =
@@ -509,10 +510,10 @@ void	ft_poisson(t_fluid *fluid)
 {
 	t_iter iter;
 
-	ft_fill_boundary_pressure(fluid);
+	//ft_print_fluid(fluid, fluid->press_p);
 	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
 	ft_iteration((void *)fluid, &ft_fill_obstacles_pressure, &iter);
-
+	ft_fill_boundary_pressure(fluid);
 	ft_successive_overrelaxation(fluid);
 }
 
@@ -1093,8 +1094,8 @@ void	ft_fill_boundary_speed_uv(t_fluid *fluid)
 		fluid->speed_u[0][i] = -fluid->speed_u[1][i];
 		fluid->speed_v[0][i] = 0.0;
 
-		fluid->speed_u[fluid->jmax][i] = 0.0;
-		fluid->speed_v[fluid->jmax + 1][i] = -fluid->speed_u[fluid->jmax][i];
+		//fluid->speed_u[fluid->jmax][i] = 0.0;
+		fluid->speed_u[fluid->jmax + 1][i] = -fluid->speed_u[fluid->jmax][i];
 		fluid->speed_v[fluid->jmax][i] = 0.0;
 		i++;
 	}
@@ -1134,6 +1135,8 @@ void	ft_speed_v_in_obstacle2(REAL **speed, int j, int i, char **map)
 		speed[j][i] = 0.0;
 	if (map[j - 1][i] == WATER)
 		speed[j - 1][i] = 0.0;
+	//if (i == 2)
+	//	speed[j][i] = U_CONST;
 }
 
 
@@ -1144,7 +1147,7 @@ void	ft_obstacles_speed_uv(void *ptr, int j, int i)
 	fluid = (t_fluid *)ptr;
 	if (fluid->map[j][i] != OBSTACLES)
 		return ;
-	if (fluid->flags[j][i] & WATER_MASK)
+	if (!(fluid->flags[j][i] & WATER_MASK))
 		return ;
 	ft_speed_u_in_obstacle2(fluid->speed_u, j, i, fluid->map);
 	ft_speed_v_in_obstacle2(fluid->speed_v, j, i, fluid->map);
@@ -1203,7 +1206,8 @@ void	ft_solver(t_fluid *fluid)
 	//fluid->deltat = ft_time_control(DELTA_X, DELTA_Y, fluid->max_u, fluid->max_v);
 	//считаем потоки для внутренних клеток воды, не граничащих с воздухом
 	ft_set_uvp_surface(fluid);
-
+	//определяем скорости в клетках на границе
+	ft_setbcond(fluid);
 	//считаем изменение потоков для внутренних клеток воды, не граничащих с воздухом
 	ft_comp_fg(fluid);
 	//определяем скорости в клетках на границе
@@ -1212,8 +1216,7 @@ void	ft_solver(t_fluid *fluid)
 
 	//считаем давление для внутренних клеток воды, не граничащих с воздухом
 	ft_poisson(fluid);
-	//определяем скорости в клетках на границе
-	ft_setbcond(fluid);
+
 	//считаем скорости для внутренних клеток воды, не граничащих с воздухом
 	ft_adap_uv(fluid);
 

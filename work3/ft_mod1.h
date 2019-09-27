@@ -24,21 +24,19 @@
 #define ABS(nbr) ((nbr) >= 0 ? (nbr) : (-1) * (nbr))
 
 #define T_INFINITY 10000000000.0
-#define P_CONST 40.0
+#define P_CONST 30.0
 #define U_CONST 0.0
-#define DIR_X 1
-#define DIR_Y 2
 #define W_CONST 1.0
 //#define CONST_RE 0.105
-#define CONST_RE 1000.00
-#define CONST_GY 0.1
-#define CONST_GX 0.0
-#define T_DELTA 0.1
+#define CONST_RE 0.10
+#define CONST_GY 0.0
+#define CONST_GX 2.0
+#define T_DELTA 00.1
 #define T_END 5.0
 #define TAU 0.7
-#define MAX_ITERATIONS 2
+#define MAX_ITERATIONS 30
 #define TOLERANCE 0.001
-#define DELTA 128.0
+#define DELTA 32.0
 #define DELTA_X DELTA
 #define DELTA_Y DELTA
 #define DELTA_X2 (DELTA_X * DELTA_X)
@@ -68,9 +66,6 @@
 #define C_W		(D_W << 8)	 /* free surface cells          */
 #define C_E		(D_E << 8)
 
-#define SURF_MASK		(C_N | C_S | C_W | C_E)
-#define WATER_MASK		(B_N | B_S | B_W | B_E)
-
 //NSWE
 #define C_NS	(C_N + C_S)
 #define C_NW	(C_N + C_W)
@@ -95,7 +90,10 @@
 #define B_SW	(B_S + B_W)
 
 
+#define SURF_MASK		(C_N | C_S | C_W | C_E)
+#define WATER_MASK		(B_N | B_S | B_W | B_E)
 
+#define INTERIOR_WATER	(WATER_MASK | C_F)
 
 void	ft_print_fluid(t_fluid *fluid, REAL **arr);
 void	ft_print_flags(t_fluid *fluid, int **arr);
@@ -134,7 +132,9 @@ int		**ft_create_flags(t_fluid *fluid);
 t_fluid	*ft_initialization(char **map, int jmax, int imax);
 void	ft_solver(t_fluid *fluid);
 int		ft_is_water(int flag);
+int		ft_is_interior_water(int flag);
 int		ft_is_surface(int flag);
+int		ft_is_empty(int flag);
 
 
 void	ft_put_pixel_to_img(int *addr, int x, int y, int color);

@@ -28,6 +28,7 @@ typedef struct		s_fluid
 {
 	int				imax;
 	int				jmax;
+	int				count;
 	mytype			dx;
 	mytype			dy;
 	REAL			eps;
@@ -101,7 +102,7 @@ typedef struct		s_vis
 {
 	int				cam_x;
 	int				cam_y;
-	int				len;
+	double			len;
 	REAL			ang_x;
 	REAL			ang_y;
 	REAL			ang_z;
