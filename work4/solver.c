@@ -662,7 +662,12 @@ void	ft_speed_u(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
-	if ((fluid->map)[j][i] != WATER || (fluid->map)[j][i + 1] != WATER)
+	if (fluid->flags_surface[j][i] & C_X)
+	{
+		fluid->speed_u[j][i] += fluid->deltat * CONST_GX / 2;
+		fluid->speed_u[j][i - 1] += fluid->deltat * CONST_GX / 2;
+	}
+	else if ((fluid->map)[j][i] != WATER || (fluid->map)[j][i + 1] != WATER)
 		return;
 	fluid->speed_u[j][i] = fluid->flow_f[j][i] - fluid->deltat / DELTA_X *
 	(fluid->press_p[j][i + 1] - fluid->press_p[j][i]);
@@ -674,6 +679,11 @@ void	ft_speed_v(void *ptr, int j, int i)
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
+	if (fluid->flags_surface[j][i] & C_X)
+	{
+		fluid->speed_v[j][i] += fluid->deltat * CONST_GY / 2;
+		fluid->speed_v[j][i - 1] += fluid->deltat * CONST_GY / 2;
+	}
 	if ((fluid->map)[j][i] != WATER || (fluid->map)[j + 1][i] != WATER)
 		return;
 	fluid->speed_v[j][i] = fluid->flow_g[j][i] - fluid->deltat / DELTA_Y *
@@ -757,7 +767,7 @@ int		ft_is_water(int flag)
 
 int		ft_is_surface(int flag)
 {
-	if (ft_is_water(flag) && (flag & C_S))
+	if (ft_is_water(flag) && (flag & C_R))
 		return (TRUE);
 	return (FALSE);
 }
@@ -799,7 +809,7 @@ int		ft_set_flag_for(int map_value)
 	else if (map_value == OBSTACLES)
 		flag = C_B;
 	else
-		flag = C_E;
+		flag = C_A;
 	return (flag);
 }
 
@@ -935,11 +945,29 @@ void	ft_clear_surface(void *ptr, int j, int i)
 }
 
 
+void	ft_mark_spray(void *ptr, int j, int i)
+{
+	t_fluid *fluid;
+
+	fluid = (t_fluid *)ptr;
+	//fluid->flags_surface[j][i] = 0;
+	if (ft_is_surface(fluid->flags[j][i]) &&
+	!ft_is_interior_water(fluid->flags[j + 1][i]) &&
+	!ft_is_interior_water(fluid->flags[j][i + 1]) &&
+	!ft_is_interior_water(fluid->flags[j - 1][i]) &&
+	!ft_is_interior_water(fluid->flags[j][i - 1]))
+	{
+	//	printf("%d\n", 1);
+		fluid->flags_surface[j][i] |= C_X;
+	}
+}
+
 void	ft_update_surface(void *ptr, int j, int i)
 {
 	t_fluid *fluid;
 
 	fluid = (t_fluid *)ptr;
+	//fluid->flags_surface[j][i] = 0;
 	if (fluid->map[j][i] == WATER)
 	{
 		if (fluid->map[j][i - 1] == EMPTY)
@@ -950,8 +978,12 @@ void	ft_update_surface(void *ptr, int j, int i)
 			fluid->flags_surface[j][i] |= C_S;
 		if (fluid->map[j + 1][i] == EMPTY)
 			fluid->flags_surface[j][i] |= C_N;
+			////////////////////добавил
+		if (fluid->flags_surface[j][i])
+			fluid->flags[j][i] |= C_R;
 	}
 }
+
 
 	//магическая функция с условиями!!!
 void	ft_surface_speed_and_pressure(void *ptr, int j, int i)
@@ -1047,9 +1079,13 @@ void	ft_set_uvp_surface(t_fluid *fluid)
 	ft_fill_iterations(&iter, 0, fluid->jmax + 1, 0, fluid->imax + 1);
 	ft_iteration((void *)(fluid->flags_surface), &ft_clear_surface, &iter);
 
-	//заполняем флаги для границы воды.
+	//зачищаем весь массив флагов и заполняем флаги для границы воды.
 	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
 	ft_iteration((void *)fluid, &ft_update_surface, &iter);
+
+	//зачищаем весь массив флагов и заполняем флаги для границы воды.
+	//ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
+	//ft_iteration((void *)fluid, &ft_mark_spray, &iter);
 
 	//проставляем граничные условия скоростей для границы воды.
 	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);

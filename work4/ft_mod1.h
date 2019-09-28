@@ -28,8 +28,8 @@
 #define U_CONST 0.0
 #define W_CONST 1.0
 //#define CONST_RE 0.105
-#define CONST_RE 10.1
-#define CONST_GY 03.0
+#define CONST_RE 100.1
+#define CONST_GY 3.1
 #define CONST_GX 0.0
 #define T_DELTA 0.10
 #define T_END 5.0
@@ -47,7 +47,7 @@
 #define EMPTY ' '
 #define WATER '1'
 #define OBSTACLES '#'
-#define PARTS_COUNT 1
+#define PARTS_COUNT 4
 
 
 #define D_N		0b00000001
@@ -58,8 +58,9 @@
 
 #define C_B		0b00000000     /* interior obstacle cells */
 #define C_F		0b00010000     /* fluid cell */
-#define C_A		0b00100000    /* empty celle */
-
+#define C_R		0b00100000    /* surface */
+#define C_X		0b01000000    /* only surface */
+#define C_A		0b10000000    /* empty celle */
 
 #define C_N		(D_S << 8) /* adjacent to empty cells     */
 #define C_S		(D_N << 8)	/* in the respective direction */
