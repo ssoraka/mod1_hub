@@ -15,12 +15,12 @@
 
 char		str[100][100] =
 {
-	"           ",
-	"           ",
-	"   111     ",
-	"11111111111",
-	"11111111111",
-	"11111111111",
+	"       ",
+	"       ",
+	"1111111",
+	"1111111",
+	"1111111",
+	"###########",
 	"11111111111",
 	"11111111111",
 	"11111111111",
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 
 	char **map;
 	int jmax = 6;
-	int imax = 9;
+	int imax = 7;
 
 	map = ft_create_map(jmax, imax);
 
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 	t_fluid *fluid;
 	fluid = ft_initialization(map, jmax, imax);
 
-	ft_print_flags(fluid, fluid->flags);
+	//ft_print_flags(fluid, fluid->flags);
 
 	int i = 1;
 	while (map[i])
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 		i++;
 	}
 
-	//ft_print_fluid(fluid, fluid->press_p);
+	ft_print_fluid(fluid, fluid->press_p);
 
 	REAL t;
 
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 	t = 0.0;
 
 
-	/*
+
 	while (t < 50)
 	{
 
@@ -95,8 +95,9 @@ int main(int argc, char **argv)
 		//ft_print_fluid(fluid, fluid->speed_u);
 		//ft_print_fluid(fluid, fluid->speed_v);
 		t = t + fluid->deltat;
-	}*/
-	ft_print_fluid(fluid, fluid->press_p);
-	//ft_print_fluid(fluid, fluid->speed_u);
+	}
+	//ft_print_fluid(fluid, fluid->press_p);
+	//ft_print_flags(fluid, fluid->flags_surface);
+	ft_print_fluid(fluid, fluid->speed_u);
 	return (0);
 }

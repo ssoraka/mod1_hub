@@ -677,6 +677,11 @@ void	ft_move_parts(t_fluid *fluid, t_vektr *parts)
 	//v = fluid->speed_v[j][i];
 	u = ft_move_parts_x(fluid, parts, j + 1, i);
 	v = ft_move_parts_y(fluid, parts, j, i + 1);
+	if (fluid->flags[j + 1][i + 1] & C_X && fluid->map[j + 2][i + 1] != OBSTACLES)
+	{
+		u += fluid->deltat * CONST_GX * 2;
+		v += fluid->deltat * CONST_GY * 2;
+	}
 	//printf("%d_%lf_%lf_%lf\n", i, i * DELTA, parts->x, u);
 	//printf("%d_%lf_%lf_%lf\n", j, j * DELTA, parts->y, v);
 	parts->x = parts->x + u * fluid->deltat;
@@ -781,8 +786,8 @@ int loop_hook(void *param)
 		printf("%s\n", fluid->map[i] + 1);
 		i++;
 	}*/
-	//ft_print_fluid(fluid, fluid->speed_v);
-	//ft_print_flags(fluid, fluid->flags_surface);
+	//ft_print_fluid(fluid, fluid->press_p);
+	ft_print_flags(fluid, fluid->flags_surface);
 	ft_refresh_picture(vis);
 	//ft_new_pos_of_points(vis);
 	#ifdef SLEEP

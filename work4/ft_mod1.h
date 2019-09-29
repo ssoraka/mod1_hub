@@ -26,10 +26,10 @@
 #define T_INFINITY 10000000000.0
 #define P_CONST 30.0
 #define U_CONST 0.0
-#define W_CONST 1.0
+#define W_CONST 1.7
 //#define CONST_RE 0.105
-#define CONST_RE 100.1
-#define CONST_GY 3.1
+#define CONST_RE 1.1
+#define CONST_GY 3.0
 #define CONST_GX 0.0
 #define T_DELTA 0.10
 #define T_END 5.0
@@ -61,6 +61,7 @@
 #define C_R		0b00100000    /* surface */
 #define C_X		0b01000000    /* only surface */
 #define C_A		0b10000000    /* empty celle */
+
 
 #define C_N		(D_S << 8) /* adjacent to empty cells     */
 #define C_S		(D_N << 8)	/* in the respective direction */
