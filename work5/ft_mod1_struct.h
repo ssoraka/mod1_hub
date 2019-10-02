@@ -1,0 +1,118 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_mod1_struct.h                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ssoraka <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/03/10 20:59:39 by ssoraka           #+#    #+#             */
+/*   Updated: 2019/04/19 13:13:30 by ssoraka          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef FT_MOD1_STRUCT_H
+# define FT_MOD1_STRUCT_H
+
+typedef double REAL;
+typedef double mytype;
+
+typedef struct		s_iter
+{
+	int				imin;
+	int				jmin;
+	int				kmin;
+	int				i;
+	int				j;
+	int				k;
+	int				imax;
+	int				jmax;
+	int				kmax;
+}					t_iter;
+
+typedef struct		s_fluid
+{
+	int				count;
+	REAL			eps;
+	REAL			deltat;
+	REAL			max_u;
+	REAL			max_v;
+	struct s_vis	*vis;
+}					t_fluid;
+
+
+typedef struct		s_point
+{
+	int y;
+	int x;
+	int z;
+}					t_point;
+
+
+typedef struct		s_vektr
+{
+	int color;
+	int status;
+	double x;
+	double y;
+	double z;
+	double u;
+	double v;
+	struct s_point	abs;
+	struct s_point	otn;
+	struct s_vektr	*next;
+	struct s_vektr	*down;
+}					t_vektr;
+
+typedef struct		s_line
+{
+	int error;
+	int color;
+	struct s_point dir;
+	struct s_point delta;
+	struct s_vektr *p1;
+	struct s_vektr *p2;
+	struct s_line *next;
+
+}					t_line;
+
+typedef struct		s_pict
+{
+	int 			bits_per_pixel;
+	int				size_line;
+	int				endian;
+	int				*addr;
+	int				*near;
+}					t_pict;
+
+
+typedef struct		s_oxyz
+{
+	struct s_vektr	oy;
+	struct s_vektr	ox;
+	struct s_vektr	oz;
+}					t_oxyz;
+
+typedef struct		s_vis
+{
+	int				cam_x;
+	int				cam_y;
+	int				pause;
+	int				is_shift;
+	int				is_rotate_or_csale;
+	int				grad;
+	double			len;
+	double			ang_x;
+	double			ang_y;
+	double			ang_z;
+	struct s_pict	pic;
+	struct s_oxyz	oxyz;
+	void			*img;
+	void			*mlx;
+	void			*win;
+	struct s_fluid	*fluid;
+	struct s_list	*water;
+	struct s_vektr	*points;
+	struct s_line	*lines;
+}					t_vis;
+
+#endif
