@@ -65,7 +65,6 @@ typedef struct		s_vektr
 
 typedef struct		s_line
 {
-	int error;
 	int color;
 	struct s_point dir;
 	struct s_point delta;
@@ -74,6 +73,15 @@ typedef struct		s_line
 	struct s_line *next;
 
 }					t_line;
+
+
+typedef struct		s_plgn
+{
+	int color;
+	struct s_vektr	*p[4];
+	struct s_plgn	*next;
+
+}					t_plgn;
 
 typedef struct		s_pict
 {
@@ -111,6 +119,7 @@ typedef struct		s_vis
 	void			*win;
 	struct s_fluid	*fluid;
 	struct s_list	*water;
+	struct s_plgn	*plgn;
 	struct s_vektr	*points;
 	struct s_line	*lines;
 }					t_vis;
