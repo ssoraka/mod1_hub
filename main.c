@@ -5,871 +5,1243 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: ssoraka <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/08/25 17:13:40 by ssoraka           #+#    #+#             */
-/*   Updated: 2019/08/25 17:13:40 by ssoraka          ###   ########.fr       */
+/*   Created: 2019/03/04 16:23:42 by ssoraka           #+#    #+#             */
+/*   Updated: 2019/03/07 16:22:42 by ssoraka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-#include <math.h>
+#include "ft_mod1.h"
 
-typedef double REAL;
-typedef int mytype;
-
-#define T_INFINITY 10000000000.0
-#define P_CONST 1000.0
-#define U_CONST 2
-#define W_CONST 1.7
-#define CONST_RE 10.0
-#define CONST_GY 0
-#define CONST_GX 0
-#define T_DELTA 1
-#define T_END 2.0
-#define TAU 0.7
-#define MAX_ITERATIONS 30
-#define TOLERANCE 0.001
-
-#define C_B		0b000000
-#define D_N		0b000001
-#define D_S		0b000010
-#define D_W		0b000100
-#define D_E		0b001000
-#define C_F		0b010000
-#define C_A		0b100000
+#define CONST_WIDTH 2000
+#define CONST_HEINTH 1500
+#define CAM_X 1000
+#define CAM_Y 1000
+#define RADIUS (DELTA * CONST_LEN * 0.7)
+#define CONST_LEN 5.0
+#define KOEFF (1.0 / (DELTA_XY))
+#define SLEEP1
 
 
-#define B_N		(D_S) //поменял для отображения
-#define B_S		(D_N) //поменял для отображения
-#define B_W		(D_W)
-#define B_E		(D_E)
-#define B_NE	(D_N + D_E)
-#define B_SE	(D_S + D_E)
-#define B_WE	(D_W + D_E)
-#define B_NW	(D_N + D_W)
-#define B_SW	(D_S + D_W)
-#define B_EW	(D_E + D_W)
-#define B_NS	(D_N + D_S)
-#define B_WS	(D_W + D_S)
-#define B_ES	(D_E + D_S)
-
-mytype	dx = 5;
-mytype	dy = 5;
-mytype	dx2 = 0;
-mytype	dy2 = 0;
-int		imax = 10;
-int		jmax = 10;
+/*
+** к каждому пикселю присваивать координату z в дополнительном массиве
+** проверять позицию, куда ты ее рисуешь
+** нужно сделать структуру полигонов, которая будет отрисосывать 2 линии и
+** заполнять значения треугольника координатами z, чтоб другие точки там не
+** отрисовывались!!!
+** работать в векторе, тогда все просто и понятно
+** научиться рисовать треугольники
+*/
 
 
 
-typedef struct		s_iter
+int ft_znak(int num)
 {
-	int				i;
-	int				j;
-	int				imax;
-	int				jmax;
-}					t_iter;
+	int znak;
 
-typedef struct		s_fluid
+	znak = 0;
+	if (num > 0)
+		znak = 1;
+	else if (num < 0)
+		znak = -1;
+	return (znak);
+}
+
+void	ft_fill_point(t_point *p, int y, int x, int z)
 {
-	int				imax;
-	int				jmax;
-	mytype			dx;
-	mytype			dy;
-	REAL			eps;
-	REAL			deltat;
-	REAL			max_u;
-	REAL			max_v;
-	int				**map;
-	int				**flags;
-	REAL			**tmp;
-	REAL			**speed_v;
-	REAL			**speed_u;
-	REAL			**press_p;
-	REAL			**lapl_u;
-	REAL			**lapl_v;
-	REAL			**flow_f;
-	REAL			**flow_g;
-	REAL			**rhs;
-}					t_fluid;
+	if (!p)
+		return ;
+	p->x = x;
+	p->y = y;
+	p->z = z;
+}
 
 
-
-
-#define CONST_GX 0
-
-REAL		str[10][10] =
+void ft_put_pixel_to_img2(t_pict *pic, t_point *p, int color)
 {
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-};
+	if (p->x < 0 || p->y < 0 || p->x >= CONST_WIDTH || p->y >= CONST_HEINTH)
+		return ;
+	if (pic->near[p->y * CONST_WIDTH + p->x] > p->z)
+		return ;
+	pic->addr[p->y * CONST_WIDTH + p->x] = color;
+	pic->near[p->y * CONST_WIDTH + p->x] = p->z;
+}
 
-/*{
-	{1, 1, 1, 1, 0, 1, 0, 1, 1, 1},
-	{1, 1, 1, 1, 0, 1, 0, 1, 1, 1},
-	{1, 1, 1, 1, 0, 1, 0, 1, 1, 1},
-	{1, 1, 1, 1, 0, 1, 0, 1, 1, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 1, 1, 1, 0, 1, 1, 1, 1, 1},
-	{1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
-	{1, 1, 1, 1, 0, 1, 1, 0, 0, 0},
-	{1, 1, 1, 1, 0, 1, 1, 0, 0, 0},
-	{1, 1, 1, 1, 0, 1, 0, 0, 0, 0}
-};*/
+int ft_interpolation(int percent, int color1, int color2, int byte)
+{
+	int deltared;
+
+	color1 = color1 >> (8 * byte);
+	color2 = color2 >> (8 * byte);
+	color1 = color1 & 0xFF;
+	color2 = color2 & 0xFF;
+	deltared = ((color2 - color1) * percent) / 100 + color1;
+	deltared = (deltared & 0xFF) << (8 * byte);
+	return (deltared);
+}
+
+int ft_grad_color(int delta1, int delta2, int color1, int color2)
+{
+	int color;
+	int grad;
+
+	grad = 100 - (delta1 * 100) / delta2;
+	color = ft_interpolation(grad, color1, color2, 0);
+	color |= ft_interpolation(grad, color1, color2, 1);
+	color |= ft_interpolation(grad, color1, color2, 2);
+	return (color);
+}
 
 
-void	ft_print_fluid(t_fluid *fluid, REAL **arr)
+int		ft_set_color_to_point(t_line *line, t_point *p, int lower_45)
+{
+	int delta1;
+	int delta2;
+	int color;
+
+	if (lower_45)
+	{
+		delta1 = ABS(line->p2->abs.x - p->x);
+		delta2 = line->delta.x;
+	}
+	else
+	{
+		delta1 = ABS(line->p2->abs.y - p->y);
+		delta2 = line->delta.y;
+	}
+	color = ft_grad_color(delta1, delta2, line->p1->color, line->p2->color);
+	return (color);
+}
+
+
+int		ft_int_interpolation(int y, int delta_y, int x1, int x2)
+{
+	int x;
+	int delta_x;
+
+	delta_x = x2 - x1;
+	x = (delta_x * 2 *y) / delta_y;
+	x = (x >> 1) + (x & 1);
+	x += x1;
+	return (x);
+}
+
+
+
+
+void draw_line_img_lower_452(t_line *line, t_point *p, t_pict *pic, int grad)
+{
+	t_point error;
+	int color;
+
+	ft_fill_point(&error, 0, 0, 0);
+	color = line->color;
+	while (p->x != line->p2->abs.x)
+	{
+		if (grad)
+			color = ft_set_color_to_point(line, p, 1);
+		ft_put_pixel_to_img2(pic, p, color);
+		//printf("%d\n", p->z);
+		error.y = error.y + line->delta.y;
+		if (2 * error.y >= line->delta.x)
+		{
+			p->y += line->dir.y;
+			error.y = error.y - line->delta.x;
+		}
+		p->z = ft_int_interpolation(p->x - line->p1->abs.x, line->p2->abs.x - line->p1->abs.x, line->p1->abs.z, line->p2->abs.z);
+		/*error.z = error.z + line->delta.z;
+		if (2 * error.z >= line->delta.x)
+		{
+			p->z += line->dir.z;
+			error.z = error.z - line->delta.x;
+		}*/
+
+		p->x += line->dir.x;
+	}
+	//ft_put_pixel_to_img2(pic, &(line->p2->abs), color);
+}
+
+
+void draw_line_img_over_452(t_line *line, t_point *p, t_pict *pic, int grad)
+{
+	t_point error;
+	int color;
+
+	ft_fill_point(&error, 0, 0, 0);
+	color = line->color;
+	while (p->y != line->p2->abs.y)
+	{
+		if (grad)
+			color = ft_set_color_to_point(line, p, 0);
+		ft_put_pixel_to_img2(pic, p, color);
+		error.x = error.x + line->delta.x;
+		if (2 * error.x >= line->delta.y)
+		{
+			p->x += line->dir.x;
+			error.x = error.x - line->delta.y;
+		}
+		error.z = error.z + line->delta.z;
+		if (2 * error.z >= line->delta.y)
+		{
+			p->z += line->dir.z;
+			error.z = error.z - line->delta.y;
+		}
+		p->y +=line->dir.y;
+	}
+	//ft_put_pixel_to_img2(pic, &(line->p2->abs), color);
+}
+
+
+int		ft_not_need_print(t_line *line)
+{
+	if (line->p1->abs.y <= 0 && line->p2->abs.y <= 0)
+		return (TRUE);
+	if (line->p1->abs.x <= 0 && line->p2->abs.x <= 0)
+		return (TRUE);
+	if (line->p1->abs.y >= CONST_HEINTH && line->p2->abs.y >= CONST_HEINTH)
+		return (TRUE);
+	if (line->p1->abs.x >= CONST_WIDTH && line->p2->abs.x >= CONST_WIDTH)
+		return (TRUE);
+	return (FALSE);
+}
+
+
+void	draw_line_img2(t_line *line, t_pict *pic, int grad)
+{
+	t_point p;
+
+	if (ft_not_need_print(line))
+		return ;
+	ft_fill_point(&p, line->p1->abs.y, line->p1->abs.x, line->p1->abs.z);
+	line->dir.y = ft_znak(line->p2->abs.y - p.y);
+	line->dir.x = ft_znak(line->p2->abs.x - p.x);
+	line->dir.z = ft_znak(line->p2->abs.z - p.z);
+	if (!line->dir.y && !line->dir.x)
+		return ;
+	line->delta.y = line->dir.y * (line->p2->abs.y - p.y);
+	line->delta.x = line->dir.x * (line->p2->abs.x - p.x);
+	line->delta.z = line->dir.z * (line->p2->abs.z - p.z);
+	//printf("%d_%d\n", p.z, p.z);
+	if (line->delta.x >= line->delta.y)
+		draw_line_img_lower_452(line, &p, pic, grad);
+	else
+		draw_line_img_over_452(line, &p, pic, grad);
+}
+
+
+
+
+
+
+/*
+**	избавление от погрешности
+*/
+
+void ft_norm_vektor(t_vektr *vek)
+{
+	double summ;
+
+	summ = vek->x * vek->x + vek->y * vek->y + vek->z * vek->z;
+	summ = sqrt(summ);
+	vek->x = vek->x / summ;
+	vek->y = vek->y / summ;
+	vek->z = vek->z / summ;
+}
+
+
+
+
+
+
+void ft_rot2(t_vektr *ox, t_vektr *oy, double ang)
+{
+	double cosa;
+	double sina;
+	double temp_x;
+	double temp_y;
+	double temp_z;
+
+	if (ang == 0.0 || !ox || !oy)
+		return ;
+	cosa = cos(ang);
+	sina = sin(ang);
+	temp_x = ox->x * (cosa + (1 - cosa) * oy->x * oy->x);
+	temp_x = temp_x + ox->y * ((1 - cosa) * oy->x * oy->y - sina * oy->z);
+	temp_x = temp_x + ox->z * ((1 - cosa) * oy->x * oy->z + sina * oy->y);
+	temp_y = ox->x * ((1 - cosa) * oy->y * oy->x + sina * oy->z);
+	temp_y = temp_y + ox->y * (cosa + (1 - cosa) * oy->y * oy->y);
+	temp_y = temp_y + ox->z * ((1 - cosa) * oy->y * oy->z - sina * oy->x);
+	temp_z = ox->x * ((1 - cosa) * oy->z * oy->x - sina * oy->y);
+	temp_z = temp_z + ox->y * ((1 - cosa) * oy->z * oy->y + sina * oy->x);
+	temp_z = temp_z + ox->z * (cosa + (1 - cosa) * oy->z * oy->z);
+	ox->x = temp_x;
+	ox->y = temp_y;
+	ox->z = temp_z;
+	ft_norm_vektor(ox);
+}
+
+
+
+
+t_line *ft_new_line(t_vektr *p1, t_vektr *p2, int color)
+{
+	t_line *line;
+
+	if (p1 == NULL || p2 == NULL)
+		return (NULL);
+	line = (t_line *)ft_memalloc(sizeof(t_line));
+	if (line == NULL)
+		return (NULL);
+	line->p1 = p1;
+	line->p2 = p2;
+	line->color = color;
+	return (line);
+}
+
+void ft_ret_abs_xyz(t_vektr *ox, t_vis *vis)
+{
+	ox->otn.x = (int)(ox->x * vis->len);
+	ox->abs.x = ox->otn.x + vis->cam_x;
+	ox->otn.y = (int)(ox->y * vis->len);
+	ox->abs.y = ox->otn.y + vis->cam_y;
+	ox->otn.z = (int)(ox->z * vis->len);
+	ox->abs.z = ox->otn.z;
+}
+
+
+
+void ft_rotate_xyz(t_vis *vis)
+{
+	if (vis->ang_z != 0)
+	{
+		ft_rot2(&(vis->oxyz.oy), &(vis->oxyz.oz), vis->ang_z);
+		ft_rot2(&(vis->oxyz.ox), &(vis->oxyz.oz), vis->ang_z);
+		vis->ang_z = 0;
+	}
+	if (vis->ang_x != 0)
+	{
+		ft_rot2(&(vis->oxyz.oy), &(vis->oxyz.ox), vis->ang_x);
+		ft_rot2(&(vis->oxyz.oz), &(vis->oxyz.ox), vis->ang_x);
+		vis->ang_x = 0;
+	}
+	if (vis->ang_y != 0)
+	{
+		ft_rot2(&(vis->oxyz.ox), &(vis->oxyz.oy), vis->ang_y);
+		ft_rot2(&(vis->oxyz.oz), &(vis->oxyz.oy), vis->ang_y);
+		vis->ang_y = 0;
+	}
+}
+
+
+
+void ft_change_points4(t_vis *vis, t_vektr *p, int rotate)
+{
+	t_vektr *ox;
+	t_vektr *oy;
+	t_vektr *oz;
+
+	ox = &(vis->oxyz.ox);
+	oy = &(vis->oxyz.oy);
+	oz = &(vis->oxyz.oz);
+	if (rotate)
+	{
+		p->otn.z = (int)((ox->z * p->x + oy->z * p->y + oz->z * p->z) * vis->len);
+		p->otn.x = (int)((ox->x * p->x + oy->x * p->y + oz->x * p->z) * vis->len);
+		p->otn.y = (int)((ox->y * p->x + oy->y * p->y + oz->y * p->z) * vis->len);
+	}
+	p->abs.x = p->otn.x + vis->cam_x;
+	p->abs.y = p->otn.y + vis->cam_y;
+	p->abs.z = p->otn.z;
+}
+
+
+void ft_change_points5(t_vis *vis)
+{
+	t_vektr *p;
+
+	if (!vis->is_rotate_or_csale && !vis->is_shift)
+		return ;
+	p = vis->points;
+	while (p)
+	{
+		ft_change_points4(vis, p, vis->is_rotate_or_csale);
+		p = p->next;
+	}
+	vis->is_rotate_or_csale = FALSE;
+	vis->is_shift = FALSE;
+}
+
+
+
+void ft_print_rect2(t_pict *pic, t_point *center, int len, int color)
 {
 	int i;
 	int j;
+	int shift;
+	t_point p;
 
 	j = 0;
-	while (j <= fluid->jmax + 1)
+	shift = - len / 2;
+	while (j <= len)
 	{
-		printf("%d\t", fluid->jmax + 1 - j);
 		i = 0;
-		while (i <= fluid->imax + 1)
+		while (i <= len)
 		{
-			printf("%2.0lf ", arr[j][i]);
+			ft_fill_point(&p, center->y + j + shift, center->x + i + shift, center->z);
+			ft_put_pixel_to_img2(pic, &p, color);
 			i++;
 		}
-		printf("\n");
 		j++;
 	}
 }
 
 
-void	ft_print_flags(t_fluid *fluid, int **arr)
+
+
+/* Вспомогательная функция, печатает точки, определяющие окружность */
+void plot_circle2(t_pict *pic, t_point *p, t_point *center, int color_code)
+{
+	t_point point;
+
+	ft_fill_point(&point, center->y + p->y, center->x + p->x, center->z);
+	ft_put_pixel_to_img2(pic, &point, color_code);
+	ft_fill_point(&point, center->y + p->y, center->x - p->x, center->z);
+	ft_put_pixel_to_img2(pic, &point, color_code);
+	ft_fill_point(&point, center->y - p->y, center->x + p->x, center->z);
+	ft_put_pixel_to_img2(pic, &point, color_code);
+	ft_fill_point(&point, center->y - p->y, center->x - p->x, center->z);
+	ft_put_pixel_to_img2(pic, &point, color_code);
+}
+
+/* Вычерчивание окружности с использованием алгоритма Мичнера */
+void circle2(t_pict *pic, t_vektr *center, int radius, int color_code)
+{
+	int x;
+	int y;
+	int delta;
+	t_point p;
+
+	x = 0;
+	y = radius;
+	delta = 3 - 2 * radius;
+	while (x < y)
+	{
+		ft_fill_point(&p, x, y, 0);
+		plot_circle2(pic, &p, &(center->abs), color_code);
+		ft_fill_point(&p, y, x, 0);
+		plot_circle2(pic, &p, &(center->abs),color_code);
+		if (delta < 0)
+			delta += 4 * x + 6;
+		else
+		{
+			delta += 4 * (x - y) + 10;
+			y--;
+		}
+		x++;
+	}
+	if (x == y)
+		plot_circle2(pic, &p, &(center->abs),color_code);
+}
+
+void ft_print_lines(t_vis *vis)
+{
+	t_line *line;
+
+	line = vis->lines;
+	while (line)
+	{
+		draw_line_img2(line, &(vis->pic), vis->grad);
+		line = line->next;
+	}
+}
+
+
+int		ft_rotate_and_csale(t_vis *vis, int key)
+{
+	if (key == 69 && vis->len < 100.0)
+		vis->len *= 1.1;
+	else if (key == 78 && vis->len > 0.01)
+		vis->len /= 1.1;
+	else if (key == 12)
+		vis->ang_z += M_PI / 180;
+	else if (key == 13)
+		vis->ang_y += M_PI / 180;
+	else if (key == 14)
+		vis->ang_x += M_PI / 180;
+	else
+		return (FALSE);
+	ft_rotate_xyz(vis);
+	return (TRUE);
+}
+
+
+int		ft_shift(t_vis *vis, int key)
+{
+	if (key == 124)
+		vis->cam_x += 10;
+	else if (key == 123)
+		vis->cam_x -= 10;
+	else if (key == 126)
+		vis->cam_y -= 10;
+	else if (key == 125)
+		vis->cam_y += 10;
+	else
+		return (FALSE);
+	return (TRUE);
+}
+
+
+
+int		deal_key(int key, void *param)
+{
+	t_vis *vis;
+
+	vis = (t_vis *)param;
+	vis->is_rotate_or_csale = ft_rotate_and_csale(vis, key);
+	vis->is_shift = ft_shift(vis, key);
+	if (key == 53)//ESC
+		exit(0);
+	if (key == 35)
+		vis->pause = !vis->pause;
+	if (key == 5)
+		vis->grad = !vis->grad;
+	return (0);
+}
+
+
+void ft_add_line(t_line **begin, t_vektr *p1, t_vektr *p2, int color)
+{
+	t_line *line;
+	t_line *tmp;
+
+	line = ft_new_line(p1, p2, color);
+
+	if (!line)
+		return ;
+	tmp = *begin;
+	*begin = line;
+	line->next = tmp;
+}
+
+
+
+
+
+
+/*
+void	ft_print_points(t_vis *vis, t_vektr **points)
+{
+	int i;
+
+	i = 0;
+	while (points[i])
+	{
+		//ft_put_pixel_to_img(vis->addr, points[i]->abs_x, points[i]->abs_y, 0xFFFF);
+		if (points[i])
+			ft_print_rect(vis->addr, points[i], 0xFFFF);
+		i++;
+	}
+}*/
+
+/*
+REAL	ft_move_parts_x(t_fluid *fluid, t_vektr *p, int j, int i)
+{
+	REAL x1;
+	REAL u;
+
+	x1 = i * DELTA;
+
+	//printf("x1 = %d_%lf_%lf_%lf\n", j, y2, p1->y ,y1);
+	u = (fluid->speed_u[j][i + 1] - fluid->speed_u[j][i]) / (DELTA_X)
+	* (p->x - x1) + fluid->speed_u[j][i];
+	return (u);
+	//printf("%lf + %d\n",p1->otn_x, i, j);
+}
+
+
+REAL	ft_move_parts_y(t_fluid *fluid, t_vektr *p, int j, int i)
+{
+	REAL y1;
+	REAL v;
+
+	y1 = j * DELTA;
+
+	v = (fluid->speed_v[j + 1][i] - fluid->speed_v[j][i]) / (DELTA_Y)
+	* (p->y - y1) + fluid->speed_v[j][i];
+	return (v);
+}
+
+
+
+
+void	ft_move_parts(t_fluid *fluid, t_vektr *parts)
 {
 	int i;
 	int j;
 
-	j = 0;
-	while (j <= fluid->jmax + 1)
+	i = (int)(parts->x / DELTA);
+	j = (int)(parts->y / DELTA);
+	if (parts->status == BLOB && fluid->map[j + 1][i + 1] == OBSTACLES)
 	{
-		printf("%d\t", fluid->jmax + 1 - j);
-		i = 0;
-		while (i <= fluid->imax + 1)
-		{
-			printf("%3d  ", arr[j][i]);
-			i++;
-		}
-		printf("\n");
-		j++;
+		return ;
 	}
+	// на границе интерполировать не нужно, но рядом с препятствиями нужно
+	//u = fluid->speed_u[j][i];
+	//v = fluid->speed_v[j][i];
+	if (fluid->flags[j + 1][i + 1] & C_F)
+		parts->status = WATER;
+	if (fluid->flags[j + 1][i + 1] & C_R)
+		parts->status = SURF;
+	if (parts->status != BLOB && fluid->flags[j + 1][i + 1] & C_X)
+		parts->status = BLOB;
+	if (parts->status == BLOB && !(fluid->flags[j + 2][i + 1] & C_A))
+		parts->status = SURF;
+
+	if (parts->status != BLOB)
+	{
+		parts->u = ft_move_parts_x(fluid, parts, j + 1, i);
+		parts->v = ft_move_parts_y(fluid, parts, j, i + 1);
+	}
+	else if ((fluid->flags[j + 1][i + 1] & C_X && fluid->map[j + 2][i + 1] != OBSTACLES) ||
+	parts->status == BLOB)
+	{
+		parts->u += fluid->deltat * CONST_GX * 2.0;
+		parts->v += fluid->deltat * CONST_GY * 2.0;
+	}
+	//printf("%d_%lf_%lf_%lf\n", i, i * DELTA, parts->x, u);
+	//printf("%d_%lf_%lf_%lf\n", j, j * DELTA, parts->y, v);
+	parts->x = parts->x + parts->u * fluid->deltat;
+	parts->y = parts->y + parts->v * fluid->deltat;
+	parts->otn_x = (int)parts->x;
+	parts->otn_y = (int)parts->y;
 }
 
-
-
-//REAL differential(REAL **value, int delta)
-
-void	ft_arr_set(REAL **arr, int columns, REAL value)
+void	ft_mark_water_on_map(t_fluid *fluid, t_vektr *parts)
 {
 	int i;
+	int j;
 
-	while (*arr)
-	{
-		i = 0;
-		while (i <= columns)
-		{
-			(*arr)[i] = value;
-			i++;
-		}
-		arr++;
-	}
+	i = (int)(parts->x / DELTA) + 1;
+	j = (int)(parts->y / DELTA) + 1;
+	if (i >= 1 && j >= 1 && i <= fluid->imax && j <= fluid->jmax && parts->status != BLOB)
+		if (fluid->map[j][i] == EMPTY)
+			fluid->map[j][i] = WATER;
 }
 
 
-void	ft_fill_iterations(t_iter *iter, int j, int jmax, int i, int imax)
+void	ft_recalk_parts(void *param)
 {
-	iter->j = j;
-	iter->i = i;
-	iter->jmax = jmax;
-	iter->imax = imax;
-}
-
-
-void	ft_iteration_i(void *ptr, void (*f)(void *, int, int), t_iter *iter)
-{
+	t_fluid *fluid;
+	t_vektr **parts;
 	int i;
+	int n;
 
-	i = iter->i;
-	while (i <= iter->imax)
+	fluid = (t_fluid *)param;
+	parts = fluid->vis->water;
+	n = fluid->imax * fluid->jmax * PARTS_COUNT * PARTS_COUNT + 1;
+	i = 0;
+	//printf("%d\n", n);
+	while (i < n)
 	{
-		f(ptr, iter->j, i);
+		if (parts[i])
+		{
+			//printf("%d\n", i);
+			ft_move_parts(fluid, parts[i]);
+			if (parts[i])
+				ft_mark_water_on_map(fluid, parts[i]);
+		}
 		i++;
 	}
 }
 
-void	ft_iteration_j(void *ptr, void (*f)(void *, int, int), t_iter *iter)
+
+void	ft_change_points3(t_vis *vis)
 {
-	int j;
-
-	j = iter->j;
-	while (j <= iter->jmax)
-	{
-		f(ptr, j, iter->i);
-		j++;
-	}
-}
-
-
-void	ft_iteration(void *ptr, void (*f)(void *, int, int), t_iter *iter)
-{
+	t_vektr **parts;
 	int i;
-	int j;
+	int n;
 
-	j = iter->j;
-	while (j <= iter->jmax)
+	parts = vis->water;
+	n = (vis->inf->imax) * (vis->inf->jmax) * PARTS_COUNT * PARTS_COUNT + 1;
+	i = 0;
+
+	while (i < n)
 	{
-		i = iter->i;
-		while (i <= iter->imax)
+		if (parts[i])
 		{
-			f(ptr, j, i);
-			i++;
+			ft_change_points2(vis, parts[i]);
+			if (parts[i]->status == SURF)
+				circle(vis->addr, parts[i], RADIUS, 0xFFFF);
+				//ft_print_rect(vis->addr, parts[i], RADIUS * 2, 0xFFFF);
+			else if (parts[i]->status == BLOB)
+				circle(vis->addr, parts[i], RADIUS, 0xFF);
+				//ft_print_rect(vis->addr, parts[i], RADIUS, 0xFFFF);
+			else
+				ft_print_rect(vis->addr, parts[i], 3, 0xFFFF);
 		}
-		j++;
+		i++;
 	}
 }
-
-
-void	ft_fill_watercell_in_center(void *ptr, int j, int i)
-{
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	if ((fluid->map)[j][i])
-	{
-		fluid->press_p[j][i] = P_CONST;
-		fluid->speed_u[j][i] = U_CONST;
-		//fluid->speed_v[j][i] = U_CONST;
-	}
-}
-
-
-void	ft_pressure_in_obstacle(REAL **press, int j, int i, int flag)
-{
-	if (flag & B_N && flag & B_E)
-		press[j][i] = (press[j + 1][i] + press[j][i + 1]) / 2;
-	else if (flag & B_N && flag & B_W)
-		press[j][i] = (press[j + 1][i] + press[j][i - 1]) / 2;
-	else if (flag & B_S && flag & B_E)
-		press[j][i] = (press[j - 1][i] + press[j][i + 1]) / 2;
-	else if (flag & B_S && flag & B_W)
-		press[j][i] = (press[j - 1][i] + press[j][i - 1]) / 2;
-	else if (flag & B_N)
-		press[j][i] = press[j + 1][i];
-	else if (flag & B_E)
-		press[j][i] = press[j][i + 1];
-	else if (flag & B_S)
-		press[j][i] = press[j - 1][i];
-	else if (flag & B_W)
-		press[j][i] = press[j][i - 1];
-}
-
-
-void	ft_speed_u_in_obstacle(REAL **speed, int j, int i, int flag)
-{
-	if (flag & B_N)
-	{
-		speed[j][i] = -speed[j + 1][i];
-		speed[j][i - 1] = -speed[j + 1][i - 1];//хз, возможно лишняя строка
-	}
-	if (flag & B_S)
-	{
-		speed[j][i] = -speed[j - 1][i];
-		speed[j][i - 1] = -speed[j - 1][i - 1];//хз, возможно лишняя строка
-	}
-	if (flag & B_E)
-		speed[j][i] = 0;
-	if (flag & B_W)
-		speed[j][i - 1] = 0;
-}
-
-
-void	ft_speed_v_in_obstacle(REAL **speed, int j, int i, int flag)
-{
-	if (flag & B_E)
-	{
-		speed[j][i] = -speed[j][i + 1];
-		speed[j - 1][i] = -speed[j - 1][i + 1];//хз, возможно лишняя строка
-	}
-	if (flag & B_W)
-	{
-		speed[j][i] = -speed[j][i - 1];
-		speed[j - 1][i] = -speed[j - 1][i - 1];//хз, возможно лишняя строка
-	}
-	if (flag & B_N)
-		speed[j][i] = 0;
-	if (flag & B_S)
-		speed[j - 1][i] = 0;
-}
-
-
-void	ft_fill_obstacle_in_center(void *ptr, int j, int i)
-{
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	if (!(fluid->map)[j][i] && fluid->flags[j][i])
-	{
-		//проставляю давления и скорости
-		//есть недостаток: у каждой клеточкинужно указывать давления и скорости
-		//на двух ребрах, я ставлю на 3, происходит дублирование
-		//но пока не понятно, где эти флаги еще пригодятся...
-		ft_pressure_in_obstacle(fluid->press_p, j, i, fluid->flags[j][i]);
-		ft_speed_u_in_obstacle(fluid->speed_u, j, i, fluid->flags[j][i]);
-		ft_speed_v_in_obstacle(fluid->speed_v, j, i, fluid->flags[j][i]);
-	}
-}
-
-
-
-/*
-**граничные условия на верхней стенке
 */
-void	ft_top_boundary(void *ptr, int j, int i)
+
+
+
+
+
+
+
+int		ft_read_ground_from_file2(char *name)
 {
-	t_fluid *fluid;
+	int		fd;
+	int		k;
 
-	fluid = (t_fluid *)ptr;
-	fluid->press_p[jmax + 1][i] = fluid->press_p[jmax][i];
-	fluid->tmp[jmax + 1][i] = fluid->press_p[jmax][i];
-	fluid->speed_u[jmax + 1][i] = -fluid->speed_u[jmax][i];
-	fluid->speed_v[jmax][i] = 0;
-	fluid->flow_g[jmax][i] = fluid->speed_v[jmax][i];
-}
-/*
-**граничные условия на нижней стенке
-*/
-void	ft_down_boundary(void *ptr, int j, int i)
-{
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	fluid->press_p[0][i] = fluid->press_p[1][i];
-	fluid->tmp[0][i] = fluid->press_p[1][i];
-	fluid->speed_u[0][i] = -fluid->speed_u[1][i];
-	fluid->speed_v[0][i] = 0;
-	fluid->flow_g[0][i] = fluid->speed_v[0][i];
-}
-/*
-**граничные условия на левой стенке
-*/
-void	ft_left_boundary(void *ptr, int j, int i)
-{
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	fluid->press_p[j][0] = fluid->press_p[j][1];
-	fluid->tmp[j][0] = fluid->press_p[j][1];
-	fluid->speed_u[j][0] = 0;
-	fluid->speed_v[j][0] = -fluid->speed_v[j][1];
-	fluid->flow_f[j][0] = fluid->speed_u[j][0];
-}
-/*
-**граничные условия на правой стенке
-*/
-void	ft_right_boundary(void *ptr, int j, int i)
-{
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	fluid->press_p[j][imax + 1] = fluid->press_p[j][imax];
-	fluid->tmp[j][imax + 1] = fluid->press_p[j][imax];
-	fluid->speed_u[j][imax] = 0;
-	fluid->speed_v[j][imax + 1] = -fluid->speed_v[j][imax];
-	fluid->flow_f[j][imax] = fluid->speed_u[j][imax];
-}
-
-
-void	ft_inisialization(t_fluid *fluid)
-{
-	t_iter iter;
-
-	//ставим давление, скорости во внутренних клетках воды
-	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
-	ft_iteration((void *)fluid, &ft_fill_watercell_in_center, &iter);
-	//fluid->speed_u[3][3] = 2;
-}
-
-void	ft_fill_watercell(t_fluid *fluid)
-{
-	t_iter iter;
-
-	//ставим давление, скорости во внутренних клетках воды
-	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
-	ft_iteration((void *)fluid, &ft_fill_obstacle_in_center, &iter);
-	//граничные условия на стенках
-	ft_fill_iterations(&iter, 0, fluid->jmax + 1, 0, 0);
-	ft_iteration_j(fluid, &ft_left_boundary, &iter);
-	ft_fill_iterations(&iter, 0, fluid->jmax + 1, fluid->imax, fluid->imax);
-	ft_iteration_j(fluid, &ft_right_boundary, &iter);
-	ft_fill_iterations(&iter, 0, 0, 0, fluid->imax + 1);
-	ft_iteration_i(fluid, &ft_down_boundary, &iter);
-	ft_fill_iterations(&iter, fluid->jmax, fluid->jmax, 0, fluid->imax + 1);
-	ft_iteration_i(fluid, &ft_top_boundary, &iter);
-}
-
-
-REAL	ft_laplasian(REAL **speed, int j, int i)
-{
-	REAL lapl;
-
-	//сумма двойных дифференциалов
-	lapl = ((speed[j][i + 1] - 2 * speed[j][i] + speed[j][i - 1]) / dx2 +
-	(speed[j + 1][i] -	2 * speed[j][i] + speed[j - 1][i]) / dy2) / CONST_RE;
-	return (lapl);
-}
-
-
-void	ft_flow_f_and_flow_g(void *ptr, int j, int i)
-{
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	fluid->lapl_u[j][i] = ft_laplasian(fluid->speed_u, j, i);
-	fluid->lapl_v[j][i] = ft_laplasian(fluid->speed_v, j, i);
-	//потоки горизонтальный и вертикальный
-	fluid->flow_f[j][i] = fluid->speed_u[j][i] + (fluid->lapl_u[j][i] + CONST_GX) * fluid->deltat;
-	fluid->flow_g[j][i] = fluid->speed_v[j][i] + (fluid->lapl_v[j][i] + CONST_GY) * fluid->deltat;
-}
-
-void	ft_flow_f_or_flow_g(void *ptr, int j, int i)
-{
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	//потоки горизонтальный или вертикальный
-	if (i < fluid->imax)
+	if ((fd = open(name, O_RDWR)) < 0 || read(fd, NULL, 0) < 0)
 	{
-		fluid->lapl_u[j][i] = ft_laplasian(fluid->speed_u, j, i);
-		fluid->flow_f[j][i] = fluid->speed_u[j][i] + (fluid->lapl_u[j][i] + CONST_GX) * fluid->deltat;
+		ft_putstr("error");
+		return (FAIL);
 	}
-	if (j < fluid->jmax)
-	{
-		fluid->lapl_v[j][i] = ft_laplasian(fluid->speed_v, j, i);
-		fluid->flow_g[j][i] = fluid->speed_v[j][i] + fluid->lapl_v[j][i] + CONST_GY * fluid->deltat;
-	}
+	ground = (char **)ft_memalloc((200) * sizeof(char *));
+	k = 0;
+	while (get_next_line(fd, &(ground[k])))
+		k++;
+	close(fd);
+
+	imax = ft_strlen(ground[1]);
+	jmax = 10;
+	kmax = k;
+
+	return (SUCCESS);
 }
 
 
 
-void	ft_right_hand_side(void *ptr, int j, int i)
+void	ft_create_xyz(t_vis *vis)
 {
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	fluid->rhs[j][i] = ((fluid->flow_f[j][i] - fluid->flow_f[j][i - 1]) / dx +
-	(fluid->flow_g[j][i] - fluid->flow_g[j - 1][i]) / dy) / fluid->deltat;
+	vis->oxyz.ox.x = 1.0;
+	vis->oxyz.oy.y = 1.0;
+	vis->oxyz.oz.z = 1.0;
 }
 
 
 
-void	ft_residual_pressure_center(void *ptr, int j, int i)
-{
-	REAL r_it;
-	t_fluid *fluid;
 
-	fluid = (t_fluid *)ptr;
-	r_it =
-	((fluid->press_p[j][i + 1] - fluid->press_p[j][i]) -
-	(fluid->press_p[j][i] - fluid->press_p[j][i - 1])) / (dx * dx) +
-	((fluid->press_p[j + 1][i] - fluid->press_p[j][i]) -
-	(fluid->press_p[j][i] - fluid->press_p[j - 1][i])) / (dy * dy) + fluid->rhs[j][i];
-	r_it = r_it * r_it;
-	fluid->eps += r_it;
+
+t_vektr *ft_new_vektor2(int x, int y, int z, int color)
+{
+	t_vektr *tmp;
+
+	tmp = (t_vektr *)malloc(sizeof(t_vektr));
+	ft_fill_point(&(tmp->otn), y, x, z);
+	tmp->x = x;
+	tmp->y = y;
+	tmp->z = z;
+	tmp->color = color;
+	tmp->next = NULL;
+	tmp->down = NULL;
+	return (tmp);
 }
 
 
-/*
-**	функция нужна для расчета давлений на клетках, рядом с крайними
-*/
-void	ft_check_params(t_fluid *fluid, int *ewns, int i, int j)
+t_vektr *ft_add_vektor2(void *ptr, t_point *p, int color)
 {
-	ewns[0] = 1;
-	ewns[1] = 1;
-	ewns[2] = 1;
-	ewns[3] = 1;
-	if (i == 1)
-		ewns[0] = 0;
-	else if (i == fluid->imax)
-		ewns[1] = 0;
-	if (j == 1)
-		ewns[2] = 0;
-	else if (j == fluid->jmax)
-		ewns[3] = 0;
-}
+	t_vektr *tmp;
+	t_vektr **begin;
 
-
-void	ft_residual_pressure_boundary(void *ptr, int j, int i)
-{
-	int ewns[4];
-	REAL r_it;
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	ft_check_params(fluid, ewns, i, j);
-	r_it =
-	(ewns[0] * (fluid->press_p[j][i + 1] - fluid->press_p[j][i]) -
-	ewns[1] * (fluid->press_p[j][i] - fluid->press_p[j][i - 1])) / (dx * dx) +
-	(ewns[2] * (fluid->press_p[j + 1][i] - fluid->press_p[j][i]) -
-	ewns[3] * (fluid->press_p[j][i] - fluid->press_p[j - 1][i])) / (dy * dy) + fluid->rhs[j][i];
-	r_it = r_it * r_it;
-	fluid->eps += r_it;
-}
-
-
-REAL	ft_residual_pressure(t_fluid *fluid)
-{
-	t_iter iter;
-
-	fluid->eps = 0;
-	ft_fill_iterations(&iter, 2, fluid->jmax - 1, 2, fluid->imax - 1);
-	ft_iteration((void *)fluid, &ft_residual_pressure_center, &iter);
-	ft_fill_iterations(&iter, 1, fluid->jmax, 1, 1);
-	ft_iteration_j((void *)fluid, &ft_residual_pressure_boundary, &iter);
-	ft_fill_iterations(&iter, 1, fluid->jmax, fluid->imax, fluid->imax);
-	ft_iteration_j((void *)fluid, &ft_residual_pressure_boundary, &iter);
-	ft_fill_iterations(&iter, 1, 1, 1, fluid->imax);
-	ft_iteration_i((void *)fluid, &ft_residual_pressure_boundary, &iter);
-	ft_fill_iterations(&iter, fluid->jmax, fluid->jmax, 1, fluid->imax);
-	ft_iteration_i((void *)fluid, &ft_residual_pressure_boundary, &iter);
-	fluid->eps = sqrt(fluid->eps) / fluid->jmax / fluid->imax;
-	return (fluid->eps);
+	begin = (t_vektr **)ptr;
+	tmp = ft_new_vektor2(p->x, p->y, p->z, color);
+	tmp->next = *begin;
+	*begin = tmp;
+	return (tmp);
 }
 
 
 
-void	ft_boundary_aproximation_press(void *ptr, int j, int i)
+
+
+void	ft_create_lines(t_line **lines, t_vektr **p, int color)
 {
-	int ewns[4];
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	ft_check_params(fluid, ewns, i, j);
-	fluid->tmp[j][i] = (1 - W_CONST) * fluid->press_p[j][i] +
-	W_CONST / ((REAL)(ewns[0] + ewns[1]) / (dx * dx) +
-	(REAL)(ewns[2] + ewns[3]) / (dy * dy)) *
-	((ewns[0] * fluid->press_p[j][i + 1] + ewns[1] *
-	fluid->tmp[j][i - 1])  / (dx * dx) + (ewns[2] * fluid->press_p[j + 1][i] +
-	ewns[3] * fluid->tmp[j - 1][i]) / (dy * dy) -
-	fluid->rhs[j][i]);
-}
-
-void	ft_aproximation_press(void *ptr, int j, int i)
-{
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	//
-/*
-	fluid->tmp[j][i] = (1 - W_CONST) * fluid->press_p[j][i] + W_CONST *
-	((fluid->press_p[j][i + 1] + fluid->tmp[j][i - 1])  * dy2 +
-	(fluid->press_p[j + 1][i] + fluid->tmp[j - 1][i]) * dx2 -
-	fluid->rhs[j][i] * dx2 * dy2) / (2 * (dx2 + dy2));
-*/
-	fluid->tmp[j][i] =
-	((fluid->press_p[j][i + 1] + fluid->tmp[j][i - 1])  * dy2 +
-	(fluid->press_p[j + 1][i] + fluid->tmp[j - 1][i]) * dx2 -
-	fluid->rhs[j][i] * dx2 * dy2) / (2 * (dx2 + dy2));
-
-}
-
-
-
-REAL	**ft_new_pressure(t_fluid *fluid)
-{
-	t_iter iter;
-
-	//заполняем столбец 1 и строку 1
-	ft_fill_iterations(&iter, 1, fluid->jmax, 1, 1);
-	ft_iteration_j((void *)fluid, &ft_boundary_aproximation_press, &iter);
-	ft_fill_iterations(&iter, 1, 1, 1, fluid->imax);
-	ft_iteration_i((void *)fluid, &ft_boundary_aproximation_press, &iter);
-
-	ft_fill_iterations(&iter, 2, fluid->jmax - 1, 2, fluid->imax - 1);
-	ft_iteration((void *)fluid, &ft_aproximation_press, &iter);
-	//заполняем столбец imax и строку jmax
-	ft_fill_iterations(&iter, 1, fluid->jmax, fluid->imax, fluid->imax);
-	ft_iteration_j(fluid, &ft_boundary_aproximation_press, &iter);
-	ft_fill_iterations(&iter, fluid->jmax, fluid->jmax, 1, fluid->imax);
-	ft_iteration_i(fluid, &ft_boundary_aproximation_press, &iter);
-	return (fluid->tmp);
-}
-
-void	ft_successive_overrelaxation(t_fluid *fluid)
-{
-	int it;
-	REAL **new;
-
-	it = 0;
-	fluid->eps = 1010101.0;
-	/////исправить!!!!
-	while (it < MAX_ITERATIONS && fluid->eps >= TOLERANCE)
-	{
-		//вычисляем давление приблизительно
-		new = ft_new_pressure(fluid);
-		fluid->tmp = fluid->press_p;
-		fluid->press_p = new;
-		ft_arr_set(fluid->tmp, fluid->imax + 1, 0.0);
-		//смотрим разброс и повторяем расчет, в случае необходимости
-		fluid->eps = ft_residual_pressure(fluid);
-		printf("%lf\n", fluid->eps);
-		it++;
-	}
-}
-
-
-void	ft_flows(t_fluid *fluid)
-{
-	t_iter iter;
-
-	//вычисляем потоки и двойные дифференциалы для всех внутренних клеток
-	ft_fill_iterations(&iter, 1, fluid->jmax - 1, 1, fluid->imax - 1);
-	ft_iteration((void *)fluid, &ft_flow_f_and_flow_g, &iter);
-	//вычисляем потоки и двойные дифференциалы для граничных клеток
-
-	ft_fill_iterations(&iter, fluid->jmax, fluid->jmax, 1, fluid->imax);
-	ft_iteration_i(fluid, &ft_flow_f_or_flow_g, &iter);
-	ft_fill_iterations(&iter, 1, fluid->jmax, fluid->imax, fluid->imax);
-	ft_iteration_j(fluid, &ft_flow_f_or_flow_g, &iter);
-	ft_fill_iterations(&iter, 1, fluid->jmax, 1, fluid->imax);
-	ft_iteration(fluid, &ft_right_hand_side, &iter);
-}
-
-
-void	ft_max_speed(t_fluid *fluid, REAL speed_u, REAL speed_v)
-{
-	if (speed_u < 0)
-		speed_u = -speed_u;
-	if (fluid->max_u < speed_u)
-		fluid->max_u = speed_u;
-	if (speed_v < 0)
-		speed_v = -speed_v;
-	if (fluid->max_v < speed_v)
-		fluid->max_v = speed_v;
-}
-
-
-void	ft_speed_u_and_speed_v(void *ptr, int j, int i)
-{
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	fluid->speed_u[j][i] = fluid->flow_f[j][i] - fluid->deltat / dx *
-	(fluid->press_p[j][i + 1] - fluid->press_p[j][i]);
-	fluid->speed_v[j][i] = fluid->flow_g[j][i] - fluid->deltat / dy *
-	(fluid->press_p[j + 1][i] - fluid->press_p[j][i]);
-	ft_max_speed(fluid, fluid->speed_u[j][i], fluid->speed_v[j][i]);
-}
-
-void	ft_speed_u_or_speed_v(void *ptr, int j, int i)
-{
-	t_fluid *fluid;
-
-	fluid = (t_fluid *)ptr;
-	if (i < fluid->imax)
-		fluid->speed_u[j][i] = fluid->flow_f[j][i] - fluid->deltat / dx *
-		(fluid->press_p[j][i + 1] - fluid->press_p[j][i]);
-	if (j < fluid->jmax)
-		fluid->speed_v[j][i] = fluid->flow_g[j][i] - fluid->deltat / dy *
-		(fluid->press_p[j + 1][i] - fluid->press_p[j][i]);
-	ft_max_speed(fluid, fluid->speed_u[j][i], fluid->speed_v[j][i]);
-}
-
-void	ft_new_velocity(t_fluid *fluid)
-{
-	t_iter iter;
-
-	fluid->max_u = 0.0;
-	fluid->max_v = 0.0;
-	//вычисляем потоки и двойные дифференциалы для всех внутренних клеток
-	ft_fill_iterations(&iter, 1, fluid->jmax - 1, 1, fluid->imax - 1);
-	ft_iteration((void *)fluid, &ft_speed_u_and_speed_v, &iter);
-	ft_fill_iterations(&iter, fluid->jmax, fluid->jmax, 1, fluid->imax);
-	ft_iteration_i(fluid, &ft_speed_u_or_speed_v, &iter);
-	ft_fill_iterations(&iter, 1, fluid->jmax, fluid->imax, fluid->imax);
-	ft_iteration_j(fluid, &ft_speed_u_or_speed_v, &iter);
-}
-
-REAL	ft_time_control(mytype dx, mytype dy, REAL max_u, REAL max_v)
-{
-	REAL deltat;
-	REAL tmp;
-
-	deltat = T_INFINITY;
-	if (max_u < 0)
-		max_u = -max_u;
-	if (max_v < 0)
-		max_v = -max_v;
-	if (max_u && (REAL)dx / max_u < deltat)
-		deltat = dx / max_u;
-	if (max_v && (REAL)dy / max_v < deltat)
-		deltat = dy / max_v;
-	tmp = CONST_RE / (1 / ((REAL)(dx * dx)) + 1 / ((REAL)(dy * dy))) / 2;
-	if (tmp < deltat)
-		deltat = tmp;
-	deltat *= TAU;
-	return (deltat);
-}
-
-int		**ft_create_map(void)
-{
-	int **map;
 	int i;
+
+	i = 0;
+	while (i < 4)
+	{
+		if (i != 3)
+		{
+			ft_add_line(lines, p[i], p[i + 1], color);
+			ft_add_line(lines, p[i + 4], p[i + 5], color);
+		}
+		else
+		{
+			ft_add_line(lines, p[i], p[i - 3], color);
+			ft_add_line(lines, p[i + 4], p[i + 1], color);
+		}
+		ft_add_line(lines, p[i], p[i + 4], color);
+		i++;
+	}
+
+}
+
+
+
+void	ft_create_obstacles(void *ptr, int j, int i, int k)
+{
+	t_vis *vis;
+	t_vektr *p[8];
+	void *points;
+	t_point xyz;
+
+	if (map[j][i][k] != OBSTACLES)
+		return ;
+	vis = (t_vis *)ptr;
+	points = (void *)(&(vis->points));
+	ft_fill_point(&xyz, j * dy, i * dx, k * dz);
+	p[0] = ft_add_vektor2(points, &xyz, 0xFFFF00);
+	ft_fill_point(&xyz, j * dy, (i - 1) * dx, k * dz);
+	p[1] = ft_add_vektor2(points, &xyz, 0xFFFF00);
+	ft_fill_point(&xyz, (j - 1) * dy, (i - 1) * dx, k * dz);
+	p[2] = ft_add_vektor2(points, &xyz, 0xFFFF00);
+	ft_fill_point(&xyz, (j - 1) * dy, i * dx, k * dz);
+	p[3] = ft_add_vektor2(points, &xyz, 0xFFFF00);
+
+	ft_fill_point(&xyz, j * dy, i * dx, (k - 1) * dz);
+	p[4] = ft_add_vektor2(points, &xyz, 0xFFFF00);
+	ft_fill_point(&xyz, j * dy, (i - 1) * dx, (k - 1) * dz);
+	p[5] = ft_add_vektor2(points, &xyz, 0xFFFF00);
+	ft_fill_point(&xyz, (j - 1) * dy, (i - 1) * dx, (k - 1) * dz);
+	p[6] = ft_add_vektor2(points, &xyz, 0xFFFF00);
+	ft_fill_point(&xyz, (j - 1) * dy, i * dx, (k - 1) * dz);
+	p[7] = ft_add_vektor2(points, &xyz, 0xFFFF00);
+
+	ft_create_lines(&(vis->lines), p, 0xFFFF00);
+}
+
+
+
+
+t_vektr	**ft_create_new_water_in_cell(int j, int i, int k, int parts_count)
+{
+	int xyz[3];
+	int jik[3];
+	int delta;
+	t_vektr	**p;
+	int n;
+
+	n = parts_count * parts_count * parts_count;
+	p = (t_vektr **)ft_memalloc(sizeof(t_vektr) * (n + 1));
+	delta = DELTA / parts_count;
+
+	while (n > 0)
+	{
+		n--;
+		jik[0] = n / (parts_count * parts_count);
+		jik[2] = n % parts_count;
+		jik[1] = n % (parts_count * parts_count) - jik[2];
+
+		xyz[0] = delta * jik[0] + delta / 2 + DELTA * (i - 1);
+		xyz[1] = delta * jik[1] + delta / 2 + DELTA * (j - 1);
+		xyz[2] = delta * jik[2]  + delta / 2 + DELTA * (k - 1);
+		p[n] = ft_new_vektor2(xyz[0], xyz[1], xyz[2], 0xFFFFFF);
+	}
+	return (p);
+}
+
+
+
+int ft_create_img(t_vis *vis)
+{
+	vis->mlx = mlx_init();
+	vis->win = mlx_new_window(vis->mlx, CONST_WIDTH, CONST_HEINTH, "mlx 42");
+	vis->img = mlx_new_image(vis->mlx, CONST_WIDTH, CONST_HEINTH);
+	vis->cam_x = CAM_X;
+	vis->cam_y = CAM_Y;
+	vis->len = CONST_LEN;
+	vis->pic.addr = (int *)mlx_get_data_addr(vis->img, &(vis->pic.bits_per_pixel), &(vis->pic.size_line), &(vis->pic.endian));
+	vis->pic.near = (int *)ft_memalloc(CONST_WIDTH * CONST_HEINTH * 4);
+	return (0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+void	ft_del_cube_arr(void ****arr)
+{
+	void	***tmp;
+	int		i;
+
+	i = 0;
+	tmp = *arr;
+	while (tmp[i])
+	{
+		ft_str_arr_free((char ***)(tmp + i));
+		i++;
+	}
+	ft_memdel((void *)arr);
+}
+
+
+
+
+
+
+
+
+
+void ***ft_cube_arr(int jmax, int imax, int kmax, int size)
+{
+	void ***arr;
 	int j;
 
-	map = (int **)ft_mem_arr_new(jmax + 2, imax + 2, sizeof(int));
-	if (!map)
+	if (!(arr = (void ***)ft_memalloc(sizeof(void **) * (kmax + 1))))
 		return (NULL);
-	//столбец i=0 j=0 фиктивные
-	j = 1;
-	while (j <= jmax)
+	//printf("%d\n", )
+	j = 0;
+	while (j < jmax)
 	{
-		i = 1;
-		while (i <= imax)
+		if (!(arr[j] = (void **)ft_mem_arr_new(imax, kmax, size)))
 		{
-			map[j][i] = str[j - 1][i - 1];
-			i++;
+			ft_del_cube_arr(&arr);
+			break ;
 		}
 		j++;
 	}
-	return (map);
+	return (arr);
 }
 
 
 
-int		**ft_create_flags(int **map)
+void	ft_init_map_size(void)
 {
-	int **flags;
-	int i;
+	dx = DELTA;
+	dy = DELTA;
+	dz = DELTA;
+
+	map = (char ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(char));
+}
+
+
+
+
+
+
+void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start, t_point *end)
+{
+	int k;
 	int j;
+	int i;
 
-	flags = (int **)ft_mem_arr_new(jmax + 2, imax + 2, sizeof(int));
-	if (!flags)
-		return (NULL);
-	j = 1;
-	while (j <= jmax)
+
+	j = start->y;
+	while (j <= end->y)
 	{
-		i = 1;
-		while (i <= imax)
+		i = start->x;
+		while (i <= end->x)
 		{
-			//нули стоят по умолчанию, это символ препятствия
-			//if (i == 0 || i == imax + 1 || j == 0 || j == jmax + 1)
-			//	flags[j][i] = C_B;
-			//if (map[j][i])
-			//	flags[j][i] = C_F;
-			if (j > 1 && map[j - 1][i])
-				flags[j][i] += B_S;
-			if (j < jmax && map[j + 1][i])
-				flags[j][i] += B_N;
-			if (i > 1 && map[j][i - 1])
-				flags[j][i] += B_W;
-			if (i < imax && map[j][i + 1])
-				flags[j][i] += B_E;
+			k = start->z;
+			while (k <= end->z)
+			{
+				f(param, j, i, k);
+				k++;
+			}
 			i++;
 		}
 		j++;
 	}
-	return (flags);
+}
+
+
+void	ft_mark_obstacles_on_map(void *param, int j, int i, int k)
+{
+	if (j <= ground[k - 1][i - 1] - '0')
+		map[j][i][k] = OBSTACLES;
+	else
+		map[j][i][k] = EMPTY;
 }
 
 
 
-t_fluid	*ft_initialization(int **map, int **flags, int imax, int jmax)
+void	ft_fill_map_from_ground(char **ground)
 {
-	t_fluid *fluid;
+	t_point start;
+	t_point end;
 
-	fluid = (t_fluid *)ft_memalloc(sizeof(t_fluid));
-	fluid->imax = imax;
-	fluid->jmax = jmax;
-	fluid->map = map;
-	fluid->flags = flags;
-	fluid->tmp = (REAL **)ft_mem_arr_new(jmax + 2, imax + 2, sizeof(REAL));
-	fluid->speed_v = (REAL **)ft_mem_arr_new(jmax + 2, imax + 2, sizeof(REAL));
-	fluid->speed_u = (REAL **)ft_mem_arr_new(jmax + 2, imax + 2, sizeof(REAL));
-	fluid->press_p = (REAL **)ft_mem_arr_new(jmax + 2, imax + 2, sizeof(REAL));
-	fluid->lapl_u = (REAL **)ft_mem_arr_new(jmax + 2, imax + 2, sizeof(REAL));
-	fluid->lapl_v = (REAL **)ft_mem_arr_new(jmax + 2, imax + 2, sizeof(REAL));
-	fluid->flow_f = (REAL **)ft_mem_arr_new(jmax + 2, imax + 2, sizeof(REAL));
-	fluid->flow_g = (REAL **)ft_mem_arr_new(jmax + 2, imax + 2, sizeof(REAL));
-	fluid->rhs = (REAL **)ft_mem_arr_new(jmax + 2, imax + 2, sizeof(REAL));
-	return (fluid);
+	ft_fill_point(&start, 1, 1, 1);
+	ft_fill_point(&end, jmax, imax, kmax);
+	ft_cycle_cube(NULL, &ft_mark_obstacles_on_map, &start, &end);
+}
+
+
+void	ft_create_points_in_cells(t_vis *vis)
+{
+	t_point start;
+	t_point end;
+
+	ft_fill_point(&start, 1, 1, 1);
+	ft_fill_point(&end, jmax, imax, kmax);
+	ft_cycle_cube((void *)vis, &ft_create_obstacles, &start, &end);
+}
+
+
+
+void	ft_swap_points(t_vektr **p1, t_vektr **p2)
+{
+	t_vektr *tmp;
+
+	tmp = *p1;
+	*p1 = *p2;
+	*p2 = tmp;
+}
+
+void	ft_sort_points_by_y(t_plgn *plgn)
+{
+	if (plgn->p[1]->abs.y < plgn->p[0]->abs.y)
+		ft_swap_points(&(plgn->p[1]), &(plgn->p[0]));
+	if (plgn->p[2]->abs.y < plgn->p[0]->abs.y)
+		ft_swap_points(&(plgn->p[2]), &(plgn->p[0]));
+	if (plgn->p[2]->abs.y < plgn->p[1]->abs.y)
+		ft_swap_points(&(plgn->p[2]), &(plgn->p[1]));
 }
 
 
 
 
-int main(int argc, char **argv)
+
+void	ft_vektr_interpolation_by_y(int abs_y, t_vektr *p, t_vektr *p1, t_vektr *p2)
 {
+	int delta_y;
+	int y;
 
-	int **map;
-	int **flags;
+	//ft_bzero((void *)p, sizeof(t_vektr));
+	p->abs.y = abs_y;
+	delta_y = p1->abs.y - p2->abs.y;
+	if (!delta_y)
+	{
+		ft_fill_point(&(p->abs), p2->abs.y, p2->abs.x, p2->abs.z);
+		p->color = p2->color;
+		return ;
+	}
+	y = p->abs.y - p2->abs.y;
+	p->abs.x = ft_int_interpolation(y, delta_y, p2->abs.x, p1->abs.x);
+	p->abs.z = ft_int_interpolation(y, delta_y, p2->abs.z, p1->abs.z);
+	p->color = ft_grad_color(y, delta_y, p1->color, p2->color);
+}
+
+
+void	ft_draw_traing(t_pict *pic, t_vektr *p, t_vektr *p1, t_vektr *p2)
+{
+	t_vektr tmp1;
+	t_vektr tmp2;
+	t_line line;
+	int delta;
+	int y;
+
+	//ft_memcpy((void *)(&tmp1), (void *)(p1), sizeof(t_vektr));
+	//ft_memcpy((void *)(&tmp2), (void *)(p2), sizeof(t_vektr));
+	line.p1 = &tmp1;
+	line.p2 = &tmp2;
+	delta = ft_znak(p->abs.y - p1->abs.y);
+	y = p1->abs.y;
+	while (y != p->abs.y)
+	{
+		ft_vektr_interpolation_by_y(y, &tmp1, p, p1);
+		ft_vektr_interpolation_by_y(y, &tmp2, p, p2);
+		//printf("%d_%d\n", tmp1.abs.z, tmp2.abs.z);
+		draw_line_img2(&line, pic, 1);
+		y += delta;
+	}
+	//draw_line_img2(&line, pic, 1);
+}
 
 
 
-	map = ft_create_map();
-	flags = ft_create_flags(map);
-
-/*
-**	инициальзация массивов для скоростей и давления
-*/
-
-	t_fluid *fluid;
-	fluid = ft_initialization(map, flags, imax, jmax);
+void	ft_print_plgn(t_pict *pic, t_plgn *plgn)
+{
+	t_vektr tmp;
 
 
+	ft_sort_points_by_y(plgn);
 
+	ft_vektr_interpolation_by_y(plgn->p[1]->abs.y, &tmp, plgn->p[0], plgn->p[2]);
+	//printf("%d_%d_%d\n", plgn->p[0]->abs.z, tmp.abs.z, plgn->p[2]->abs.z);
+	//ft_print_rect2(pic, &(plgn->p[0]->abs), 5, plgn->p[0]->color);
+	//ft_print_rect2(pic, &(plgn->p[1]->abs), 5, plgn->p[1]->color);
+	//ft_print_rect2(pic, &(plgn->p[2]->abs), 5, plgn->p[2]->color);
+	//ft_print_rect2(pic, &(tmp.abs), 5, 0xFFFFFF);
+	ft_draw_traing(pic, plgn->p[0], &tmp, plgn->p[1]);
+	ft_draw_traing(pic, plgn->p[2], &tmp, plgn->p[1]);
+
+}
+
+
+
+t_plgn *ft_create_poligon(t_vektr *p1, t_vektr *p2, t_vektr *p3, int color)
+{
+	t_plgn *tmp;
+
+	tmp = (t_plgn *)ft_memalloc(sizeof(t_plgn));
+	if (!tmp)
+		return (NULL);
+	tmp->p[0] = p1;
+	tmp->p[1] = p2;
+	tmp->p[2] = p3;
+	return (tmp);
+}
+
+
+t_plgn *ft_try_create_poligon(t_vis *vis, int x, int y, int z)
+{
+	t_vektr *p[3];
+	void *points;
+	t_point xyz;
+
+	points = (void *)(&(vis->points));
+	ft_fill_point(&xyz, z, x, y);
+	p[0] = ft_add_vektor2(points, &xyz, 0xFF0000);
+	ft_fill_point(&xyz, y, z, x);
+	p[1] = ft_add_vektor2(points, &xyz, 0x0000FF);
+	ft_fill_point(&xyz, x, y, z);
+	p[2] = ft_add_vektor2(points, &xyz, 0x00FF00);
+
+	return (ft_create_poligon(p[0], p[1], p[2], 0xFFFFFF));
+}
+
+
+void	ft_refresh_picture(t_vis *vis)
+{
+	mlx_clear_window(vis->mlx, vis->win);
+	ft_bzero((void *)vis->pic.addr, CONST_WIDTH * CONST_HEINTH * 4);
+	ft_memset((void *)vis->pic.near, 0x80, CONST_WIDTH * CONST_HEINTH * 4);
+
+	//ft_change_points5(vis);
+	ft_change_points5(vis);
+	ft_print_lines(vis);
+	/*t_plgn *plgn;
+
+	plgn = vis->plgn;
+	while (plgn)
+	{
+		ft_print_plgn(&(vis->pic), plgn);
+		plgn = plgn->next;
+	}*/
+	mlx_put_image_to_window(vis->mlx, vis->win, vis->img, 0, 0);
+}
+
+
+int loop_hook(void *param)
+{
+	t_vis *vis;
+
+
+
+
+	vis = (t_vis *)param;
+
+	/*if (!vis->pause)
+	{
+		ft_solver(fluid);
+		ft_recalk_parts(param);
+	}*/
+
+
+	//ft_print_flags(fluid, fluid->parts);
 	//ft_print_flags(fluid, fluid->flags);
-	//ft_print_fluid(fluid, fluid->speed_u);
-
-
-	REAL t;
-
-	fluid->max_u = U_CONST * 5;
-	fluid->max_v = U_CONST * 5;
-	t = 0.0;
-	//ставим одинаковое давление и скорость в клетках воды
-	ft_inisialization(fluid);
-
-
-	//ft_print_fluid(fluid, fluid->press_p);
-
-	//ft_print_fluid(fluid, fluid->speed_u);
-	ft_fill_watercell(fluid);
-	//ft_arr_set(fluid->press_p, fluid->imax + 1, 100.0);
-
-
-	dx2 = dx * dx;
-	dy2 = dy * dy;
-
-	fluid->speed_u[3][3] = 2;
-	ft_print_fluid(fluid, fluid->speed_u);
-	while (t < 100)
+	//
+	//ft_print_fluid(fluid, fluid->speed_v);
+	//printf("%d_%d\n", fluid->jmax, fluid->imax);
+	/*int i = 1;
+	while (fluid->map[i])
 	{
+		printf("%s\n", fluid->map[i] + 1);
+		i++;
+	}*/
+	//ft_print_fluid(fluid, fluid->speed_v);
+	//ft_print_flags(fluid, fluid->flags);
+	//ft_print_flags2(fluid, fluid->flags, C_X);
+	ft_refresh_picture(vis);
+	//ft_new_pos_of_points(vis);
+	#ifdef SLEEP
+	sleep(1);
+	#endif
+	return (0);
+}
 
-		ft_fill_watercell(fluid);
-		fluid->deltat = ft_time_control(dx, dy, fluid->max_u, fluid->max_v);
-		//fluid->deltat = T_DELTA;
-		//printf("%lf\n", fluid->deltat);
-		ft_flows(fluid);
-		ft_successive_overrelaxation(fluid);
-		ft_new_velocity(fluid);
-		ft_print_fluid(fluid, fluid->speed_u);
-		ft_print_fluid(fluid, fluid->speed_v);
-		t = t + fluid->deltat;
-	}
 
-	//ft_print_fluid(fluid, fluid->press_p);
-	ft_print_fluid(fluid, fluid->speed_u);
-	ft_print_fluid(fluid, fluid->speed_v);
+
+int main(int ac, char **av)
+{
+	t_vis *vis;
+
+
+	//printf("%3$d_%2$d_%1$d\n", 5, 2.0, 16, 4.2, 3);
+
+
+	vis = ft_memalloc(sizeof(t_vis));
+	vis->ang_z = M_PI;
+	//vis->ang_y = M_PI;
+	//vis->ang_x = M_PI / 2;
+	vis->is_rotate_or_csale = TRUE;
+
+
+	if (ft_read_ground_from_file2("text.txt") == FAIL)
+		return (0);
+
+	ft_init_map_size();
+
+	ft_fill_map_from_ground(ground);
+
+/*	char **str = ground;
+	while (*str)
+	{
+		printf("%s\n", *str);
+		str++;
+	}*/
+
+	//printf("%d_%d\n", vis->inf->jmax, vis->inf->imax);
+
+	/*t_fluid *fluid;
+	fluid = ft_initialization(vis->inf->map, vis->inf->jmax, vis->inf->imax);
+	fluid->vis = vis;
+	vis->fluid = fluid;*/
+
+	ft_create_xyz(vis);
+	ft_create_points_in_cells(vis);
+
+	/*vis->plgn = ft_try_create_poligon(vis, 200, 20, 20);
+	vis->plgn->p[0]->x = 0.0;
+	vis->plgn->p[0]->y = 0.0;
+	vis->plgn->p[0]->z = 50.0;
+	vis->plgn->p[1]->x = 0.0;
+	vis->plgn->p[1]->y = 100.0;
+	vis->plgn->p[1]->z = 50.0;
+	vis->plgn->p[2]->x = 100.0;
+	vis->plgn->p[2]->y = 0.0;
+	vis->plgn->p[2]->z = 50.0;
+	vis->plgn->next = ft_try_create_poligon(vis, 100, 20, 20);
+	vis->plgn->next->p[0]->x = 0.0;
+	vis->plgn->next->p[0]->y = 0.0;
+	vis->plgn->next->p[0]->z = 0.0;
+	vis->plgn->next->p[1]->x = 0.0;
+	vis->plgn->next->p[1]->y = 0.0;
+	vis->plgn->next->p[1]->z = 100.0;
+	vis->plgn->next->p[2]->x = 100.0;
+	vis->plgn->next->p[2]->y = 100.0;
+	vis->plgn->next->p[2]->z = 100.0;*/
+
+	ft_create_img(vis);
+
+
+
+	mlx_hook(vis->win, 2, 0, deal_key, (void *)vis);
+	mlx_loop_hook(vis->mlx, loop_hook, (void *)vis);
+	mlx_loop(vis->mlx);
+
+
 	return (0);
 }
