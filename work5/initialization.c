@@ -26,7 +26,7 @@ void	ft_init_variable(void)
 	lapl_w = NULL;
 	flow_f = NULL;
 	flow_g = NULL;
-	flow_m = NULL;
+	flow_h = NULL;
 	rhs = NULL;
 	press_p = NULL;
 	tmp = NULL;
@@ -99,7 +99,7 @@ void	ft_init_map_arrs(void)
 		ft_del_variable();
 	if (!(flow_g = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
 		ft_del_variable();
-	if (!(flow_m = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
+	if (!(flow_h = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
 		ft_del_variable();
 	if (!(rhs = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
 		ft_del_variable();
@@ -169,7 +169,7 @@ void	ft_del_variable(void)
 	ft_del_cube_arr((void ****)(&lapl_w));
 	ft_del_cube_arr((void ****)(&flow_f));
 	ft_del_cube_arr((void ****)(&flow_g));
-	ft_del_cube_arr((void ****)(&flow_m));
+	ft_del_cube_arr((void ****)(&flow_h));
 	ft_del_cube_arr((void ****)(&rhs));
 	ft_del_cube_arr((void ****)(&press_p));
 	ft_del_cube_arr((void ****)(&tmp));
