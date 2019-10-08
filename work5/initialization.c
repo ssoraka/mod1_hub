@@ -17,19 +17,14 @@ void	ft_init_variable(void)
 	map = NULL;
 	flags = NULL;
 	flags_surface = NULL;
-	//parts = NULL;
+	parts = NULL;
 	speed_v = NULL;
 	speed_u = NULL;
 	speed_w = NULL;
-	lapl_u = NULL;
-	lapl_v = NULL;
-	lapl_w = NULL;
 	flow_f = NULL;
 	flow_g = NULL;
 	flow_h = NULL;
-	rhs = NULL;
 	press_p = NULL;
-	tmp = NULL;
 }
 
 void	ft_init_delta_xyz(void)
@@ -53,6 +48,7 @@ void	ft_init_delta_xyz(void)
 	max_w = U_CONST;
 
 	renolds = CONST_RE;
+	iteration = 0;
 }
 
 void ***ft_cube_arr(int jmax, int imax, int kmax, int size)
@@ -89,23 +85,15 @@ void	ft_init_map_arrs(void)
 		ft_del_variable();
 	if (!(speed_w = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
 		ft_del_variable();
-	if (!(lapl_u = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
-		ft_del_variable();
-	if (!(lapl_u = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
-		ft_del_variable();
-	if (!(lapl_w = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
-		ft_del_variable();
 	if (!(flow_f = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
 		ft_del_variable();
 	if (!(flow_g = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
 		ft_del_variable();
 	if (!(flow_h = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
 		ft_del_variable();
-	if (!(rhs = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
-		ft_del_variable();
 	if (!(press_p = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
 		ft_del_variable();
-	if (!(tmp = (REAL ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(REAL))))
+	if (!(parts = (t_vektr ****)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(t_vektr *))))
 		ft_del_variable();
 }
 
@@ -164,14 +152,10 @@ void	ft_del_variable(void)
 	ft_del_cube_arr((void ****)(&speed_v));
 	ft_del_cube_arr((void ****)(&speed_u));
 	ft_del_cube_arr((void ****)(&speed_w));
-	ft_del_cube_arr((void ****)(&lapl_u));
-	ft_del_cube_arr((void ****)(&lapl_v));
-	ft_del_cube_arr((void ****)(&lapl_w));
 	ft_del_cube_arr((void ****)(&flow_f));
 	ft_del_cube_arr((void ****)(&flow_g));
 	ft_del_cube_arr((void ****)(&flow_h));
-	ft_del_cube_arr((void ****)(&rhs));
 	ft_del_cube_arr((void ****)(&press_p));
-	ft_del_cube_arr((void ****)(&tmp));
+	ft_del_cube_arr((void ****)(&parts));
 	exit(0);
 }

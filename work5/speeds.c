@@ -28,7 +28,6 @@ REAL	ft_vortex(REAL ***speed, int j, int i, int k)
 {
 	REAL vortex;
 
-	//изменение вихря по оси х
 	vortex =
 	((speed_u[j][i][k] * speed[j][i][k]
 	- speed_u[j][i - 1][k] * speed[j][i - 1][k]) / dx

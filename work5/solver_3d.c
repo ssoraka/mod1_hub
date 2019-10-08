@@ -13,7 +13,7 @@
 #include "ft_mod1.h"
 
 
-REAL	ft_time_control()
+REAL	ft_time_control(void)
 {
 	REAL deltat;
 	REAL tmp;
@@ -90,11 +90,6 @@ void	ft_clear_all_params(void *param, int j, int i, int k)
 	flow_f[j][i][k] = 0.0;
 	flow_g[j][i][k] = 0.0;
 	flow_h[j][i][k] = 0.0;
-	lapl_u[j][i][k] = 0.0;
-	lapl_v[j][i][k] = 0.0;
-	lapl_w[j][i][k] = 0.0;
-	rhs[j][i][k] = 0.0;
-	tmp[j][i][k] = 0.0;
 }
 
 
@@ -113,40 +108,9 @@ void	ft_clear_old_cell(void)
 
 
 
-void	ft_surface_speed_and_pressure(void *param, int j, int i, int k)
-{
-	if (!flags_surface[j][i][k])
-		return ;
-	press_p[j][i][k] = 0.0;
-	/*
-	//надо бы это все допилить...
-	ft_surface_speed_u(j, i, k);
-	ft_surface_speed_v(j, i, k);
-	ft_surface_speed_w(j, i, k);
-	*/
-}
 
 
-void	ft_set_uvp_surface(void)
-{
-	t_point start;
-	t_point end;
-
-	ft_fill_point(&start, 1, 1, 1);
-	ft_fill_point(&end, jmax, imax, kmax);
-	//проставляем все значения для границы воды
-	ft_cycle_cube(NULL, &ft_surface_speed_and_pressure, &start, &end);
-
-}
-
-
-
-
-
-
-
-
-void	ft_solver(t_fluid *fluid)
+void	ft_solver(void)
 {
 
 	//deltat = T_DELTA;
@@ -157,23 +121,19 @@ void	ft_solver(t_fluid *fluid)
 	ft_clear_old_cell();
 
 	//считаем потоки для внутренних клеток воды, не граничащих с воздухом
-	ft_set_uvp_surface(fluid);
+	ft_set_uvp_surface();
 
 	//определяем скорости в клетках на границе
-	ft_setbcond(fluid);
+	ft_setbcond();
 	//считаем изменение потоков для внутренних клеток воды, не граничащих с воздухом
-	ft_comp_fg(fluid);
-	//определяем скорости в клетках на границе
-
-	//ft_comp_rhs(fluid);
+	ft_comp_fg();
 
 	//считаем давление для внутренних клеток воды, не граничащих с воздухом
 	ft_poisson();
 
 	//считаем скорости для внутренних клеток воды, не граничащих с воздухом
 	ft_adap_uvw();
-	//считаем потоки для внутренних клеток воды, не граничащих с воздухом
-	//ft_set_uvp_surface(fluid);
+
 	//стираем воду с карты, далее ее восстановят частицы
 	ft_clear_map_from_water();
 }

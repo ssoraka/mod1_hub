@@ -1074,34 +1074,6 @@ void	ft_surface_speed_and_pressure(void *ptr, int j, int i)
 			fluid->speed_v[j - 1][i + 1] = fluid->speed_v[j - 1][i];
 		}
 	}
-
-	//для дождя
-	/*if (//fluid->map[j+1][i] == EMPTY &&
-		fluid->map[j-1][i] == EMPTY &&
-		fluid->map[j][i+1] == EMPTY &&
-		fluid->map[j][i-1] == EMPTY )
-	{
-		fluid->speed_u[j][i] += CONST_GX * fluid->deltat;
-		fluid->speed_v[j][i] += CONST_GY * fluid->deltat;
-		fluid->speed_u[j][i - 1] += CONST_GX * fluid->deltat;
-		fluid->speed_v[j + 1][i] += CONST_GY * fluid->deltat;
-		if (fluid->map[j+2][i] == EMPTY)
-		{
-			fluid->speed_v[j + 2][i] = fluid->speed_v[j + 1][i];
-		}
-	}*/
-	/*else if (//fluid->map[j+1][i] == EMPTY &&
-		//fluid->map[j-1][i] == EMPTY &&
-		fluid->map[j][i+1] == EMPTY &&
-		fluid->map[j][i-1] == EMPTY)
-	{
-		fluid->speed_u[j][i] += CONST_GX * fluid->deltat;
-		fluid->speed_v[j][i] += CONST_GY * fluid->deltat;
-		fluid->speed_u[j][i - 1] += CONST_GX * fluid->deltat;
-		fluid->speed_v[j + 1][i] += CONST_GY * fluid->deltat;
-		//fluid->speed_v[j][i] += CONST_GY * fluid->deltat;
-		//fluid->speed_v[j - 1][i] += CONST_GY * fluid->deltat;
-	}*/
 }
 
 

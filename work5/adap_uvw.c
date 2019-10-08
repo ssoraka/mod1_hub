@@ -17,9 +17,12 @@ void	ft_comp_uvw(void *param, int j, int i, int k)
 	t_point *p;
 
 	p = (t_point *)param;
-	speed_u[j][i][k] = flow_f[j][i][k] - (press_p[j][i + 1][k] - press_p[j][i][k]) * p->x;
-	speed_v[j][i][k] = flow_g[j][i][k] - (press_p[j + 1][i][k] - press_p[j][i][k]) * p->y;
-	speed_w[j][i][k] = flow_h[j][i][k] - (press_p[j][i][k + 1] - press_p[j][i][k]) * p->z;
+	speed_u[j][i][k] = flow_f[j][i][k]
+	- (press_p[j][i + 1][k] - press_p[j][i][k]) * p->x;
+	speed_v[j][i][k] = flow_g[j][i][k]
+	- (press_p[j + 1][i][k] - press_p[j][i][k]) * p->y;
+	speed_w[j][i][k] = flow_h[j][i][k]
+	- (press_p[j][i][k + 1] - press_p[j][i][k]) * p->z;
 }
 
 

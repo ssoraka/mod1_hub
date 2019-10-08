@@ -16,18 +16,6 @@
 typedef double REAL;
 typedef double mytype;
 
-typedef struct		s_iter
-{
-	int				imin;
-	int				jmin;
-	int				kmin;
-	int				i;
-	int				j;
-	int				k;
-	int				imax;
-	int				jmax;
-	int				kmax;
-}					t_iter;
 
 typedef struct		s_fluid
 {
@@ -51,16 +39,13 @@ typedef struct		s_point
 typedef struct		s_vektr
 {
 	int color;
-	int status;
+	int iteration;
 	double x;
 	double y;
 	double z;
-	double u;
-	double v;
 	struct s_point	abs;
 	struct s_point	otn;
 	struct s_vektr	*next;
-	struct s_vektr	*down;
 }					t_vektr;
 
 typedef struct		s_line
@@ -117,8 +102,6 @@ typedef struct		s_vis
 	void			*img;
 	void			*mlx;
 	void			*win;
-	struct s_fluid	*fluid;
-	struct s_list	*water;
 	struct s_plgn	*plgn;
 	struct s_vektr	*points;
 	struct s_line	*lines;

@@ -546,118 +546,9 @@ void ft_add_line(t_line **begin, t_vektr *p1, t_vektr *p2, int color)
 		}
 	}*/
 
+
+
 	/*
-	REAL	ft_move_parts_x(t_fluid *fluid, t_vektr *p, int j, int i)
-	{
-		REAL x1;
-		REAL u;
-
-		x1 = i * DELTA;
-
-		//printf("x1 = %d_%lf_%lf_%lf\n", j, y2, p1->y ,y1);
-		u = (fluid->speed_u[j][i + 1] - fluid->speed_u[j][i]) / (DELTA_X)
-		* (p->x - x1) + fluid->speed_u[j][i];
-		return (u);
-		//printf("%lf + %d\n",p1->otn_x, i, j);
-	}
-
-
-	REAL	ft_move_parts_y(t_fluid *fluid, t_vektr *p, int j, int i)
-	{
-		REAL y1;
-		REAL v;
-
-		y1 = j * DELTA;
-
-		v = (fluid->speed_v[j + 1][i] - fluid->speed_v[j][i]) / (DELTA_Y)
-		* (p->y - y1) + fluid->speed_v[j][i];
-		return (v);
-	}
-
-
-
-
-	void	ft_move_parts(t_fluid *fluid, t_vektr *parts)
-	{
-		int i;
-		int j;
-
-		i = (int)(parts->x / DELTA);
-		j = (int)(parts->y / DELTA);
-		if (parts->status == BLOB && fluid->map[j + 1][i + 1] == OBSTACLES)
-		{
-			return ;
-		}
-		// на границе интерполировать не нужно, но рядом с препятствиями нужно
-		//u = fluid->speed_u[j][i];
-		//v = fluid->speed_v[j][i];
-		if (fluid->flags[j + 1][i + 1] & C_F)
-			parts->status = WATER;
-		if (fluid->flags[j + 1][i + 1] & C_R)
-			parts->status = SURF;
-		if (parts->status != BLOB && fluid->flags[j + 1][i + 1] & C_X)
-			parts->status = BLOB;
-		if (parts->status == BLOB && !(fluid->flags[j + 2][i + 1] & C_A))
-			parts->status = SURF;
-
-		if (parts->status != BLOB)
-		{
-			parts->u = ft_move_parts_x(fluid, parts, j + 1, i);
-			parts->v = ft_move_parts_y(fluid, parts, j, i + 1);
-		}
-		else if ((fluid->flags[j + 1][i + 1] & C_X && fluid->map[j + 2][i + 1] != OBSTACLES) ||
-		parts->status == BLOB)
-		{
-			parts->u += fluid->deltat * CONST_GX * 2.0;
-			parts->v += fluid->deltat * CONST_GY * 2.0;
-		}
-		//printf("%d_%lf_%lf_%lf\n", i, i * DELTA, parts->x, u);
-		//printf("%d_%lf_%lf_%lf\n", j, j * DELTA, parts->y, v);
-		parts->x = parts->x + parts->u * fluid->deltat;
-		parts->y = parts->y + parts->v * fluid->deltat;
-		parts->otn_x = (int)parts->x;
-		parts->otn_y = (int)parts->y;
-	}
-
-	void	ft_mark_water_on_map(t_fluid *fluid, t_vektr *parts)
-	{
-		int i;
-		int j;
-
-		i = (int)(parts->x / DELTA) + 1;
-		j = (int)(parts->y / DELTA) + 1;
-		if (i >= 1 && j >= 1 && i <= fluid->imax && j <= fluid->jmax && parts->status != BLOB)
-			if (fluid->map[j][i] == EMPTY)
-				fluid->map[j][i] = WATER;
-	}
-
-
-	void	ft_recalk_parts(void *param)
-	{
-		t_fluid *fluid;
-		t_vektr **parts;
-		int i;
-		int n;
-
-		fluid = (t_fluid *)param;
-		parts = fluid->vis->water;
-		n = fluid->imax * fluid->jmax * PARTS_COUNT * PARTS_COUNT + 1;
-		i = 0;
-		//printf("%d\n", n);
-		while (i < n)
-		{
-			if (parts[i])
-			{
-				//printf("%d\n", i);
-				ft_move_parts(fluid, parts[i]);
-				if (parts[i])
-					ft_mark_water_on_map(fluid, parts[i]);
-			}
-			i++;
-		}
-	}
-
-
 	void	ft_change_points3(t_vis *vis)
 	{
 		t_vektr **parts;
@@ -740,7 +631,6 @@ t_vektr *ft_new_vektor2(int x, int y, int z, int color)
 	tmp->z = z;
 	tmp->color = color;
 	tmp->next = NULL;
-	tmp->down = NULL;
 	return (tmp);
 }
 
@@ -758,7 +648,33 @@ t_vektr *ft_add_vektor2(void *ptr, t_point *p, int color)
 }
 
 
+void	ft_del_vektor(t_vektr **begin)
+{
+	t_vektr *tmp;
 
+	tmp = *begin;
+	while (tmp)
+	{
+		*begin = tmp->next;
+		free(tmp);
+		tmp = *begin;
+	}
+	*begin = NULL;
+}
+
+void	ft_del_lines(t_line **begin)
+{
+	t_line *tmp;
+
+	tmp = *begin;
+	while (tmp)
+	{
+		*begin = tmp->next;
+		free(tmp);
+		tmp = *begin;
+	}
+	*begin = NULL;
+}
 
 
 void	ft_create_lines(t_line **lines, t_vektr **p, int color)
@@ -858,33 +774,6 @@ void	ft_create_obstacles(void *ptr, int j, int i, int k)
 
 
 
-t_vektr	**ft_create_new_water_in_cell(int j, int i, int k, int parts_count)
-{
-	int xyz[3];
-	int jik[3];
-	int delta;
-	t_vektr	**p;
-	int n;
-
-	n = parts_count * parts_count * parts_count;
-	p = (t_vektr **)ft_memalloc(sizeof(t_vektr) * (n + 1));
-	delta = DELTA / parts_count;
-
-	while (n > 0)
-	{
-		n--;
-		jik[0] = n / (parts_count * parts_count);
-		jik[2] = n % parts_count;
-		jik[1] = n % (parts_count * parts_count) - jik[2];
-
-		xyz[0] = delta * jik[0] + delta / 2 + DELTA * (i - 1);
-		xyz[1] = delta * jik[1] + delta / 2 + DELTA * (j - 1);
-		xyz[2] = delta * jik[2]  + delta / 2 + DELTA * (k - 1);
-		p[n] = ft_new_vektor2(xyz[0], xyz[1], xyz[2], 0xFFFFFF);
-	}
-	return (p);
-}
-
 
 
 int ft_create_img(t_vis *vis)
@@ -938,6 +827,7 @@ void	ft_mark_obstacles_on_map(void *param, int j, int i, int k)
 		map[j][i][k] = OBSTACLES;
 	else
 		map[j][i][k] = EMPTY;
+		//map[j][i][k] = WATER;
 }
 
 
@@ -1164,14 +1054,40 @@ int loop_hook(void *param)
 }
 
 
+void	ft_del_each_vektrs(void *param, int j, int i, int k)
+{
+	ft_del_vektor(&(parts[j][i][k]));
+}
 
+
+
+
+void ft_del_all_print_error(char *msg_error)
+{
+	t_point start;
+	t_point end;
+
+	ft_fill_point(&start, 0, 0, 0);
+	ft_fill_point(&end, jmax + 1, imax + 1, kmax + 1);
+	if (parts)
+		ft_cycle_cube(NULL, &ft_del_each_vektrs, &start, &end);
+	if (vis)
+	{
+		free(vis->pic.addr);
+		free(vis->pic.near);
+		ft_del_vektor(&(vis->points));
+		ft_del_lines(&(vis->lines));
+		free(vis);
+	}
+	if (msg_error)
+		ft_putendl_fd(msg_error, 2);
+	ft_del_variable();
+}
 
 
 
 int main(int ac, char **av)
 {
-	t_vis *vis;
-
 	vis = ft_memalloc(sizeof(t_vis));
 	ft_create_xyz(vis);
 	vis->ang_z = M_PI;
@@ -1186,6 +1102,8 @@ int main(int ac, char **av)
 	ft_initialization();
 	//заполняем 3д карту с 2д рельефа
 	ft_fill_map_from_ground(ground);
+	ft_solver();
+
 
 
 	//создаем модель для 3д карты
@@ -1193,7 +1111,6 @@ int main(int ac, char **av)
 
 	//создаем имейдж и z-буфер
 	ft_create_img(vis);
-
 
 	mlx_hook(vis->win, 2, 0, deal_key, (void *)vis);
 	mlx_loop_hook(vis->mlx, loop_hook, (void *)vis);

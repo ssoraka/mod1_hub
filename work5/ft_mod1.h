@@ -24,13 +24,14 @@
 #define ABS(nbr) ((nbr) >= 0 ? (nbr) : (-1) * (nbr))
 
 #define T_INFINITY 10000000000.0
-#define P_CONST 30.0
-#define U_CONST 0.0
+#define P_CONST 0.0
+#define U_CONST 2.0
 #define W_CONST 1.7
 //#define CONST_RE 0.105
 #define CONST_RE 1.1
 #define CONST_GY 3.0
 #define CONST_GX 0.0
+#define CONST_GZ 0.0
 #define T_DELTA 0.10
 #define T_END 5.0
 #define TAU 0.2
@@ -48,26 +49,32 @@
 #define WATER '1'
 #define BLOB 'b'
 #define OBSTACLES '#'
+#define BOUNDARY '\0'
 #define PARTS_COUNT 4
 
+#define WATER_COLOR 0xFFFF
 
-#define D_N		0b00000001
-#define D_S		0b00000010
-#define D_W		0b00000100
-#define D_E		0b00001000
-
-
-#define C_B		0b00000000     /* interior obstacle cells */
-#define C_F		0b00010000     /* fluid cell */
-#define C_R		0b00100000    /* surface */
-#define C_X		0b01000000    /* blob */
-#define C_A		0b10000000    /* empty celle */
+#define D_N		0b000000000001
+#define D_S		0b000000000010
+#define D_W		0b000000000100
+#define D_E		0b000000001000
+#define D_O		0b000000010000
+#define D_I		0b000000100000
 
 
-#define C_N		(D_S << 8) /* adjacent to empty cells     */
-#define C_S		(D_N << 8)	/* in the respective direction */
-#define C_W		(D_W << 8)	 /* free surface cells          */
-#define C_E		(D_E << 8)
+#define C_B		0b000010000000     /* interior obstacle cells */
+#define C_F		0b000100000000     /* fluid cell */
+#define C_R		0b001000000000   /* surface */
+#define C_X		0b010000000000    /* blob */
+#define C_A		0b100000000000    /* empty celle */
+
+
+#define C_N		(D_S << 12)	/* adjacent to empty cells     */
+#define C_S		(D_N << 12)	/* in the respective direction */
+#define C_W		(D_W << 12)	 /* free surface cells          */
+#define C_E		(D_E << 12)
+#define C_O		(D_O << 12)
+#define C_I		(D_I << 12)
 
 //NSWE
 #define C_NS	(C_N + C_S)
@@ -87,118 +94,206 @@
 #define B_S		(D_N)  /* in the respective direction            */
 #define B_W		(D_W)
 #define B_E		(D_E)
+#define B_O		(D_O)
+#define B_I		(D_I)
 #define B_NE	(B_N + B_E)
 #define B_SE	(B_S + B_E)
 #define B_NW	(B_N + B_W)
 #define B_SW	(B_S + B_W)
 
 
-#define SURF_MASK		(C_N | C_S | C_W | C_E)
-#define WATER_MASK		(B_N | B_S | B_W | B_E)
+#define SURF_MASK		(C_N | C_S | C_W | C_E | C_O | C_I)
+#define WATER_MASK		(B_N | B_S | B_W | B_E | B_O | B_I)
 
 #define INTERIOR_WATER	(WATER_MASK | C_F)
+
+
+#define MSG_ERROR1 "Malloc error\n"
+
+
 
 char **ground;
 char ***map;
 int ***flags;
 int ***flags_surface;
-int ***parts;
+
+t_vektr ****parts;
 
 REAL ***speed_v;
 REAL ***speed_u;
 REAL ***speed_w;
 
-REAL ***lapl_u;
-REAL ***lapl_v;
-REAL ***lapl_w;
-
 REAL ***flow_f;
 REAL ***flow_g;
-REAL ***flow_m;
+REAL ***flow_h;
 
-REAL ***rhs;
 REAL ***press_p;
-REAL ***tmp;
 
 REAL dx;
 REAL dy;
 REAL dz;
 
+REAL dx2;
+REAL dy2;
+REAL dz2;
+
+REAL dxy;
+REAL dxz;
+REAL dyz;
+
+REAL gy;
+REAL gx;
+REAL gz;
+
+REAL max_u;
+REAL max_v;
+REAL max_w;
+
+REAL renolds;
+
+REAL deltat;
+
 int imax;
 int jmax;
 int kmax;
+int iteration;
+
+t_vis *vis;
 
 /*
-void	ft_print_fluid(t_fluid *fluid, REAL **arr);
-void	ft_print_flags2(t_fluid *fluid, int **arr, int mask);
-void	ft_print_flags(t_fluid *fluid, int **arr);
-void	ft_arr_set(REAL **arr, int columns, REAL value);
-void	ft_fill_iterations(t_iter *iter, int j, int jmax, int i, int imax);
-void	ft_iteration_i(void *ptr, void (*f)(void *, int, int), t_iter *iter);
-void	ft_iteration_j(void *ptr, void (*f)(void *, int, int), t_iter *iter);
-void	ft_iteration(void *ptr, void (*f)(void *, int, int), t_iter *iter);
-void	ft_fill_watercell_in_center(void *ptr, int j, int i);
-void	ft_pressure_in_obstacle(REAL **press, int j, int i, int flag);
-void	ft_speed_u_in_obstacle(REAL **speed, int j, int i, int flag);
-void	ft_speed_v_in_obstacle(REAL **speed, int j, int i, int flag);
-void	ft_fill_obstacle_in_center(void *ptr, int j, int i);
-void	ft_top_boundary(void *ptr, int j, int i);
-void	ft_down_boundary(void *ptr, int j, int i);
-void	ft_left_boundary(void *ptr, int j, int i);
-void	ft_right_boundary(void *ptr, int j, int i);
-void	ft_inisialization(t_fluid *fluid);
-void	ft_fill_boundary_value(t_fluid *fluid);
-void	ft_flow_f_and_flow_g(void *ptr, int j, int i);
-void	ft_flow_f_or_flow_g(void *ptr, int j, int i);
-void	ft_right_hand_side(void *ptr, int j, int i);
-void	ft_residual_pressure_center(void *ptr, int j, int i);
-void	ft_check_params(t_fluid *fluid, int *ewns, int i, int j);
-void	ft_residual_pressure_boundary(void *ptr, int j, int i);
-void	ft_boundary_aproximation_press(void *ptr, int j, int i);
-void	ft_aproximation_press(void *ptr, int j, int i);
-void	ft_successive_overrelaxation(t_fluid *fluid);
-void	ft_flows(t_fluid *fluid);
-void	ft_max_speed(t_fluid *fluid, REAL speed_u, REAL speed_v);
-void	ft_speed_u_and_speed_v(void *ptr, int j, int i);
-void	ft_speed_u_or_speed_v(void *ptr, int j, int i);
-void	ft_new_velocity(t_fluid *fluid);
-char	**ft_create_map(int jmax, int imax);
-int		**ft_create_flags(t_fluid *fluid);
-t_fluid	*ft_initialization(char **map, int jmax, int imax);
-void	ft_solver(t_fluid *fluid);
-int		ft_is_water(int flag);
-int		ft_is_interior_water(int flag);
-int		ft_is_surface(int flag);
-int		ft_is_empty(int flag);
+**	main.c
 */
-/*
-void	ft_put_pixel_to_img(int *addr, int x, int y, int color);
+int		ft_znak(int num);
+void	ft_fill_point(t_point *p, int y, int x, int z);
+void	ft_put_pixel_to_img2(t_pict *pic, t_point *p, int color);
 int		ft_interpolation(int percent, int color1, int color2, int byte);
 int		ft_grad_color(int delta1, int delta2, int color1, int color2);
-void	ft_set_color_to_line(t_line *line, int lower_45);
-void	draw_line_img_lower_45(t_line *line, int *addr);
-void	draw_line_img_over_45(t_line *line, int *addr);
-int		draw_line_img(t_line *line, int *addr);
-t_vektr	*ft_new_vektor(int x, int y, int z);;
+int		ft_set_color_to_point(t_line *line, t_point *p, int lower_45);
+int		ft_int_interpolation(int y, int delta_y, int x1, int x2);
+void	draw_line_img_lower_452(t_line *line, t_point *p, t_pict *pic, int grad);
+void	draw_line_img_over_452(t_line *line, t_point *p, t_pict *pic, int grad);
+int		ft_not_need_print(t_line *line, t_pict *pic);
+void	draw_line_img2(t_line *line, t_pict *pic, int grad);
 void	ft_norm_vektor(t_vektr *vek);
-t_vektr	*ft_rot(t_vektr *ox, t_vektr *oy, double ang);
-t_vektr	*ft_new_vektor(int x, int y, int z);
+void	ft_rot2(t_vektr *ox, t_vektr *oy, double ang);
 t_line	*ft_new_line(t_vektr *p1, t_vektr *p2, int color);
 void	ft_ret_abs_xyz(t_vektr *ox, t_vis *vis);
 void	ft_rotate_xyz(t_vis *vis);
-void	ft_change_points(t_vis *vis);
-void	ft_print_lines(t_vis *vis);
+void	ft_change_points4(t_vis *vis, t_vektr *p, int rotate);
+void	ft_change_points5(t_vis *vis, t_vektr *p);
+void	ft_print_rect2(t_pict *pic, t_point *center, int len, int color);
+void	plot_circle2(t_pict *pic, t_point *p, t_point *center, int color_code);
+void	circle2(t_pict *pic, t_vektr *center, int radius, int color_code);
+void	ft_print_lines(t_vis *vis, t_line *line);
+int		ft_rotate_and_csale(t_vis *vis, int key);
+int		ft_shift(t_vis *vis, int key);
 int		deal_key(int key, void *param);
 void	ft_add_line(t_line **begin, t_vektr *p1, t_vektr *p2, int color);
-int		ft_read_map_from_file2(char *name);
-t_vektr	*ft_add_vektor(void *ptr, int x, int y, int z);
+int		ft_read_ground_from_file2(char *name);
 void	ft_create_xyz(t_vis *vis);
-void	ft_create_four_lines_of_cell(void *ptr, int i, int j);
-void	ft_create_water_in_cell(void *ptr, int i, int j);
-void	ft_create_points_in_cells(t_vis *vis);
+t_vektr	*ft_new_vektor2(int x, int y, int z, int color);
+t_vektr	*ft_add_vektor2(void *ptr, t_point *p, int color);
+void	ft_create_lines(t_line **lines, t_vektr **p, int color);
+t_plgn	*ft_create_poligon(t_vektr *p1, t_vektr *p2, t_vektr *p3, int color);;
+void	ft_create_rectang_poligon(t_plgn **plgn, t_vektr **p, int color);
+void	ft_create_cube_poligons(t_plgn **plgn, t_vektr **p, int color);
+void	ft_create_obstacles(void *ptr, int j, int i, int k);
+void	ft_create_new_water_in_cell(void *param, int j, int i, int k);
 int		ft_create_img(t_vis *vis);
-void	ft_print_points(t_vis *vis, t_vektr **points);
+void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start, t_point *end);
+void	ft_mark_obstacles_on_map(void *param, int j, int i, int k);
+void	ft_fill_map_from_ground(char **ground);
+void	ft_create_points_in_cells(t_vis *vis);
+void	ft_swap_points(t_vektr **p1, t_vektr **p2);
+void	ft_sort_points_by_y(t_plgn *plgn);
+void	ft_vektr_interpolation_by_y(t_vektr *p, t_vektr *p1, t_vektr *p2, int grad);
+int		ft_need_print_traing(t_vektr **p, t_pict *pic);
+void	ft_draw_traing(t_pict *pic, t_vektr **p, int grad, int color);
+void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad);
+void	ft_print_poligons(t_vis *vis, t_plgn *plgn);
+t_plgn	*ft_create_poligon(t_vektr *p1, t_vektr *p2, t_vektr *p3, int color);
+void	ft_refresh_picture(t_vis *vis);
 int		loop_hook(void *param);
-void	ft_recalk_parts(void *param);
+void	ft_del_all_print_error(char *msg_error);
+void	ft_del_lines(t_line **begin);
+void	ft_del_vektor(t_vektr **begin);
+/*
+** initialization.c
 */
+void	***ft_cube_arr(int jmax, int imax, int kmax, int size);
+void	ft_init_variable(void);
+void	ft_init_delta_xyz(void);
+void	ft_init_map_arrs(void);
+void	ft_fill_first_value(void *param, int j, int i, int k);
+void	ft_init_first_value(void);
+void	ft_initialization(void);
+void	ft_del_cube_arr(void ****arr);
+void	ft_del_variable(void);
+/*
+**	mark_flags.c
+*/
+void	ft_fill_boundary_flags(void);
+void	ft_mark_in_out(void *param, int j, int i, int k);
+void	ft_mark_left_right(void *param, int j, int i, int k);
+void	ft_mark_top_down(void *param, int j, int i, int k);
+int		ft_set_flag_for(char map);
+
+void	ft_is_water_surround(int j, int i, int k);
+void	ft_is_empty_surround(int j, int i, int k);
+void	ft_mark_cell(void *param, int j, int i, int k);
+void	ft_remark_flags();
+/*
+**	adap_uvw.c
+*/
+void	ft_comp_uvw(void *, int j, int i, int k);
+void	ft_adap_uvw(void);
+/*
+**	clear_map.c
+*/
+void	ft_clear_cell_from_water(void *param, int j, int i, int k);
+void	ft_clear_map_from_water(void);
+/*
+**	poisson.c
+*/
+void	ft_aproximation_press(void *param, int j, int i, int k);
+void	ft_successive_overrelaxation(void);
+void	ft_poisson(void);
+/*
+**	speeds.c
+*/
+REAL	ft_laplasian(REAL ***speed, int j, int i, int k);
+REAL	ft_vortex(REAL ***speed, int j, int i, int k);
+void	ft_recalc_flows(void *param, int j, int i, int k);
+void	ft_comp_fg(void);
+/*
+**	setbecond.c
+*/
+void	ft_setbcond(void);
+void	ft_fill_obstacles(void *param, int j, int i, int k);
+void	ft_fill_obstacles_pressure(void *param, int j, int i, int k);
+void	ft_fill_obstacles_speed_u(void *param, int j, int i, int k);
+void	ft_fill_obstacles_speed_v(void *param, int j, int i, int k);
+void	ft_fill_obstacles_speed_w(void *param, int j, int i, int k);
+/*
+**	surface.c
+*/
+void	ft_set_uvp_surface(void);
+void	ft_surface_speed_and_pressure(void *param, int j, int i, int k);
+void	ft_surface_speed_u(int j, int i, int k);
+void	ft_surface_speed_v(int j, int i, int k);
+void	ft_surface_speed_w(int j, int i, int k);
+/*
+**	solver_3d.c
+*/
+void	ft_solver(void);
+int		ft_is_empty(int flag);
+int		ft_is_obstacle(int flag);
+int		ft_is_water(int flag);
+int		ft_is_surface(int flag);
+int		ft_is_interior_water(int flag);
+REAL	ft_time_control(void);
+void	ft_clear_old_cell(void);
+void	ft_clear_all_params(void *param, int j, int i, int k);
+
+
 #endif
