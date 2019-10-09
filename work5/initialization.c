@@ -56,7 +56,7 @@ void ***ft_cube_arr(int jmax, int imax, int kmax, int size)
 	void ***arr;
 	int j;
 
-	if (!(arr = (void ***)ft_memalloc(sizeof(void **) * (kmax + 1))))
+	if (!(arr = (void ***)ft_memalloc(sizeof(void **) * (jmax + 1))))
 		return (NULL);
 	j = 0;
 	while (j < jmax)

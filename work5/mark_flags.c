@@ -77,6 +77,7 @@ void	ft_mark_cell(void *param, int j, int i, int k)
 
 void	ft_mark_top_down(void *param, int j, int i, int k)
 {
+
 	j = 0;
 	flags[j][i][k] = ft_set_flag_for(OBSTACLES);
 	if (map[j + 1][i][k] == WATER)
@@ -105,7 +106,7 @@ void	ft_mark_in_out(void *param, int j, int i, int k)
 	flags[j][i][k] = ft_set_flag_for(OBSTACLES);
 	if (map[j][i][k + 1] == WATER)
 		flags[j][i][k] |= B_O;
-	k = jmax + 1;
+	k = kmax + 1;
 	flags[j][i][k] = ft_set_flag_for(OBSTACLES);
 	if (map[j][i][k - 1] == WATER)
 		flags[j][i][k] |= B_I;

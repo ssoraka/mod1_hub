@@ -29,7 +29,7 @@
 #define W_CONST 1.7
 //#define CONST_RE 0.105
 #define CONST_RE 1.1
-#define CONST_GY 3.0
+#define CONST_GY -3.0
 #define CONST_GX 0.0
 #define CONST_GZ 0.0
 #define T_DELTA 0.10
@@ -51,8 +51,12 @@
 #define OBSTACLES '#'
 #define BOUNDARY '\0'
 #define PARTS_COUNT 4
-
+#define TEST_WATER_LEVEL 3
 #define WATER_COLOR 0xFFFF
+#define OBSTACLES_TOP_COLOR 0x704214
+#define OBSTACLES_FRONT_COLOR 0x5b432d
+//#define OBSTACLES_RIGHT_COLOR 0xFF
+#define OBSTACLES_RIGHT_COLOR 0x654321
 
 #define D_N		0b000000000001
 #define D_S		0b000000000010
@@ -217,6 +221,11 @@ int		loop_hook(void *param);
 void	ft_del_all_print_error(char *msg_error);
 void	ft_del_lines(t_line **begin);
 void	ft_del_vektor(t_vektr **begin);
+
+void	ft_print_all_water(t_vis *vis);
+void	ft_print_water_in_cell(void *param, int j, int i, int k);
+void	ft_print_points(t_vis *vis, t_vektr *points);
+
 /*
 ** initialization.c
 */
@@ -294,6 +303,13 @@ int		ft_is_interior_water(int flag);
 REAL	ft_time_control(void);
 void	ft_clear_old_cell(void);
 void	ft_clear_all_params(void *param, int j, int i, int k);
-
-
+/*
+**	parts.c
+*/
+void	ft_create_new_water_in_cell(void *param, int j, int i, int k);
+void	ft_recalk_parts(void);
+void	ft_mark_water_on_map(void *param, int j, int i, int k);
+void	ft_move_parts(void *param, int j, int i, int k);
+void	ft_replace_part(t_vektr **prev, t_vektr *part, t_point *jik);
+void	ft_move_part(t_vektr *part, t_point *jik, int iteration, REAL deltat);
 #endif

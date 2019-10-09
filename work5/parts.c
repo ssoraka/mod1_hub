@@ -16,7 +16,7 @@ void	ft_create_new_water_in_cell(void *param, int j, int i, int k)
 {
 	t_point p;
 	int xyz[3];
-	int jik[3];
+	int ijk[3];
 	int parts_count;
 	int n;
 
@@ -25,16 +25,17 @@ void	ft_create_new_water_in_cell(void *param, int j, int i, int k)
 	while (n > 0)
 	{
 		n--;
-		jik[0] = n / (parts_count * parts_count);
-		jik[2] = n % parts_count;
-		jik[1] = n % (parts_count * parts_count) - jik[2];
+		ijk[0] = n / (parts_count * parts_count);
+		ijk[2] = n % parts_count;
+		ijk[1] = (n % (parts_count * parts_count)) / parts_count;
 
-		xyz[0] = dx / parts_count * jik[0] + dx / parts_count / 2 + dx * (i - 1);
-		xyz[1] = dy / parts_count * jik[1] + dy / parts_count / 2 + dy * (j - 1);
-		xyz[2] = dz / parts_count * jik[2] + dz / parts_count / 2 + dz * (k - 1);
+		xyz[0] = dx / parts_count * ijk[0] + dx / parts_count / 2 + dx * (i - 1);
+		xyz[1] = dy / parts_count * ijk[1] + dy / parts_count / 2 + dy * (j - 1);
+		xyz[2] = dz / parts_count * ijk[2] + dz / parts_count / 2 + dz * (k - 1);
 		ft_fill_point(&p, xyz[1], xyz[0], xyz[2]);
 		if (!ft_add_vektor2((void *)&(parts[j][i][k]), &p, WATER_COLOR))
 			ft_del_all_print_error(MSG_ERROR1);
+		//printf("%d_%d_%d_%d\n", n, ijk[1], ijk[0], ijk[2]);
 	}
 }
 

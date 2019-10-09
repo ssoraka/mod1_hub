@@ -16,7 +16,8 @@
 #define CONST_HEINTH 1500
 #define CAM_X 1000
 #define CAM_Y 1000
-#define RADIUS (DELTA * CONST_LEN * 0.7)
+//#define RADIUS (DELTA * CONST_LEN * 0.7)
+#define RADIUS 3
 #define CONST_LEN 5.0
 #define KOEFF (1.0 / (DELTA_XY))
 #define SLEEP1
@@ -372,8 +373,6 @@ void ft_change_points5(t_vis *vis, t_vektr *p)
 		ft_change_points4(vis, p, vis->is_rotate_or_csale);
 		p = p->next;
 	}
-	vis->is_rotate_or_csale = FALSE;
-	vis->is_shift = FALSE;
 }
 
 
@@ -467,10 +466,16 @@ int		ft_rotate_and_csale(t_vis *vis, int key)
 		vis->len /= 1.1;
 	else if (key == 12)
 		vis->ang_z += M_PI / 180;
+	else if (key == 0)
+		vis->ang_z -= M_PI / 180;
 	else if (key == 13)
 		vis->ang_y += M_PI / 180;
+	else if (key == 1)
+		vis->ang_y -= M_PI / 180;
 	else if (key == 14)
 		vis->ang_x += M_PI / 180;
+	else if (key == 2)
+		vis->ang_x -= M_PI / 180;
 	else
 		return (FALSE);
 	ft_rotate_xyz(vis);
@@ -530,21 +535,14 @@ void ft_add_line(t_line **begin, t_vektr *p1, t_vektr *p2, int color)
 
 
 
-
-	/*
-	void	ft_print_points(t_vis *vis, t_vektr **points)
+void	ft_print_points(t_vis *vis, t_vektr *points)
+{
+	while (points)
 	{
-		int i;
-
-		i = 0;
-		while (points[i])
-		{
-			//ft_put_pixel_to_img(vis->addr, points[i]->abs_x, points[i]->abs_y, 0xFFFF);
-			if (points[i])
-				ft_print_rect(vis->addr, points[i], 0xFFFF);
-			i++;
-		}
-	}*/
+		ft_print_rect2(&(vis->pic), &(points->abs), RADIUS, WATER_COLOR);
+		points = points->next;
+	}
+}
 
 
 
@@ -718,22 +716,22 @@ void	ft_create_cube_poligons(t_plgn **plgn, t_vektr **p, int color)
 {
 	t_vektr *tmp[4];
 
-	ft_create_rectang_poligon(plgn, p, color + 0x00);
-	ft_create_rectang_poligon(plgn, p + 4, color + 0x00);
+	ft_create_rectang_poligon(plgn, p, OBSTACLES_FRONT_COLOR);
+	ft_create_rectang_poligon(plgn, p + 4, OBSTACLES_FRONT_COLOR);
 	tmp[0] = p[1];
 	tmp[1] = p[5];
 	tmp[2] = p[4];
 	tmp[3] = p[0];
-	ft_create_rectang_poligon(plgn, tmp, color - 0x200000);
+	ft_create_rectang_poligon(plgn, tmp, OBSTACLES_TOP_COLOR);
 	tmp[0] = p[3];
 	tmp[1] = p[7];
-	ft_create_rectang_poligon(plgn, tmp, color - 0x200000);
+	ft_create_rectang_poligon(plgn, tmp, OBSTACLES_TOP_COLOR);
 	tmp[2] = p[6];
 	tmp[3] = p[2];
-	ft_create_rectang_poligon(plgn, tmp, color + 0xFF);
+	ft_create_rectang_poligon(plgn, tmp, OBSTACLES_RIGHT_COLOR);
 	tmp[0] = p[1];
 	tmp[1] = p[5];
-	ft_create_rectang_poligon(plgn, tmp, color + 0xFF);
+	ft_create_rectang_poligon(plgn, tmp, OBSTACLES_RIGHT_COLOR);
 }
 
 
@@ -761,7 +759,7 @@ void	ft_create_obstacles(void *ptr, int j, int i, int k)
 	ft_fill_point(&xyz, j * dy, i * dx, (k - 1) * dz);
 	p[4] = ft_add_vektor2(points, &xyz, 0xFFFFFF);
 	ft_fill_point(&xyz, j * dy, (i - 1) * dx, (k - 1) * dz);
-	p[5] = ft_add_vektor2(points, &xyz, 0x00FFFF);
+	p[5] = ft_add_vektor2(points, &xyz, 0x0000FF);
 	ft_fill_point(&xyz, (j - 1) * dy, (i - 1) * dx, (k - 1) * dz);
 	p[6] = ft_add_vektor2(points, &xyz, 0xFFFFFF);
 	ft_fill_point(&xyz, (j - 1) * dy, i * dx, (k - 1) * dz);
@@ -899,10 +897,6 @@ void	ft_vektr_interpolation_by_y(t_vektr *p, t_vektr *p1, t_vektr *p2, int grad)
 
 int		ft_need_print_traing(t_vektr **p, t_pict *pic)
 {
-	if (pic->near[p[0]->abs.y * CONST_WIDTH + p[0]->abs.x] > p[0]->abs.z
-	&& pic->near[p[1]->abs.y * CONST_WIDTH + p[1]->abs.x] > p[1]->abs.z
-	&& pic->near[p[2]->abs.y * CONST_WIDTH + p[2]->abs.x] > p[2]->abs.z)
-		return (FALSE);
 	if (p[0]->abs.y < 0 && p[1]->abs.y < 0 && p[2]->abs.y < 0)
 		return (FALSE);
 	if (p[0]->abs.x < 0 && p[1]->abs.x < 0 && p[2]->abs.x < 0)
@@ -910,6 +904,10 @@ int		ft_need_print_traing(t_vektr **p, t_pict *pic)
 	if (p[0]->abs.y >= CONST_HEINTH && p[1]->abs.y >= CONST_HEINTH && p[2]->abs.y >= CONST_HEINTH)
 		return (FALSE);
 	if (p[0]->abs.x >= CONST_WIDTH && p[1]->abs.x >= CONST_WIDTH && p[2]->abs.x >= CONST_WIDTH)
+		return (FALSE);
+	if (pic->near[p[0]->abs.y * CONST_WIDTH + p[0]->abs.x] > p[0]->abs.z
+	&& pic->near[p[1]->abs.y * CONST_WIDTH + p[1]->abs.x] > p[1]->abs.z
+	&& pic->near[p[2]->abs.y * CONST_WIDTH + p[2]->abs.x] > p[2]->abs.z)
 		return (FALSE);
 	return (TRUE);
 }
@@ -995,7 +993,29 @@ t_plgn *ft_create_poligon(t_vektr *p1, t_vektr *p2, t_vektr *p3, int color)
 
 
 
+void	ft_print_water_in_cell(void *param, int j, int i, int k)
+{
+	t_vis *vis;
 
+	vis = (t_vis *)param;
+	if (ft_is_water(flags[j][i][k]))
+	{
+		ft_change_points5(vis, parts[j][i][k]);
+		ft_print_points(vis, parts[j][i][k]);
+	}
+}
+
+
+
+void	ft_print_all_water(t_vis *vis)
+{
+	t_point start;
+	t_point end;
+
+	ft_fill_point(&start, 1, 1, 1);
+	ft_fill_point(&end, jmax, imax, kmax);
+	ft_cycle_cube((void *)vis, &ft_print_water_in_cell, &start, &end);
+}
 
 
 
@@ -1009,38 +1029,87 @@ void	ft_refresh_picture(t_vis *vis)
 
 	//ft_change_points5(vis);
 	ft_change_points5(vis, vis->points);
-	//ft_print_lines(vis, vis->lines);
 	ft_print_poligons(vis, vis->plgn);
+	ft_print_all_water(vis);
+	vis->is_rotate_or_csale = FALSE;
+	vis->is_shift = FALSE;
+	//ft_print_lines(vis, vis->lines);
+
 	mlx_put_image_to_window(vis->mlx, vis->win, vis->img, 0, 0);
 }
+
+
+
+
+
+
+void	ft_print_int(void *param, int j, int i, int k)
+{
+	int ***arr;
+
+	arr = (int ***)param;
+	printf(" %2d", arr[j][i][k]);
+	if (i == imax)
+		printf("\n");
+}
+
+void	ft_print_char(void *param, int j, int i, int k)
+{
+	char ***arr;
+
+	arr = (char ***)param;
+	printf(" %hhd", arr[j][i][k]);
+	if (i == imax)
+		printf("\n");
+}
+
+void	ft_print_double(void *param, int j, int i, int k)
+{
+	char ***arr;
+
+	arr = (char ***)param;
+	printf(" %c", arr[j][i][k]);
+	if (i == imax)
+		printf("\n");
+}
+
+void	ft_print_arr(void *arr, void (*f)(void *, int, int, int), int k)
+{
+	t_point start;
+	t_point end;
+
+	ft_fill_point(&start, 1, 1, k);
+	ft_fill_point(&end, jmax, imax, k);
+	ft_cycle_cube(arr, f, &start, &end);
+}
+
+
 
 
 int loop_hook(void *param)
 {
 	t_vis *vis;
 
-
-
-
 	vis = (t_vis *)param;
 
-	/*if (!vis->pause)
+	if (!vis->pause)
 	{
-		ft_solver(fluid);
-		ft_recalk_parts(param);
-	}*/
+		ft_solver();
+		ft_recalk_parts();
+	}
 
 
-	//ft_print_flags(fluid, fluid->parts);
+	ft_print_arr(flags, &ft_print_int, 2);
+	ft_print_arr(flags, &ft_print_char, 1);
 	//ft_print_flags(fluid, fluid->flags);
 	//
 	//ft_print_fluid(fluid, fluid->speed_v);
 	//printf("%d_%d\n", fluid->jmax, fluid->imax);
-	/*int i = 1;
-	while (fluid->map[i])
+	/*int j = 1;
+	while (j <= jmax)
 	{
-		printf("%s\n", fluid->map[i] + 1);
-		i++;
+		printf("%s\n", map[j][2] + 1);
+		j++;
 	}*/
 	//ft_print_fluid(fluid, fluid->speed_v);
 	//ft_print_flags(fluid, fluid->flags);
@@ -1085,6 +1154,34 @@ void ft_del_all_print_error(char *msg_error)
 }
 
 
+void	ft_create_stable_level_of_water(void *param, int j, int i, int k)
+{
+	int num;;
+
+	num = PARTS_COUNT;
+
+	if (map[j][i][k] == EMPTY && j <= TEST_WATER_LEVEL)
+	{
+		map[j][i][k] = WATER;
+		ft_create_new_water_in_cell((void *)(&num), j, i, k);
+	}
+
+
+
+}
+
+
+void	ft_create_first_water(void)
+{
+
+	t_point start;
+	t_point end;
+
+	ft_fill_point(&start, 1, 1, 1);
+	ft_fill_point(&end, jmax, imax, kmax);
+	ft_cycle_cube(NULL, &ft_create_stable_level_of_water, &start, &end);
+}
+
 
 int main(int ac, char **av)
 {
@@ -1102,9 +1199,23 @@ int main(int ac, char **av)
 	ft_initialization();
 	//заполняем 3д карту с 2д рельефа
 	ft_fill_map_from_ground(ground);
+
+	int num = PARTS_COUNT;
+	map[2][2][2] = WATER;
+	ft_create_new_water_in_cell((void *)(&num), 2, 2, 2);
+	map[2][3][2] = WATER;
+	ft_create_new_water_in_cell((void *)(&num), 2, 3, 2);
+	map[2][2][3] = WATER;
+	ft_create_new_water_in_cell((void *)(&num), 2, 2, 3);
+	map[2][3][3] = WATER;
+	ft_create_new_water_in_cell((void *)(&num), 2, 3, 3);
+	map[3][2][2] = WATER;
+	ft_create_new_water_in_cell((void *)(&num), 3, 2, 2);
+	map[4][2][2] = WATER;
+	ft_create_new_water_in_cell((void *)(&num), 4, 2, 2);
+	//ft_create_first_water();
+
 	ft_solver();
-
-
 
 	//создаем модель для 3д карты
 	ft_create_points_in_cells(vis);
