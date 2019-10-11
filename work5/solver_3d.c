@@ -125,15 +125,20 @@ void	ft_solver(void)
 
 	//определяем скорости в клетках на границе
 	ft_setbcond();
+
 	//считаем изменение потоков для внутренних клеток воды, не граничащих с воздухом
 	ft_comp_fg();
-
+	//ft_print_arr(press_p, &ft_print_real, 2);
 	//считаем давление для внутренних клеток воды, не граничащих с воздухом
 	ft_poisson();
-
+	//printf("%lf\n", deltat);
+	//ft_print_arr(flags, &ft_print_int, 2);
+	//ft_print_arr(press_p, &ft_print_real, 2);
+	//ft_print_arr(speed_u, &ft_print_real, 2);
+	//exit(0);
 	//считаем скорости для внутренних клеток воды, не граничащих с воздухом
 	ft_adap_uvw();
-
+	ft_print_arr(speed_u, &ft_print_real, 2);
 	//стираем воду с карты, далее ее восстановят частицы
 	ft_clear_map_from_water();
 }

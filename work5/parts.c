@@ -131,8 +131,8 @@ void	ft_move_parts(void *param, int j, int i, int k)
 /////////////////////////////////////////
 //идея была в том, чтоб двигать воду только на поверхности
 //но может образоваться воздушный карман
-	if (!ft_is_surface(flags[j][i][k]))
-		return ;
+//	if (!ft_is_surface(flags[j][i][k]))
+//		return ;
 /////////////////////////////////////////
 	parts = (t_vektr **)param;
 	p = *parts;
@@ -165,6 +165,7 @@ void	ft_recalk_parts(void)
 
 	ft_fill_point(&start, 1, 1, 1);
 	ft_fill_point(&end, jmax, imax, kmax);
-	ft_cycle_cube(NULL, &ft_move_parts, &start, &end);
+	iteration++;
+	//ft_cycle_cube(NULL, &ft_move_parts, &start, &end);
 	ft_cycle_cube(NULL, &ft_mark_water_on_map, &start, &end);
 }

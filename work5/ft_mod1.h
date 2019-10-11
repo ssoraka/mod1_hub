@@ -29,10 +29,10 @@
 #define W_CONST 1.7
 //#define CONST_RE 0.105
 #define CONST_RE 1.1
-#define CONST_GY -3.0
+#define CONST_GY 0.010
 #define CONST_GX 0.0
 #define CONST_GZ 0.0
-#define T_DELTA 0.10
+#define T_DELTA 0.0010
 #define T_END 5.0
 #define TAU 0.2
 #define MAX_ITERATIONS 30
@@ -40,9 +40,6 @@
 #define DELTA 32.0
 #define DELTA_X DELTA
 #define DELTA_Y DELTA
-#define DELTA_X2 (DELTA_X * DELTA_X)
-#define DELTA_Y2 (DELTA_Y * DELTA_Y)
-#define DELTA_XY (DELTA_Y * DELTA_X)
 
 #define SURF '~'
 #define EMPTY ' '
@@ -73,8 +70,8 @@
 #define C_A		0b100000000000    /* empty celle */
 
 
-#define C_N		(D_S << 12)	/* adjacent to empty cells     */
-#define C_S		(D_N << 12)	/* in the respective direction */
+#define C_N		(D_N << 12)	/* adjacent to empty cells     */
+#define C_S		(D_S << 12)	/* in the respective direction */
 #define C_W		(D_W << 12)	 /* free surface cells          */
 #define C_E		(D_E << 12)
 #define C_O		(D_O << 12)
@@ -94,8 +91,8 @@
 #define C_NSWE	(C_N + C_S + C_W + C_E)
 
 
-#define B_N		(D_S)  /* obstacle cells adjacent to fluid cells */
-#define B_S		(D_N)  /* in the respective direction            */
+#define B_N		(D_N)  /* obstacle cells adjacent to fluid cells */
+#define B_S		(D_S)  /* in the respective direction            */
 #define B_W		(D_W)
 #define B_E		(D_E)
 #define B_O		(D_O)
@@ -225,6 +222,12 @@ void	ft_del_vektor(t_vektr **begin);
 void	ft_print_all_water(t_vis *vis);
 void	ft_print_water_in_cell(void *param, int j, int i, int k);
 void	ft_print_points(t_vis *vis, t_vektr *points);
+
+
+void	ft_print_arr(void *arr, void (*f)(void *, int, int, int), int k);
+void	ft_print_real(void *param, int j, int i, int k);
+void	ft_print_char(void *param, int j, int i, int k);
+void	ft_print_int(void *param, int j, int i, int k);
 
 /*
 ** initialization.c

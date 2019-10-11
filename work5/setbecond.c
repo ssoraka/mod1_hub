@@ -54,22 +54,22 @@ void	ft_fill_obstacles_speed_u(void *param, int j, int i, int k)
 	if (flags[j][i][k] & B_N)
 	{
 		speed_u[j][i][k] = -speed_u[j + 1][i][k];
-		speed_u[j][i - 1][k] = speed_u[j][i][k];
+		//speed_u[j][i - 1][k] = speed_u[j][i][k];
 	}
 	else if (flags[j][i][k] & B_S)
 	{
 		speed_u[j][i][k] = -speed_u[j - 1][i][k];
-		speed_u[j][i - 1][k] = speed_u[j][i][k];
+		//speed_u[j][i - 1][k] = speed_u[j][i][k];
 	}
 	else if (flags[j][i][k] & B_O)
 	{
 		speed_u[j][i][k] = -speed_u[j][i][k + 1];
-		speed_u[j][i - 1][k] = speed_u[j][i][k];
+		//speed_u[j][i - 1][k] = speed_u[j][i][k];
 	}
 	else if (flags[j][i][k] & B_I)
 	{
 		speed_u[j][i][k] = -speed_u[j][i][k - 1];
-		speed_u[j][i - 1][k] = speed_u[j][i][k];
+		//speed_u[j][i - 1][k] = speed_u[j][i][k];
 	}
 	if (flags[j][i][k] & B_E)
 		speed_u[j][i][k] = 0.0;
@@ -82,22 +82,22 @@ void	ft_fill_obstacles_speed_v(void *param, int j, int i, int k)
 	if (flags[j][i][k] & B_E)
 	{
 		speed_v[j][i][k] = -speed_v[j][i + 1][k];
-		speed_v[j - 1][i][k] = speed_v[j][i][k];
+		//speed_v[j - 1][i][k] = speed_v[j][i][k];
 	}
 	else if (flags[j][i][k] & B_W)
 	{
 		speed_v[j][i][k] = -speed_v[j][i - 1][k];
-		speed_v[j - 1][i][k] = speed_v[j][i][k];
+		//speed_v[j - 1][i][k] = speed_v[j][i][k];
 	}
 	else if (flags[j][i][k] & B_O)
 	{
 		speed_v[j][i][k] = -speed_v[j][i][k + 1];
-		speed_v[j - 1][i][k] = speed_v[j][i][k];
+		//speed_v[j - 1][i][k] = speed_v[j][i][k];
 	}
 	else if (flags[j][i][k] & B_I)
 	{
 		speed_v[j][i][k] = -speed_v[j][i][k - 1];
-		speed_v[j - 1][i][k] = speed_v[j][i][k];
+		//speed_v[j - 1][i][k] = speed_v[j][i][k];
 	}
 	if (flags[j][i][k] & B_N)
 		speed_v[j][i][k] = 0.0;
@@ -110,22 +110,22 @@ void	ft_fill_obstacles_speed_w(void *param, int j, int i, int k)
 	if (flags[j][i][k] & B_E)
 	{
 		speed_w[j][i][k] = -speed_w[j][i + 1][k];
-		speed_w[j][i][k - 1] = speed_w[j][i][k];
+		//speed_w[j][i][k - 1] = speed_w[j][i][k];
 	}
 	else if (flags[j][i][k] & B_W)
 	{
 		speed_w[j][i][k] = -speed_w[j][i - 1][k];
-		speed_w[j][i][k - 1] = speed_w[j][i][k];
+		//speed_w[j][i][k - 1] = speed_w[j][i][k];
 	}
 	else if (flags[j][i][k] & B_O)
 	{
 		speed_w[j][i][k] = -speed_w[j][i][k + 1];
-		speed_w[j][i][k - 1] = speed_w[j][i][k];
+		//speed_w[j][i][k - 1] = speed_w[j][i][k];
 	}
 	else if (flags[j][i][k] & B_I)
 	{
 		speed_w[j][i][k] = -speed_w[j][i][k - 1];
-		speed_w[j][i][k - 1] = speed_w[j][i][k];
+		//speed_w[j][i][k - 1] = speed_w[j][i][k];
 	}
 	if (flags[j][i][k] & B_O)
 		speed_w[j][i][k] = 0.0;
@@ -150,8 +150,8 @@ void	ft_setbcond(void)
 	t_point start;
 	t_point end;
 
-	ft_fill_point(&start, 0, 0, 0);
-	ft_fill_point(&end, jmax + 1, imax + 1, kmax + 1);
+	ft_fill_point(&start, jmax + 1, 0, 0);
+	ft_fill_point(&end, 0, imax + 1, kmax + 1);
 	//ft_fill_point(&start, 1, 1, 1);
 	//ft_fill_point(&end, jmax, imax, kmax);
 	ft_cycle_cube(NULL, &ft_fill_obstacles, &start, &end);

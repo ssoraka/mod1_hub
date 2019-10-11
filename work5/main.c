@@ -798,23 +798,31 @@ void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start
 	int k;
 	int j;
 	int i;
+	t_point delta;
 
-
+	//ft_fill_point(&delta, ft_znak(end->y - start->y), ft_znak(end->x - start->x), ft_znak(end->z - start->z));
+	ft_fill_point(&delta, 1, 1, 1);
+	if (end->y < start->y)
+		delta.y = -1;
+	if (end->x < start->x)
+		delta.x = -1;
+	if (end->z < start->z)
+		delta.z = -1;
 	j = start->y;
-	while (j <= end->y)
+	while (j != end->y + delta.y)
 	{
 		i = start->x;
-		while (i <= end->x)
+		while (i != end->x + delta.x)
 		{
 			k = start->z;
-			while (k <= end->z)
+			while (k != end->z + delta.z)
 			{
 				f(param, j, i, k);
-				k++;
+				k += delta.z;
 			}
-			i++;
+			i += delta.x;
 		}
-		j++;
+		j += delta.y;
 	}
 }
 
@@ -1049,7 +1057,7 @@ void	ft_print_int(void *param, int j, int i, int k)
 
 	arr = (int ***)param;
 	printf(" %2d", arr[j][i][k]);
-	if (i == imax)
+	if (i == imax + 1)
 		printf("\n");
 }
 
@@ -1058,18 +1066,25 @@ void	ft_print_char(void *param, int j, int i, int k)
 	char ***arr;
 
 	arr = (char ***)param;
-	printf(" %hhd", arr[j][i][k]);
-	if (i == imax)
+	printf(" %c", arr[j][i][k]);
+	if (i == imax + 1)
 		printf("\n");
 }
 
-void	ft_print_double(void *param, int j, int i, int k)
+void	ft_print_real(void *param, int j, int i, int k)
 {
-	char ***arr;
+	REAL ***arr;
+	char *str;
 
-	arr = (char ***)param;
-	printf(" %c", arr[j][i][k]);
-	if (i == imax)
+	if (sizeof(REAL) == sizeof(double))
+		str = " %6.2lf";
+	else if (sizeof(REAL) == sizeof(float))
+		str = " %6.2f";
+	else
+		return ;
+	arr = (REAL ***)param;
+	printf(str, arr[j][i][k]);
+	if (i == imax + 1)
 		printf("\n");
 }
 
@@ -1078,8 +1093,8 @@ void	ft_print_arr(void *arr, void (*f)(void *, int, int, int), int k)
 	t_point start;
 	t_point end;
 
-	ft_fill_point(&start, 1, 1, k);
-	ft_fill_point(&end, jmax, imax, k);
+	ft_fill_point(&start, jmax + 1, 0, k);
+	ft_fill_point(&end, 0, imax + 1, k);
 	ft_cycle_cube(arr, f, &start, &end);
 }
 
@@ -1100,7 +1115,10 @@ int loop_hook(void *param)
 
 
 	ft_print_arr(flags, &ft_print_int, 2);
-	ft_print_arr(flags, &ft_print_char, 1);
+	ft_print_arr(map, &ft_print_char, 2);
+	ft_print_arr(flags_surface, &ft_print_int, 2);
+	ft_print_arr(press_p, &ft_print_real, 2);
+	ft_print_arr(speed_v, &ft_print_real, 2);
 	//ft_print_flags(fluid, fluid->flags);
 	//
 	//ft_print_fluid(fluid, fluid->speed_v);
@@ -1197,10 +1215,11 @@ int main(int ac, char **av)
 	//создаем все массивы, проставляем начальные значения скоростей и давления
 	//инициализируем все глобальные переменные
 	ft_initialization();
+
 	//заполняем 3д карту с 2д рельефа
 	ft_fill_map_from_ground(ground);
 
-	int num = PARTS_COUNT;
+	/*int num = PARTS_COUNT;
 	map[2][2][2] = WATER;
 	ft_create_new_water_in_cell((void *)(&num), 2, 2, 2);
 	map[2][3][2] = WATER;
@@ -1212,9 +1231,12 @@ int main(int ac, char **av)
 	map[3][2][2] = WATER;
 	ft_create_new_water_in_cell((void *)(&num), 3, 2, 2);
 	map[4][2][2] = WATER;
-	ft_create_new_water_in_cell((void *)(&num), 4, 2, 2);
-	//ft_create_first_water();
-
+	ft_create_new_water_in_cell((void *)(&num), 4, 2, 2);*/
+	ft_create_first_water();
+	/*int num = PARTS_COUNT;
+	map[4][2][2] = WATER;
+	ft_create_new_water_in_cell((void *)(&num), 4, 2, 2);*/
+	ft_init_first_value();
 	ft_solver();
 
 	//создаем модель для 3д карты
