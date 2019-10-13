@@ -63,8 +63,6 @@ void	ft_is_empty_surround(int j, int i, int k)
 		if (flags[j][i][k] & SURF_MASK)
 			flags[j][i][k] |= C_R;
 	}
-	else
-		flags_surface[j][i][k] = 0;
 }
 
 void	ft_mark_cell(void *param, int j, int i, int k)

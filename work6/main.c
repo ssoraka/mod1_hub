@@ -509,6 +509,8 @@ int		deal_key(int key, void *param)
 		exit(0);
 	if (key == 35)
 		vis->pause = !vis->pause;
+	if (key == 34)
+		vis->is_need_print_obstacles = !vis->is_need_print_obstacles;
 	if (key == 5)
 		vis->grad = !vis->grad;
 	return (0);
@@ -542,7 +544,14 @@ void	ft_print_points(t_vis *vis, t_vektr *points)
 	}
 }
 
-
+void	ft_print_points2(t_vis *vis, t_vektr *points)
+{
+	while (points)
+	{
+		circle2(&(vis->pic), points, RADIUS + 4, WATER_COLOR);
+		points = points->next;
+	}
+}
 
 	/*
 	void	ft_change_points3(t_vis *vis)
@@ -1011,7 +1020,10 @@ void	ft_print_water_in_cell(void *param, int j, int i, int k)
 	if (ft_is_water(flags[j][i][k]))
 	{
 		ft_change_points5(vis, parts[j][i][k]);
-		ft_print_points(vis, parts[j][i][k]);
+		if (!flags_surface[j][i][k])
+			;//ft_print_points(vis, parts[j][i][k]);
+		else
+			ft_print_points2(vis, parts[j][i][k]);
 	}
 }
 
@@ -1040,7 +1052,8 @@ void	ft_refresh_picture(t_vis *vis)
 	ft_memset((void *)vis->pic.near, 0x80, CONST_WIDTH * CONST_HEINTH * 4);
 
 	//ft_change_points5(vis);
-	ft_print_poligons(vis, vis->plgn);
+	if (!vis->is_need_print_obstacles)
+		ft_print_poligons(vis, vis->plgn);
 	ft_print_all_water(vis);
 	//ft_print_lines(vis, vis->lines);
 
@@ -1119,7 +1132,7 @@ int loop_hook(void *param)
 	ft_print_arr(map, &ft_print_char, 2);
 	ft_print_arr(flags_surface, &ft_print_int, 2);
 	ft_print_arr(press_p, &ft_print_real, 2);
-	ft_print_arr(speed_v, &ft_print_real, 2);
+	ft_print_arr(speed_u, &ft_print_real, 2);
 	//ft_print_flags(fluid, fluid->flags);
 	//
 	//ft_print_fluid(fluid, fluid->speed_v);
@@ -1179,14 +1192,12 @@ void	ft_create_stable_level_of_water(void *param, int j, int i, int k)
 
 	num = PARTS_COUNT;
 
-	if (map[j][i][k] == EMPTY && j > TEST_WATER_LEVEL && j < TEST_WATER_LEVEL + 5)
+	if (map[j][i][k] == EMPTY && j < TEST_WATER_LEVEL// && j < TEST_WATER_LEVEL + 3
+	&& i > TEST_WATER_WALL)
 	{
 		map[j][i][k] = WATER;
 		ft_create_new_water_in_cell((void *)(&num), j, i, k);
 	}
-
-
-
 }
 
 

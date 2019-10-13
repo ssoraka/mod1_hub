@@ -92,6 +92,7 @@ typedef struct		s_vis
 	int				pause;
 	int				is_shift;
 	int				is_rotate_or_csale;
+	int				is_need_print_obstacles;
 	int				grad;
 	double			len;
 	double			ang_x;

@@ -16,9 +16,9 @@ void	ft_aproximation_press(void *param, int j, int i, int k)
 {
 	REAL rhs;
 
-	if (map[j][i][k] != WATER)
+	//if (map[j][i][k] != WATER)
 	//if (!ft_is_interior_water(flags[j][i][k]))
-	//if (map[j][i][k] != WATER || flags_surface[j][i][k])
+	if (map[j][i][k] != WATER || flags_surface[j][i][k])
 		return ;
 	rhs = 1.0 / deltat
 	* ((flow_f[j][i][k] - flow_f[j][i - 1][k]) / dx

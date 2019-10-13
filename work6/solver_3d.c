@@ -77,7 +77,14 @@ int		ft_is_empty(int flag)
 void	ft_clear_all_params(void *param, int j, int i, int k)
 {
 	//надо уточнить, в каких квадратах не нужно зачищать скорости
-	if (map[j][i][k] != WATER)
+	if (map[j][i][k] == BOUNDARY)
+	{
+		speed_u[j][i][k] = 0.0;
+		speed_v[j][i][k] = 0.0;
+		speed_w[j][i][k] = 0.0;
+		press_p[j][i][k] = 0.0;
+	}
+	else if (map[j][i][k] != WATER)
 	{
 		press_p[j][i][k] = 0.0;
 		if (map[j][i + 1][k] != WATER)
@@ -93,14 +100,15 @@ void	ft_clear_all_params(void *param, int j, int i, int k)
 }
 
 
+
 void	ft_clear_old_cell(void)
 {
 
 	t_point start;
 	t_point end;
 
-	ft_fill_point(&start, 1, 1, 1);
-	ft_fill_point(&end, jmax, imax, kmax);
+	ft_fill_point(&start, 0, 0, 0);
+	ft_fill_point(&end, jmax + 1, imax + 1, kmax + 1);
 	//удаляем все парамтры клеток, не являющихся водными
 	ft_cycle_cube(NULL, &ft_clear_all_params, &start, &end);
 }
@@ -134,11 +142,13 @@ void	ft_solver(void)
 	//printf("%lf\n", deltat);
 	//ft_print_arr(flags, &ft_print_int, 2);
 	//ft_print_arr(press_p, &ft_print_real, 2);
-	//ft_print_arr(speed_u, &ft_print_real, 2);
-	//exit(0);
+
+	//ft_setbcond();
 	//считаем скорости для внутренних клеток воды, не граничащих с воздухом
 	ft_adap_uvw();
-	ft_print_arr(speed_u, &ft_print_real, 2);
+	//ft_print_arr(speed_u, &ft_print_real, 2);
+	//exit(0);
+
 	//стираем воду с карты, далее ее восстановят частицы
 	ft_clear_map_from_water();
 }

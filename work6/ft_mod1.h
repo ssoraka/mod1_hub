@@ -28,18 +28,19 @@
 #define U_CONST 0.0
 #define W_CONST 1.7
 //#define CONST_RE 0.105
-#define CONST_RE 1.1
-#define CONST_GY -2.0
+#define CONST_RE 100.11
+#define CONST_GY -2.00
 #define CONST_GX 0.0
 #define CONST_GZ 0.0
-#define T_DELTA 0.30
+#define T_DELTA 0.050
 #define T_END 5.0
 #define TAU 0.2
-#define MAX_ITERATIONS 30
+#define MAX_ITERATIONS 70
 #define TOLERANCE 0.001
 #define DELTA 32.0
 #define DELTA_X DELTA
 #define DELTA_Y DELTA
+
 
 #define SURF '~'
 #define EMPTY ' '
@@ -48,8 +49,9 @@
 #define OBSTACLES '#'
 #define BOUNDARY '\0'
 #define PARTS_COUNT 4
-#define TEST_WATER_LEVEL 20
-#define MAP_HEIGTH 30
+#define TEST_WATER_LEVEL 10
+#define TEST_WATER_WALL 15
+#define MAP_HEIGTH 50
 #define WATER_COLOR 0xFFFF
 #define OBSTACLES_TOP_COLOR 0x704214
 #define OBSTACLES_FRONT_COLOR 0x5b432d

@@ -41,16 +41,22 @@ REAL	ft_vortex(REAL ***speed, int j, int i, int k)
 
 void	ft_recalc_flows(void *param, int j, int i, int k)
 {
+	flow_f[j][i][k] = speed_u[j][i][k];
+	flow_g[j][i][k] = speed_v[j][i][k];
+	flow_h[j][i][k] = speed_w[j][i][k];
 	if (!ft_is_water(flags[j][i][k]))
 	//if (map[j][i][k] != WATER || flags_surface[j][i][k])
 	//if (!ft_is_interior_water(flags[j][i][k]))
 		return ;
-	flow_f[j][i][k] = speed_u[j][i][k] + deltat
-	* (ft_laplasian(speed_u, j, i, k) / renolds + gx);// - ft_vortex(speed_u, j, i, k));
-	flow_g[j][i][k] = speed_v[j][i][k] + deltat
-	* (ft_laplasian(speed_v, j, i, k) / renolds + gy);// - ft_vortex(speed_v, j, i, k));
-	flow_h[j][i][k] = speed_w[j][i][k] + deltat
-	* (ft_laplasian(speed_w, j, i, k) / renolds + gz);// - ft_vortex(speed_w, j, i, k));
+	if (ft_is_water(flags[j][i + 1][k]))
+		flow_f[j][i][k] += deltat
+		* (ft_laplasian(speed_u, j, i, k) / renolds + gx);// - ft_vortex(speed_u, j, i, k));
+	if (ft_is_water(flags[j + 1][i][k]))
+		flow_g[j][i][k] += deltat
+		* (ft_laplasian(speed_v, j, i, k) / renolds + gy);// - ft_vortex(speed_v, j, i, k));
+	if (ft_is_water(flags[j][i][k + 1]))
+		flow_h[j][i][k] += deltat
+		* (ft_laplasian(speed_w, j, i, k) / renolds + gz);// - ft_vortex(speed_w, j, i, k));
 }
 
 

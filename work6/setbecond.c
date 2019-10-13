@@ -75,6 +75,7 @@ void	ft_fill_obstacles_speed_u(void *param, int j, int i, int k)
 		speed_u[j][i][k] = 0.0;
 	if (flags[j][i][k] & B_W)
 		speed_u[j][i - 1][k] = 0.0;
+
 }
 
 void	ft_fill_obstacles_speed_v(void *param, int j, int i, int k)
@@ -135,12 +136,13 @@ void	ft_fill_obstacles_speed_w(void *param, int j, int i, int k)
 
 void	ft_fill_obstacles(void *param, int j, int i, int k)
 {
-	if (map[j][i][k] != OBSTACLES && map[j][i][k] != BOUNDARY)
-		return ;
-	ft_fill_obstacles_pressure(param, j, i, k);
-	ft_fill_obstacles_speed_u(param, j, i, k);
-	ft_fill_obstacles_speed_v(param, j, i, k);
-	ft_fill_obstacles_speed_w(param, j, i, k);
+	if (map[j][i][k] == OBSTACLES || map[j][i][k] == BOUNDARY)
+	{
+		ft_fill_obstacles_pressure(param, j, i, k);
+		ft_fill_obstacles_speed_u(param, j, i, k);
+		ft_fill_obstacles_speed_v(param, j, i, k);
+		ft_fill_obstacles_speed_w(param, j, i, k);
+	}
 }
 
 

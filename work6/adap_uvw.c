@@ -34,12 +34,17 @@ void	ft_comp_uvw(void *param, int j, int i, int k)
 	//t_point *p;
 
 	//p = (t_point *)param;
-	speed_u[j][i][k] = flow_f[j][i][k]
-	- (press_p[j][i + 1][k] - press_p[j][i][k]) * deltat / dx;
-	speed_v[j][i][k] = flow_g[j][i][k]
-	- (press_p[j + 1][i][k] - press_p[j][i][k]) * deltat / dy;
-	speed_w[j][i][k] = flow_h[j][i][k]
-	- (press_p[j][i][k + 1] - press_p[j][i][k]) * deltat / dz;
+	if (!ft_is_water(flags[j][i][k]))
+		return ;
+	if (ft_is_water(flags[j][i + 1][k]))
+		speed_u[j][i][k] = flow_f[j][i][k]
+		- (press_p[j][i + 1][k] - press_p[j][i][k]) * deltat / dx;
+	if (ft_is_water(flags[j + 1][i][k]))
+		speed_v[j][i][k] = flow_g[j][i][k]
+		- (press_p[j + 1][i][k] - press_p[j][i][k]) * deltat / dy;
+	if (ft_is_water(flags[j][i][k + 1]))
+		speed_w[j][i][k] = flow_h[j][i][k]
+		- (press_p[j][i][k + 1] - press_p[j][i][k]) * deltat / dz;
 	ft_max_speed(speed_u[j][i][k], speed_v[j][i][k], speed_w[j][i][k]);
 }
 
