@@ -28,14 +28,14 @@
 #define U_CONST 0.0
 #define W_CONST 1.7
 //#define CONST_RE 0.105
-#define CONST_RE 100.11
+#define CONST_RE 0.11
 #define CONST_GY -2.00
 #define CONST_GX 0.0
 #define CONST_GZ 0.0
-#define T_DELTA 0.050
+#define T_DELTA 0.05
 #define T_END 5.0
 #define TAU 0.2
-#define MAX_ITERATIONS 70
+#define MAX_ITERATIONS 50
 #define TOLERANCE 0.001
 #define DELTA 32.0
 #define DELTA_X DELTA

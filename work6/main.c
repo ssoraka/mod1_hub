@@ -1128,11 +1128,11 @@ int loop_hook(void *param)
 	}
 
 
-	ft_print_arr(flags, &ft_print_int, 2);
-	ft_print_arr(map, &ft_print_char, 2);
-	ft_print_arr(flags_surface, &ft_print_int, 2);
-	ft_print_arr(press_p, &ft_print_real, 2);
-	ft_print_arr(speed_u, &ft_print_real, 2);
+	ft_print_arr(flags, &ft_print_int, 6);
+	ft_print_arr(map, &ft_print_char, 6);
+	//ft_print_arr(flags_surface, &ft_print_int, 6);
+	ft_print_arr(press_p, &ft_print_real, 6);
+	ft_print_arr(speed_v, &ft_print_real, 6);
 	//ft_print_flags(fluid, fluid->flags);
 	//
 	//ft_print_fluid(fluid, fluid->speed_v);

@@ -18,10 +18,10 @@
 
 void	ft_surface_speed_v(int j, int i, int k)
 {
-	if (flags_surface[j][i][k] & C_N)
-		speed_v[j][i][k] = speed_v[j - 1][i][k];
 	if (flags_surface[j][i][k] & C_S)
 		speed_v[j - 1][i][k] = speed_v[j][i][k];
+	if (flags_surface[j][i][k] & C_N)
+		speed_v[j][i][k] = speed_v[j - 1][i][k];
 	if (flags_surface[j][i][k] & C_E)
 		speed_v[j][i + 1][k] = speed_v[j][i][k];
 	if (flags_surface[j][i][k] & C_W)
@@ -74,6 +74,15 @@ void	ft_surface_speed_and_pressure(void *param, int j, int i, int k)
 	press_p[j][i][k] = 0.0;
 	if (flags_surface[j][i][k] == SURF_MASK)
 		return ;
+	/*{
+		speed_v[j][i][k] += deltat * gy;
+		speed_u[j][i][k] += deltat * gx;
+		speed_w[j][i][k] += deltat * gz;
+		speed_v[j - 1][i][k] = speed_v[j][i][k];
+		speed_u[j][i - 1][k] = speed_u[j][i][k];
+		speed_w[j][i][k - 1] = speed_w[j][i][k];
+		return ;
+	}*/
 	//надо бы это все допилить...
 	ft_surface_speed_u(j, i, k);
 	ft_surface_speed_v(j, i, k);

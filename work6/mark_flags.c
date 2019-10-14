@@ -60,7 +60,7 @@ void	ft_is_empty_surround(int j, int i, int k)
 			flags_surface[j][i][k] |= C_O;
 		if (map[j][i][k - 1] == EMPTY)
 			flags_surface[j][i][k] |= C_I;
-		if (flags[j][i][k] & SURF_MASK)
+		if (flags_surface[j][i][k] & SURF_MASK)
 			flags[j][i][k] |= C_R;
 	}
 }
