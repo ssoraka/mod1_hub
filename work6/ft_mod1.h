@@ -28,15 +28,21 @@
 #define U_CONST 0.0
 #define W_CONST 1.7
 //#define CONST_RE 0.105
-#define CONST_RE 0.11
+#define CONST_RE 100.11
 #define CONST_GY -2.00
 #define CONST_GX 0.0
 #define CONST_GZ 0.0
-#define T_DELTA 0.05
+#define T_DELTA 0.1
 #define T_END 5.0
 #define TAU 0.2
 #define MAX_ITERATIONS 50
 #define TOLERANCE 0.001
+
+#define MAX_POINT 50
+#define IMAX 50
+#define JMAX 50
+#define KMAX 50
+
 #define DELTA 32.0
 #define DELTA_X DELTA
 #define DELTA_Y DELTA
@@ -49,8 +55,8 @@
 #define OBSTACLES '#'
 #define BOUNDARY '\0'
 #define PARTS_COUNT 4
-#define TEST_WATER_LEVEL 10
-#define TEST_WATER_WALL 15
+#define TEST_WATER_LEVEL 8
+#define TEST_WATER_WALL 25
 #define MAP_HEIGTH 50
 #define WATER_COLOR 0xFFFF
 #define OBSTACLES_TOP_COLOR 0x704214
@@ -70,7 +76,7 @@
 #define C_F		0b000100000000     /* fluid cell */
 #define C_R		0b001000000000   /* surface */
 #define C_X		0b010000000000    /* blob */
-#define C_A		0b100000000000    /* empty celle */
+#define C_A		0b100000000000    /* empty cell */
 
 
 #define C_N		(D_N << 12)	/* adjacent to empty cells     */

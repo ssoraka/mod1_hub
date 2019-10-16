@@ -13,6 +13,8 @@
 #ifndef FT_MOD1_STRUCT_H
 # define FT_MOD1_STRUCT_H
 
+# define MAX_POINT 50
+
 typedef double REAL;
 typedef double mytype;
 
@@ -28,6 +30,11 @@ typedef struct		s_fluid
 }					t_fluid;
 
 
+
+
+
+
+
 typedef struct		s_point
 {
 	int y;
@@ -35,6 +42,17 @@ typedef struct		s_point
 	int z;
 }					t_point;
 
+
+typedef struct		s_map
+{
+	int				count;
+	int				delta;
+	t_point			p[MAX_POINT];
+	t_point			p_max;
+	t_point			p_min;
+	t_point			first;
+	long			**arr;
+}					t_map;
 
 typedef struct		s_vektr
 {
