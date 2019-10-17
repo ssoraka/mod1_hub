@@ -39,9 +39,9 @@
 #define TOLERANCE 0.001
 
 #define MAX_POINT 50
-#define IMAX 50
-#define JMAX 50
-#define KMAX 50
+#define IMAX 25
+#define JMAX 25
+#define KMAX 25
 
 #define DELTA 32.0
 #define DELTA_X DELTA
@@ -55,8 +55,8 @@
 #define OBSTACLES '#'
 #define BOUNDARY '\0'
 #define PARTS_COUNT 4
-#define TEST_WATER_LEVEL 8
-#define TEST_WATER_WALL 25
+#define TEST_WATER_LEVEL 10
+#define TEST_WATER_WALL 10
 #define MAP_HEIGTH 50
 #define WATER_COLOR 0xFFFF
 #define OBSTACLES_TOP_COLOR 0x704214
@@ -122,7 +122,7 @@
 
 
 
-char **ground;
+int		**ground;
 char ***map;
 int ***flags;
 int ***flags_surface;
@@ -199,7 +199,7 @@ int		ft_rotate_and_csale(t_vis *vis, int key);
 int		ft_shift(t_vis *vis, int key);
 int		deal_key(int key, void *param);
 void	ft_add_line(t_line **begin, t_vektr *p1, t_vektr *p2, int color);
-int		ft_read_ground_from_file2(char *name);
+int		ft_read_ground_from_file2(char *name, char **ground);
 void	ft_create_xyz(t_vis *vis);
 t_vektr	*ft_new_vektor2(int x, int y, int z, int color);
 t_vektr	*ft_add_vektor2(void *ptr, t_point *p, int color);
@@ -212,7 +212,7 @@ void	ft_create_new_water_in_cell(void *param, int j, int i, int k);
 int		ft_create_img(t_vis *vis);
 void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start, t_point *end);
 void	ft_mark_obstacles_on_map(void *param, int j, int i, int k);
-void	ft_fill_map_from_ground(char **ground);
+void	ft_fill_map_from_ground(int **ground);
 void	ft_create_points_in_cells(t_vis *vis);
 void	ft_swap_points(t_vektr **p1, t_vektr **p2);
 void	ft_sort_points_by_y(t_plgn *plgn);
@@ -324,4 +324,17 @@ void	ft_mark_water_on_map(void *param, int j, int i, int k);
 void	ft_move_parts(void *param, int j, int i, int k);
 void	ft_replace_part(t_vektr **begin, t_vektr *prev, t_vektr **p, t_point *jik);
 void	ft_move_part(t_vektr *part, t_point *jik, REAL deltat);
+/*
+**	map.c
+*/
+int		**ft_read_ground_from_file3(char *name);
+char	*ft_read_string_from_file(char *name);
+int		ft_find_points(t_map *map, char **arr);
+int		ft_find_point(t_map *map, char **args);
+void	ft_create_first_and_last_points(t_map *map);
+int		**ft_create_map(t_map *map);
+void	ft_fill_map_arr(t_map *map);
+void	ft_superposition(void *param, int j, int i, int k);
+
+
 #endif

@@ -586,199 +586,11 @@ void	ft_print_points2(t_vis *vis, t_vektr *points)
 
 
 
-/*
-считываем текстовый документ
-делим сплитом по пробелам
-делим по запятым
-наполняем
-
-*/
-
-
-char	*ft_read_string_from_file(char *name)
-{
-	int		fd;
-	char	*str;
-
-	str = NULL;
-	if ((fd = open(name, O_RDWR)) == -1)
-		return (NULL);
-	get_next_line(fd, &str);
-	close(fd);
-	return (str);
-}
-
-
-int		ft_find_point(t_map *map, char **args)
-{
-	int i;
-	//тут надо сделать проверку точек на интовые значения...
-	if (args[0][0] != '(' || args[2][ft_strlen(args[2])] != ')')
-		return (FALSE);
-	i = map->count;
-	map->p[i].x = ft_atoi(args[0] + 1);
-	map->p[i].y = ft_atoi(args[1]);
-	map->p[i].z = ft_atoi(args[2]);
-	map->p_max.x = ft_max(map->p_max.x, map->p[i].x);
-	map->p_max.y = ft_max(map->p_max.y, map->p[i].y);
-	map->p_max.z = ft_max(map->p_max.z, map->p[i].z);
-	map->p_min.x = ft_min(map->p_min.x, map->p[i].x);
-	map->p_min.y = ft_min(map->p_min.y, map->p[i].y);
-	map->p_min.z = ft_min(map->p_min.z, map->p[i].z);
-	return (TRUE);
-}
 
 
 
 
-int		ft_find_points(t_map *map, char **arr)
-{
-	char	**tmp;
-	int		valid;
-
-	map->count = 0;
-	while (arr[map->count] && map->count < MAX_POINT)
-	{
-		valid = FALSE;
-		tmp = ft_strsplit(arr[map->count], ',');
-		if (tmp && tmp[0] && tmp[1] && tmp[2] && !tmp[3]
-		&& ft_find_point(map, tmp))
-			valid = TRUE;
-		ft_str_arr_free(&tmp);
-		if (!valid)
-			return (FALSE);
-		(map->count)++;
-	}
-	return (TRUE);
-}
-
-
-
-
-
-
-void	ft_create_first_and_last_points(t_map *map)
-{
-	int delta_x;
-	int delta_y;
-	int delta_z;
-	int delta;
-
-	delta_x = (map->p_max.x - map->p_min.x) / 80;
-	delta_y = (map->p_max.y - map->p_min.y) / 80;
-	delta_z = (map->p_max.z - map->p_min.z) / 80;
-	delta = ft_max(delta_x, delta_y);
-	delta = ft_max(delta, delta_z);
-	delta = ft_max(map->delta, 1);
-	ft_fill_point(&(map->first),
-	(map->p_min.y + map->p_max.y) / 2 - delta * 50,
-	(map->p_min.x + map->p_max.x) / 2 - delta * 50,
-	(map->p_min.z + map->p_max.z) / 2 - delta * 50);
-}
-
-
-long	ft_gauss(long distanse, long height)
-{
-	double e;
-
-	e = e ^ (-distance) * height;
-
-	return (height);
-}
-
-
-void	ft_superposition(void *param, int j, int i, int k)
-{
-	t_map *map;
-	long distanse;
-	int x;
-	int y;
-	int num;
-
-	map = (t_map *)param;
-	num = 0;
-	while (num < map->count)
-	{
-		x = map->p[num].x - map->first.x - map->delta * i;
-		y = map->p[num].y - map->first.y - map->delta * k;
-		distanse = (long)x * (long)x + (long)y * (long)y;
-		map->arr[k][i] += ft_gauss(distanse, map->p[num].z);
-		num++;
-	}
-
-
-
-}
-
-
-void	ft_fill_long_arr(t_map *map)
-{
-	t_point start;
-	t_point end;
-
-	ft_fill_point(&start, 0, 0, 0);
-	ft_fill_point(&end, 0, IMAX, KMAX);
-	ft_cycle_cube((void *)map, &ft_superposition, &start, &end);
-}
-
-char	**ft_create_map(t_map *map)
-{
-	char	**ground;
-	int i;
-	int k;
-
-	ground = NULL;
-	ft_create_first_and_last_points(map);
-	if (!(map->arr = (long **)ft_mem_arr_new(IMAX, KMAX, sizeof(long))))
-		return (NULL);
-	ft_fill_long_arr(map);
-	ft_normalize_arr(map);
-
-	i = 0;
-	k = 0;
-	while (k < KMAX)
-	{
-		i = 0;
-		while (i < IMAX)
-		{
-
-			i++;
-		}
-		k++;
-	}
-	return (ground);
-}
-
-
-char	**ft_read_ground_from_file3(char *name)
-{
-	char	*str;
-	char	**arr;
-	char	**ground;
-	t_map	map;
-
-	ground = NULL;
-	str = NULL;
-	arr = NULL;
-	ft_bzero((void *)&map, sizeof(t_map));
-	ft_fill_point(&(map.p_min), 0x8FFFFFFF, 0x8FFFFFFF, 0x8FFFFFFF);
-	if ((str = ft_read_string_from_file(name))
-	&& (arr = ft_strsplit(str, ' '))
-	&& ft_find_points(&map, arr))
-		ground = ft_create_map(&map);
-	free(str);
-	ft_str_arr_free(&arr);
-
-	//imax = ft_strlen(ground[1]);
-	//jmax = MAP_HEIGTH;
-	//kmax = k;
-
-	return (ground);
-}
-
-
-
-int		ft_read_ground_from_file2(char *name)
+int		ft_read_ground_from_file2(char *name, char **ground)
 {
 	int		fd;
 	int		k;
@@ -1025,7 +837,7 @@ void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start
 
 void	ft_mark_obstacles_on_map(void *param, int j, int i, int k)
 {
-	if (j <= ground[k - 1][i - 1] - '0')
+	if (j <= ground[k - 1][i - 1])
 		map[j][i][k] = OBSTACLES;
 	else
 		map[j][i][k] = EMPTY;
@@ -1034,7 +846,7 @@ void	ft_mark_obstacles_on_map(void *param, int j, int i, int k)
 
 
 
-void	ft_fill_map_from_ground(char **ground)
+void	ft_fill_map_from_ground(int **ground)
 {
 	t_point start;
 	t_point end;
@@ -1210,7 +1022,7 @@ void	ft_print_water_in_cell(void *param, int j, int i, int k)
 	{
 		ft_change_points5(vis, parts[j][i][k]);
 		if (!flags_surface[j][i][k])
-			;//ft_print_points(vis, parts[j][i][k]);
+			ft_print_points(vis, parts[j][i][k]);
 		else
 			ft_print_points2(vis, parts[j][i][k]);
 	}
@@ -1404,20 +1216,43 @@ void	ft_create_first_water(void)
 
 int main(int ac, char **av)
 {
+
 	vis = ft_memalloc(sizeof(t_vis));
 	ft_create_xyz(vis);
 	vis->ang_z = M_PI;
 	vis->is_rotate_or_csale = TRUE;
 
 
-	if (ft_read_ground_from_file3("text.txt") == FAIL)
-		return (0);
+
+	if (!(ground = ft_read_ground_from_file3("demo.txt")))
+		return(0);
 
 
-	if (ft_read_ground_from_file2("text.txt") == FAIL)
-		return (0);
+	int i;
+	int k;
 
+	k = 0;
+	while (k < KMAX)
+	{
+		i = 0;
+		while (i < IMAX)
+		{
+			printf("%d ", ground[k][i]);
+			i++;
+		}
+		printf("\n");
+		k++;
+	}
 
+	//exit(0);
+
+	/*
+	if (ft_read_ground_from_file2("text.txt", ground) == FAIL)
+		return (0);*/
+
+	imax = IMAX;
+	jmax = JMAX;
+	kmax = KMAX;
 
 
 	//создаем все массивы, проставляем начальные значения скоростей и давления
@@ -1444,7 +1279,7 @@ int main(int ac, char **av)
 	/*int num = PARTS_COUNT;
 	map[4][2][2] = WATER;
 	ft_create_new_water_in_cell((void *)(&num), 4, 2, 2);*/
-	ft_init_first_value();
+	//ft_init_first_value();
 	//ft_solver();
 
 	//создаем модель для 3д карты

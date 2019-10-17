@@ -33,8 +33,6 @@ typedef struct		s_fluid
 
 
 
-
-
 typedef struct		s_point
 {
 	int y;
@@ -51,7 +49,7 @@ typedef struct		s_map
 	t_point			p_max;
 	t_point			p_min;
 	t_point			first;
-	long			**arr;
+	int				**arr;
 }					t_map;
 
 typedef struct		s_vektr
