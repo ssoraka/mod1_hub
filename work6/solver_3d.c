@@ -146,6 +146,7 @@ void	ft_solver(void)
 	//ft_setbcond();
 	//считаем скорости для внутренних клеток воды, не граничащих с воздухом
 	ft_adap_uvw();
+	//ft_set_uvp_surface();
 	//ft_print_arr(speed_u, &ft_print_real, 2);
 	//exit(0);
 

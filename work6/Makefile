@@ -27,7 +27,7 @@ VIS_DIR = visu-hex/
 LIBFT = libft.a
 LIBFT_HEADER = -I ./
 OBJ = main.c initialization.c clear_map.c adap_uvw.c mark_flags.c \
-poisson.c setbecond.c solver_3d.c speeds.c surface.c parts.c
+poisson.c setbecond.c solver_3d.c speeds.c surface.c parts.c map.c ground.c
 MLX_LIB = -L /usr/local/lib/ -lmlx
 MLX_HEAD = -I /usr/local/include
 FRAMEWORK = -framework OpenGL -framework AppKit

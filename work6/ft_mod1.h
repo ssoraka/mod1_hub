@@ -32,13 +32,22 @@
 #define CONST_GY -2.00
 #define CONST_GX 0.0
 #define CONST_GZ 0.0
-#define T_DELTA 0.1
+#define T_DELTA 0.2
 #define T_END 5.0
 #define TAU 0.2
 #define MAX_ITERATIONS 50
 #define TOLERANCE 0.001
 
-#define MAX_POINT 50
+/*
+**	добавляем по 2 вершины между вершинами расчетной модели для сплайна
+*/
+#define ADD_POINT 0
+
+#define MAP_KOEF 0.7
+#define MAP_HEIGTH2 1000
+#define COLOR_UP 0xFFFFFF
+#define COLOR_DOWN 0x704214
+//#define MAX_POINT 50
 #define IMAX 25
 #define JMAX 25
 #define KMAX 25
@@ -54,10 +63,10 @@
 #define BLOB 'b'
 #define OBSTACLES '#'
 #define BOUNDARY '\0'
-#define PARTS_COUNT 4
+#define PARTS_COUNT 3
 #define TEST_WATER_LEVEL 10
-#define TEST_WATER_WALL 10
-#define MAP_HEIGTH 50
+#define TEST_WATER_WALL 12
+//#define MAP_HEIGTH 50
 #define WATER_COLOR 0xFFFF
 #define OBSTACLES_TOP_COLOR 0x704214
 #define OBSTACLES_FRONT_COLOR 0x5b432d
@@ -227,6 +236,7 @@ int		loop_hook(void *param);
 void	ft_del_all_print_error(char *msg_error);
 void	ft_del_lines(t_line **begin);
 void	ft_del_vektor(t_vektr **begin);
+void	ft_del_poligines(t_plgn **begin);
 
 void	ft_print_all_water(t_vis *vis);
 void	ft_print_water_in_cell(void *param, int j, int i, int k);
@@ -335,6 +345,23 @@ void	ft_create_first_and_last_points(t_map *map);
 int		**ft_create_map(t_map *map);
 void	ft_fill_map_arr(t_map *map);
 void	ft_superposition(void *param, int j, int i, int k);
+REAL	ft_sigmoida(int i, int k);
+/*
+**	ground.c
+*/
+int		**ft_create_complex_ground_from_simple(int  **simple_ground);
+void	ft_bicube_interpolate_y(void *param, int j, int i, int k);
+void	ft_bicube_interpolate_y(void *param, int j, int i, int k);
+void	ft_bicube_interpolate_x(void *param, int j, int i, int k);
+int		ft_cube_interpolate (int *arr, REAL x);
 
+int		ft_create_relief(t_vis *vis, int  **ground);
+t_vektr	*ft_create_points_of_relief(int  **ground, t_vektr **p);
+int		ft_create_points_from_string(t_vektr **begin, int *ground, int k);
+void	ft_points_push_back(t_vektr *begin, t_vektr *last);
+int		ft_color_from_z(int value);
+t_plgn	*ft_create_poligons_of_relief(t_vektr **p_arr);
+int		ft_create_line_of_poligons_of_relief(t_plgn **plgn, t_vektr *p1, t_vektr *p2);
+int		ft_create_rectang_poligon2(t_plgn **plgn, t_vektr **p, int color);
 
 #endif

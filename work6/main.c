@@ -14,11 +14,11 @@
 
 #define CONST_WIDTH 2000
 #define CONST_HEINTH 1500
-#define CAM_X 1000
-#define CAM_Y 1000
+#define CAM_X 1700
+#define CAM_Y 1200
 //#define RADIUS (DELTA * CONST_LEN * 0.7)
 #define RADIUS 3
-#define CONST_LEN 5.0
+#define CONST_LEN 2.0
 #define KOEFF (1.0 / (DELTA_XY))
 #define SLEEP1
 
@@ -607,7 +607,7 @@ int		ft_read_ground_from_file2(char *name, char **ground)
 	close(fd);
 
 	imax = ft_strlen(ground[1]);
-	jmax = MAP_HEIGTH;
+	jmax = JMAX;
 	kmax = k;
 
 	return (SUCCESS);
@@ -682,6 +682,19 @@ void	ft_del_lines(t_line **begin)
 	*begin = NULL;
 }
 
+void	ft_del_poligines(t_plgn **begin)
+{
+	t_plgn *tmp;
+
+	tmp = *begin;
+	while (tmp)
+	{
+		*begin = tmp->next;
+		free(tmp);
+		tmp = *begin;
+	}
+	*begin = NULL;
+}
 
 void	ft_create_lines(t_line **lines, t_vektr **p, int color)
 {
@@ -837,6 +850,8 @@ void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start
 
 void	ft_mark_obstacles_on_map(void *param, int j, int i, int k)
 {
+	//if (j == 0)
+	//	ground[k - 1][i - 1] = (ground[k - 1][i - 1] * KMAX * MAP_KOEF * dy) / MAP_HEIGTH2;
 	if (j <= ground[k - 1][i - 1])
 		map[j][i][k] = OBSTACLES;
 	else
@@ -921,10 +936,10 @@ int		ft_need_print_traing(t_vektr **p, t_pict *pic)
 		return (FALSE);
 	if (p[0]->abs.x >= CONST_WIDTH && p[1]->abs.x >= CONST_WIDTH && p[2]->abs.x >= CONST_WIDTH)
 		return (FALSE);
-	if (pic->near[p[0]->abs.y * CONST_WIDTH + p[0]->abs.x] > p[0]->abs.z
+	/*if (pic->near[p[0]->abs.y * CONST_WIDTH + p[0]->abs.x] > p[0]->abs.z
 	&& pic->near[p[1]->abs.y * CONST_WIDTH + p[1]->abs.x] > p[1]->abs.z
 	&& pic->near[p[2]->abs.y * CONST_WIDTH + p[2]->abs.x] > p[2]->abs.z)
-		return (FALSE);
+		return (FALSE);*/
 	return (TRUE);
 }
 
@@ -1022,7 +1037,7 @@ void	ft_print_water_in_cell(void *param, int j, int i, int k)
 	{
 		ft_change_points5(vis, parts[j][i][k]);
 		if (!flags_surface[j][i][k])
-			ft_print_points(vis, parts[j][i][k]);
+			;//ft_print_points(vis, parts[j][i][k]);
 		else
 			ft_print_points2(vis, parts[j][i][k]);
 	}
@@ -1129,11 +1144,11 @@ int loop_hook(void *param)
 	}
 
 
-	ft_print_arr(flags, &ft_print_int, 6);
+	/*ft_print_arr(flags, &ft_print_int, 6);
 	ft_print_arr(map, &ft_print_char, 6);
 	//ft_print_arr(flags_surface, &ft_print_int, 6);
 	ft_print_arr(press_p, &ft_print_real, 6);
-	ft_print_arr(speed_v, &ft_print_real, 6);
+	ft_print_arr(speed_v, &ft_print_real, 6);*/
 	//ft_print_flags(fluid, fluid->flags);
 	//
 	//ft_print_fluid(fluid, fluid->speed_v);
@@ -1217,6 +1232,7 @@ void	ft_create_first_water(void)
 int main(int ac, char **av)
 {
 
+
 	vis = ft_memalloc(sizeof(t_vis));
 	ft_create_xyz(vis);
 	vis->ang_z = M_PI;
@@ -1244,6 +1260,22 @@ int main(int ac, char **av)
 		k++;
 	}
 
+	int **comlex_ground;
+
+	comlex_ground = ft_create_complex_ground_from_simple(ground);
+	k = 0;
+	while (k < KMAX * (1 + ADD_POINT))
+	{
+		i = 0;
+		while (i < IMAX * (1 + ADD_POINT))
+		{
+			printf("%d ", comlex_ground[k][i]);
+			i++;
+		}
+		printf("\n");
+		k++;
+	}
+
 	//exit(0);
 
 	/*
@@ -1259,8 +1291,7 @@ int main(int ac, char **av)
 	//инициализируем все глобальные переменные
 	ft_initialization();
 
-	//заполняем 3д карту с 2д рельефа
-	ft_fill_map_from_ground(ground);
+
 
 	/*int num = PARTS_COUNT;
 	map[2][2][2] = WATER;
@@ -1275,7 +1306,7 @@ int main(int ac, char **av)
 	ft_create_new_water_in_cell((void *)(&num), 3, 2, 2);
 	map[4][2][2] = WATER;
 	ft_create_new_water_in_cell((void *)(&num), 4, 2, 2);*/
-	ft_create_first_water();
+	//ft_create_first_water();
 	/*int num = PARTS_COUNT;
 	map[4][2][2] = WATER;
 	ft_create_new_water_in_cell((void *)(&num), 4, 2, 2);*/
@@ -1283,8 +1314,13 @@ int main(int ac, char **av)
 	//ft_solver();
 
 	//создаем модель для 3д карты
-	ft_create_points_in_cells(vis);
+	//ft_create_points_in_cells(vis);
+	ft_create_relief(vis, comlex_ground);
 
+	//заполняем 3д карту с 2д рельефа
+	//ft_fill_map_from_ground(ground);
+	//ft_create_points_in_cells(vis);
+	//ft_create_first_water();
 	//создаем имейдж и z-буфер
 	ft_create_img(vis);
 

@@ -91,9 +91,9 @@ void	ft_create_first_and_last_points(t_map *map)
 	int delta_z;
 	int delta;
 
-	delta_x = (map->p_max.x - map->p_min.x) / ((IMAX * 16) / 10);
-	delta_y = (map->p_max.y - map->p_min.y) / ((JMAX * 16) / 10);
-	delta_z = (map->p_max.z - map->p_min.z) / ((KMAX * 16) / 10);
+	delta_x = (map->p_max.x - map->p_min.x) / (IMAX * MAP_KOEF);
+	delta_y = (map->p_max.y - map->p_min.y) / (JMAX * MAP_KOEF);
+	delta_z = (map->p_max.z - map->p_min.z) / (KMAX * MAP_KOEF);
 	delta = ft_max(delta_x, delta_y);
 	delta = ft_max(delta, delta_z);
 	delta = ft_max(delta, 1);
@@ -106,6 +106,20 @@ void	ft_create_first_and_last_points(t_map *map)
 
 
 
+REAL	ft_sigmoida(int i, int k)
+{
+	REAL answer;
+	int x;
+
+	x = ft_min(i, IMAX - 1 - i);
+	x = ft_min(x, KMAX - 1 - k);
+	x = ft_min(x, k);
+	x = -x * x;
+	answer = 1 - exp2((REAL)x);
+	return (answer);
+}
+
+
 
 void	ft_superposition(void *param, int j, int i, int k)
 {
@@ -114,26 +128,24 @@ void	ft_superposition(void *param, int j, int i, int k)
 	double dist;
 	double all_dist;
 	double sigma;
-	double max_len;
 	int num;
 
 	map = (t_map *)param;
 	e = 0;
 	all_dist = 0;
 	num = 0;
-	max_len = (IMAX * IMAX + KMAX * KMAX) * map->delta * map->delta;
+	//2.0 - отвечает за пологость, 0,8 - защита от касания гор потолка
 	while (num < map->count)
 	{
 		dist = ft_power(map->p[num].x - map->first.x - map->delta * i, 2)
 		+ ft_power(map->p[num].y - map->first.y - map->delta * k, 2);
 		sigma = map->delta * map->delta * IMAX;
 		all_dist += 1.0 / (1.0 + dist);
-		//printf("%d_%d_%d_%lf\n", map->first.x, map->p[num].x, map->p[num].y, sqrt((double)dist));
-		//printf("%le\n", exp2(-dist / (sigma * 280)) * map->p[num].z);
-		e += exp2(-dist / (sigma * 2.0)) * map->p[num].z / (1.0 + dist);// * (max_len - dist);// * map->p[num].z * dist;
+		e += exp2(-dist / (sigma * 2.0)) * map->p[num].z / (1.0 + dist);
 		num++;
 	}
-	map->arr[k][i] = (int)(e / all_dist / map->p_max.z * KMAX * 0.8) + 1;// / all_dist); // / map->delta
+	//map->arr[k][i] = (int)(e * ft_sigmoida(i, k) / all_dist / map->p_max.z * KMAX * MAP_KOEF) + 0;// / all_dist); // / map->delta
+	map->arr[k][i] = (int)(e * ft_sigmoida(i, k) / all_dist / map->p_max.z * MAP_HEIGTH2) + 0;
 }
 
 

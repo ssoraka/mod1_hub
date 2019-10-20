@@ -71,7 +71,7 @@ void	ft_surface_speed_and_pressure(void *param, int j, int i, int k)
 {
 	if (!flags_surface[j][i][k])
 		return ;
-	press_p[j][i][k] = 0.0;
+	press_p[j][i][k] = -0.5 * (gx * dx + gy * dy + gz * dz);
 	if (flags_surface[j][i][k] == SURF_MASK)
 		return ;
 	/*{
