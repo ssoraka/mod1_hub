@@ -45,15 +45,24 @@ void	ft_fill_point(t_point *p, int y, int x, int z)
 	p->z = z;
 }
 
+void	ft_fill_dpoint(t_dpoint *p, REAL y, REAL x, REAL z)
+{
+	if (!p)
+		return ;
+	p->x = x;
+	p->y = y;
+	p->z = z;
+}
+
 
 void ft_put_pixel_to_img2(t_pict *pic, t_point *p, int color)
 {
 	if (p->x < 0 || p->y < 0 || p->x >= CONST_WIDTH || p->y >= CONST_HEINTH)
 		return ;
-	if (pic->near[p->y * CONST_WIDTH + p->x] > p->z)
+	if (pic->z_buffer[p->y * CONST_WIDTH + p->x] > p->z)
 		return ;
 	pic->addr[p->y * CONST_WIDTH + p->x] = color;
-	pic->near[p->y * CONST_WIDTH + p->x] = p->z;
+	pic->z_buffer[p->y * CONST_WIDTH + p->x] = p->z;
 }
 
 int ft_interpolation(int percent, int color1, int color2, int byte)
@@ -90,12 +99,12 @@ int		ft_set_color_to_point(t_line *line, t_point *p, int lower_45)
 
 	if (lower_45)
 	{
-		delta1 = ABS(line->p2->abs.x - p->x);
+		delta1 = ABS(line->p2->zoom.x - p->x);
 		delta2 = line->delta.x;
 	}
 	else
 	{
-		delta1 = ABS(line->p2->abs.y - p->y);
+		delta1 = ABS(line->p2->zoom.y - p->y);
 		delta2 = line->delta.y;
 	}
 	color = ft_grad_color(delta1, delta2, line->p1->color, line->p2->color);
@@ -125,7 +134,7 @@ void draw_line_img_lower_452(t_line *line, t_point *p, t_pict *pic, int grad)
 
 	ft_fill_point(&error, 0, 0, 0);
 	color = line->color;
-	while (p->x != line->p2->abs.x)
+	while (p->x != line->p2->zoom.x)
 	{
 		if (grad)
 			color = ft_set_color_to_point(line, p, 1);
@@ -137,7 +146,7 @@ void draw_line_img_lower_452(t_line *line, t_point *p, t_pict *pic, int grad)
 			p->y += line->dir.y;
 			error.y = error.y - line->delta.x;
 		}
-		p->z = ft_int_interpolation(p->x - line->p1->abs.x, line->p2->abs.x - line->p1->abs.x, line->p1->abs.z, line->p2->abs.z);
+		p->z = ft_int_interpolation(p->x - line->p1->zoom.x, line->p2->zoom.x - line->p1->zoom.x, line->p1->zoom.z, line->p2->zoom.z);
 		/*error.z = error.z + line->delta.z;
 		if (2 * error.z >= line->delta.x)
 		{
@@ -149,7 +158,7 @@ void draw_line_img_lower_452(t_line *line, t_point *p, t_pict *pic, int grad)
 	}
 	if (grad)
 		color = line->p2->color;
-	ft_put_pixel_to_img2(pic, &(line->p2->abs), color);
+	ft_put_pixel_to_img2(pic, &(line->p2->zoom), color);
 }
 
 
@@ -160,7 +169,7 @@ void draw_line_img_over_452(t_line *line, t_point *p, t_pict *pic, int grad)
 
 	ft_fill_point(&error, 0, 0, 0);
 	color = line->color;
-	while (p->y != line->p2->abs.y)
+	while (p->y != line->p2->zoom.y)
 	{
 		if (grad)
 			color = ft_set_color_to_point(line, p, 0);
@@ -171,7 +180,7 @@ void draw_line_img_over_452(t_line *line, t_point *p, t_pict *pic, int grad)
 			p->x += line->dir.x;
 			error.x = error.x - line->delta.y;
 		}
-		p->z = ft_int_interpolation(p->y - line->p1->abs.y, line->p2->abs.y - line->p1->abs.y, line->p1->abs.z, line->p2->abs.z);
+		p->z = ft_int_interpolation(p->y - line->p1->zoom.y, line->p2->zoom.y - line->p1->zoom.y, line->p1->zoom.z, line->p2->zoom.z);
 		/*error.z = error.z + line->delta.z;
 		if (2 * error.z >= line->delta.y)
 		{
@@ -182,23 +191,23 @@ void draw_line_img_over_452(t_line *line, t_point *p, t_pict *pic, int grad)
 	}
 	if (grad)
 		color = line->p2->color;
-	ft_put_pixel_to_img2(pic, &(line->p2->abs), color);
+	ft_put_pixel_to_img2(pic, &(line->p2->zoom), color);
 }
 
 
 int		ft_not_need_print(t_line *line, t_pict *pic)
 {
-	if (line->p1->abs.y <= 0 && line->p2->abs.y <= 0)
+	if (line->p1->zoom.y <= 0 && line->p2->zoom.y <= 0)
 		return (TRUE);
-	if (line->p1->abs.x <= 0 && line->p2->abs.x <= 0)
+	if (line->p1->zoom.x <= 0 && line->p2->zoom.x <= 0)
 		return (TRUE);
-	if (line->p1->abs.y >= CONST_HEINTH && line->p2->abs.y >= CONST_HEINTH)
+	if (line->p1->zoom.y >= CONST_HEINTH && line->p2->zoom.y >= CONST_HEINTH)
 		return (TRUE);
-	if (line->p1->abs.x >= CONST_WIDTH && line->p2->abs.x >= CONST_WIDTH)
+	if (line->p1->zoom.x >= CONST_WIDTH && line->p2->zoom.x >= CONST_WIDTH)
 		return (TRUE);
 	//хз, спорное условие...
-	if (pic->near[line->p1->abs.y * CONST_WIDTH + line->p1->abs.x] > line->p1->abs.z + 10
-	&& pic->near[line->p2->abs.y * CONST_WIDTH + line->p2->abs.x] > line->p2->abs.z + 10)
+	if (pic->z_buffer[line->p1->zoom.y * CONST_WIDTH + line->p1->zoom.x] > line->p1->zoom.z + 10
+	&& pic->z_buffer[line->p2->zoom.y * CONST_WIDTH + line->p2->zoom.x] > line->p2->zoom.z + 10)
 		return (TRUE);
 	return (FALSE);
 }
@@ -210,15 +219,15 @@ void	draw_line_img2(t_line *line, t_pict *pic, int grad)
 
 	if (ft_not_need_print(line, pic))
 		return ;
-	ft_fill_point(&p, line->p1->abs.y, line->p1->abs.x, line->p1->abs.z);
-	line->dir.y = ft_znak(line->p2->abs.y - p.y);
-	line->dir.x = ft_znak(line->p2->abs.x - p.x);
-	line->dir.z = ft_znak(line->p2->abs.z - p.z);
+	ft_fill_point(&p, line->p1->zoom.y, line->p1->zoom.x, line->p1->zoom.z);
+	line->dir.y = ft_znak(line->p2->zoom.y - p.y);
+	line->dir.x = ft_znak(line->p2->zoom.x - p.x);
+	line->dir.z = ft_znak(line->p2->zoom.z - p.z);
 	if (!line->dir.y && !line->dir.x)
 		return ;
-	line->delta.y = line->dir.y * (line->p2->abs.y - p.y);
-	line->delta.x = line->dir.x * (line->p2->abs.x - p.x);
-	line->delta.z = line->dir.z * (line->p2->abs.z - p.z);
+	line->delta.y = line->dir.y * (line->p2->zoom.y - p.y);
+	line->delta.x = line->dir.x * (line->p2->zoom.x - p.x);
+	line->delta.z = line->dir.z * (line->p2->zoom.z - p.z);
 	//printf("%d_%d\n", p.z, p.z);
 	if (line->delta.x >= line->delta.y)
 		draw_line_img_lower_452(line, &p, pic, grad);
@@ -235,7 +244,7 @@ void	draw_line_img2(t_line *line, t_pict *pic, int grad)
 **	избавление от погрешности
 */
 
-void ft_norm_vektor(t_vektr *vek)
+void ft_norm_vektor(t_dpoint *vek)
 {
 	double summ;
 
@@ -251,7 +260,7 @@ void ft_norm_vektor(t_vektr *vek)
 
 
 
-void ft_rot2(t_vektr *ox, t_vektr *oy, double ang)
+void ft_rot2(t_dpoint *ox, t_dpoint *oy, double ang)
 {
 	double cosa;
 	double sina;
@@ -296,14 +305,14 @@ t_line *ft_new_line(t_vektr *p1, t_vektr *p2, int color)
 	return (line);
 }
 
-void ft_ret_abs_xyz(t_vektr *ox, t_vis *vis)
+void ft_ret_zoom_xyz(t_vektr *ox, t_vis *vis)
 {
-	ox->otn.x = (int)(ox->x * vis->len);
-	ox->abs.x = ox->otn.x + vis->cam_x;
-	ox->otn.y = (int)(ox->y * vis->len);
-	ox->abs.y = ox->otn.y + vis->cam_y;
-	ox->otn.z = (int)(ox->z * vis->len);
-	ox->abs.z = ox->otn.z;
+	ox->otn.x = (int)(ox->abs.x * vis->len);
+	ox->zoom.x = ox->otn.x + vis->cam_x;
+	ox->otn.y = (int)(ox->abs.y * vis->len);
+	ox->zoom.y = ox->otn.y + vis->cam_y;
+	ox->otn.z = (int)(ox->abs.z * vis->len);
+	ox->zoom.z = ox->otn.z;
 }
 
 
@@ -334,22 +343,22 @@ void ft_rotate_xyz(t_vis *vis)
 
 void ft_change_points4(t_vis *vis, t_vektr *p, int rotate)
 {
-	t_vektr *ox;
-	t_vektr *oy;
-	t_vektr *oz;
+	t_dpoint *ox;
+	t_dpoint *oy;
+	t_dpoint *oz;
 
 	ox = &(vis->oxyz.ox);
 	oy = &(vis->oxyz.oy);
 	oz = &(vis->oxyz.oz);
 	if (rotate)
 	{
-		p->otn.z = (int)((ox->z * p->x + oy->z * p->y + oz->z * p->z) * vis->len);
-		p->otn.x = (int)((ox->x * p->x + oy->x * p->y + oz->x * p->z) * vis->len);
-		p->otn.y = (int)((ox->y * p->x + oy->y * p->y + oz->y * p->z) * vis->len);
+		p->otn.z = (int)((ox->z * p->abs.x + oy->z * p->abs.y + oz->z * p->abs.z) * vis->len);
+		p->otn.x = (int)((ox->x * p->abs.x + oy->x * p->abs.y + oz->x * p->abs.z) * vis->len);
+		p->otn.y = (int)((ox->y * p->abs.x + oy->y * p->abs.y + oz->y * p->abs.z) * vis->len);
 	}
-	p->abs.x = p->otn.x + vis->cam_x;
-	p->abs.y = p->otn.y + vis->cam_y;
-	p->abs.z = p->otn.z;
+	p->zoom.x = p->otn.x + vis->cam_x;
+	p->zoom.y = p->otn.y + vis->cam_y;
+	p->zoom.z = p->otn.z;
 }
 
 
@@ -418,9 +427,9 @@ void circle2(t_pict *pic, t_vektr *center, int radius, int color_code)
 	while (x < y)
 	{
 		ft_fill_point(&p, x, y, 0);
-		plot_circle2(pic, &p, &(center->abs), color_code);
+		plot_circle2(pic, &p, &(center->zoom), color_code);
 		ft_fill_point(&p, y, x, 0);
-		plot_circle2(pic, &p, &(center->abs),color_code);
+		plot_circle2(pic, &p, &(center->zoom),color_code);
 		if (delta < 0)
 			delta += 4 * x + 6;
 		else
@@ -431,7 +440,7 @@ void circle2(t_pict *pic, t_vektr *center, int radius, int color_code)
 		x++;
 	}
 	if (x == y)
-		plot_circle2(pic, &p, &(center->abs),color_code);
+		plot_circle2(pic, &p, &(center->zoom),color_code);
 }
 
 void ft_print_lines(t_vis *vis, t_line *line)
@@ -528,7 +537,7 @@ void	ft_print_points(t_vis *vis, t_vektr *points)
 {
 	while (points)
 	{
-		ft_print_rect2(&(vis->pic), &(points->abs), RADIUS, WATER_COLOR);
+		ft_print_rect2(&(vis->pic), &(points->zoom), RADIUS, WATER_COLOR);
 		points = points->next;
 	}
 }
@@ -606,24 +615,27 @@ int		ft_read_ground_from_file2(char *name, char **ground)
 
 void	ft_create_xyz(t_vis *vis)
 {
-	vis->oxyz.ox.x = 1.0;
-	vis->oxyz.oy.y = 1.0;
-	vis->oxyz.oz.z = 1.0;
+	ft_fill_dpoint(&(vis->oxyz.ox), 0.0, 1.0, 0.0);
+	ft_fill_dpoint(&(vis->oxyz.oy), 1.0, 0.0, 0.0);
+	ft_fill_dpoint(&(vis->oxyz.oz), 0.0, 0.0, 1.0);
+	//vis->oxyz.ox.abs.x = 1.0;
+	//vis->oxyz.oy.abs.y = 1.0;
+	//vis->oxyz.oz.abs.z = 1.0;
 }
 
 
 
 
 
-t_vektr *ft_new_vektor2(int x, int y, int z, int color)
+t_vektr *ft_new_vektor2(REAL x, REAL y, REAL z, int color)
 {
 	t_vektr *tmp;
 
 	tmp = (t_vektr *)malloc(sizeof(t_vektr));
-	ft_fill_point(&(tmp->otn), y, x, z);
-	tmp->x = x;
-	tmp->y = y;
-	tmp->z = z;
+	if (!tmp)
+		return (NULL);
+	ft_fill_point(&(tmp->otn), (int)y, (int)x, (int)z);
+	ft_fill_dpoint(&(tmp->abs), y, x, z);
 	tmp->color = color;
 	tmp->next = NULL;
 	return (tmp);
@@ -793,7 +805,7 @@ int ft_create_img(t_vis *vis)
 	vis->cam_y = CAM_Y;
 	vis->len = CONST_LEN;
 	vis->pic.addr = (int *)mlx_get_data_addr(vis->img, &(vis->pic.bits_per_pixel), &(vis->pic.size_line), &(vis->pic.endian));
-	vis->pic.near = (int *)ft_memalloc(CONST_WIDTH * CONST_HEINTH * 4);
+	vis->pic.z_buffer = (int *)ft_memalloc(CONST_WIDTH * CONST_HEINTH * 4);
 	return (0);
 }
 
@@ -881,11 +893,11 @@ void	ft_swap_points(t_vektr **p1, t_vektr **p2)
 
 void	ft_sort_points_by_y(t_plgn *plgn)
 {
-	if (plgn->p[1]->abs.y < plgn->p[0]->abs.y)
+	if (plgn->p[1]->zoom.y < plgn->p[0]->zoom.y)
 		ft_swap_points(&(plgn->p[1]), &(plgn->p[0]));
-	if (plgn->p[2]->abs.y < plgn->p[0]->abs.y)
+	if (plgn->p[2]->zoom.y < plgn->p[0]->zoom.y)
 		ft_swap_points(&(plgn->p[2]), &(plgn->p[0]));
-	if (plgn->p[2]->abs.y < plgn->p[1]->abs.y)
+	if (plgn->p[2]->zoom.y < plgn->p[1]->zoom.y)
 		ft_swap_points(&(plgn->p[2]), &(plgn->p[1]));
 }
 
@@ -898,33 +910,33 @@ void	ft_vektr_interpolation_by_y(t_vektr *p, t_vektr *p1, t_vektr *p2, int grad)
 	int delta_y;
 	int y;
 
-	delta_y = p1->abs.y - p2->abs.y;
+	delta_y = p1->zoom.y - p2->zoom.y;
 	if (!delta_y)
 	{
-		ft_fill_point(&(p->abs), p2->abs.y, p2->abs.x, p2->abs.z);
+		ft_fill_point(&(p->zoom), p2->zoom.y, p2->zoom.x, p2->zoom.z);
 		p->color = p2->color;
 		return ;
 	}
-	y = p->abs.y - p2->abs.y;
-	p->abs.x = ft_int_interpolation(y, delta_y, p2->abs.x, p1->abs.x);
-	p->abs.z = ft_int_interpolation(y, delta_y, p2->abs.z, p1->abs.z);
+	y = p->zoom.y - p2->zoom.y;
+	p->zoom.x = ft_int_interpolation(y, delta_y, p2->zoom.x, p1->zoom.x);
+	p->zoom.z = ft_int_interpolation(y, delta_y, p2->zoom.z, p1->zoom.z);
 	p->color = ft_grad_color(y, delta_y, p1->color, p2->color);
 }
 
 
 int		ft_need_print_traing(t_vektr **p, t_pict *pic)
 {
-	if (p[0]->abs.y < 0 && p[1]->abs.y < 0 && p[2]->abs.y < 0)
+	if (p[0]->zoom.y < 0 && p[1]->zoom.y < 0 && p[2]->zoom.y < 0)
 		return (FALSE);
-	if (p[0]->abs.x < 0 && p[1]->abs.x < 0 && p[2]->abs.x < 0)
+	if (p[0]->zoom.x < 0 && p[1]->zoom.x < 0 && p[2]->zoom.x < 0)
 		return (FALSE);
-	if (p[0]->abs.y >= CONST_HEINTH && p[1]->abs.y >= CONST_HEINTH && p[2]->abs.y >= CONST_HEINTH)
+	if (p[0]->zoom.y >= CONST_HEINTH && p[1]->zoom.y >= CONST_HEINTH && p[2]->zoom.y >= CONST_HEINTH)
 		return (FALSE);
-	if (p[0]->abs.x >= CONST_WIDTH && p[1]->abs.x >= CONST_WIDTH && p[2]->abs.x >= CONST_WIDTH)
+	if (p[0]->zoom.x >= CONST_WIDTH && p[1]->zoom.x >= CONST_WIDTH && p[2]->zoom.x >= CONST_WIDTH)
 		return (FALSE);
-	/*if (pic->near[p[0]->abs.y * CONST_WIDTH + p[0]->abs.x] > p[0]->abs.z
-	&& pic->near[p[1]->abs.y * CONST_WIDTH + p[1]->abs.x] > p[1]->abs.z
-	&& pic->near[p[2]->abs.y * CONST_WIDTH + p[2]->abs.x] > p[2]->abs.z)
+	/*if (pic->z_buffer[p[0]->zoom.y * CONST_WIDTH + p[0]->zoom.x] > p[0]->zoom.z
+	&& pic->z_buffer[p[1]->zoom.y * CONST_WIDTH + p[1]->zoom.x] > p[1]->zoom.z
+	&& pic->z_buffer[p[2]->zoom.y * CONST_WIDTH + p[2]->zoom.x] > p[2]->zoom.z)
 		return (FALSE);*/
 	return (TRUE);
 }
@@ -942,13 +954,13 @@ void	ft_draw_traing(t_pict *pic, t_vektr **p, int grad, int color)
 	line.p1 = &tmp1;
 	line.p2 = &tmp2;
 	line.color = color;
-	delta = ft_znak(p[0]->abs.y - p[1]->abs.y);
-	y = p[1]->abs.y;
-	while (y != p[0]->abs.y)
+	delta = ft_znak(p[0]->zoom.y - p[1]->zoom.y);
+	y = p[1]->zoom.y;
+	while (y != p[0]->zoom.y)
 	{
-		tmp1.abs.y = y;
+		tmp1.zoom.y = y;
 		ft_vektr_interpolation_by_y(&tmp1, p[0], p[1], grad);
-		tmp2.abs.y = y;
+		tmp2.zoom.y = y;
 		ft_vektr_interpolation_by_y(&tmp2, p[0], p[2], grad);
 		draw_line_img2(&line, pic, grad);
 		y += delta;
@@ -966,13 +978,13 @@ void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad)
 
 
 	ft_sort_points_by_y(plgn);
-	tmp.abs.y = plgn->p[1]->abs.y;
+	tmp.zoom.y = plgn->p[1]->zoom.y;
 	ft_vektr_interpolation_by_y(&tmp, plgn->p[0], plgn->p[2], grad);
-	//printf("%d_%d_%d\n", plgn->p[0]->abs.z, tmp.abs.z, plgn->p[2]->abs.z);
-	//ft_print_rect2(pic, &(plgn->p[0]->abs), 5, plgn->p[0]->color);
-	//ft_print_rect2(pic, &(plgn->p[1]->abs), 5, plgn->p[1]->color);
-	//ft_print_rect2(pic, &(plgn->p[2]->abs), 5, plgn->p[2]->color);
-	//ft_print_rect2(pic, &(tmp.abs), 5, 0xFFFFFF);
+	//printf("%d_%d_%d\n", plgn->p[0]->zoom.z, tmp.zoom.z, plgn->p[2]->zoom.z);
+	//ft_print_rect2(pic, &(plgn->p[0]->zoom), 5, plgn->p[0]->color);
+	//ft_print_rect2(pic, &(plgn->p[1]->zoom), 5, plgn->p[1]->color);
+	//ft_print_rect2(pic, &(plgn->p[2]->zoom), 5, plgn->p[2]->color);
+	//ft_print_rect2(pic, &(tmp.zoom), 5, 0xFFFFFF);
 	plgn->p[3] = plgn->p[2];
 	plgn->p[2] = &tmp;
 	ft_draw_traing(pic, plgn->p, grad, plgn->color);
@@ -1051,7 +1063,7 @@ void	ft_refresh_picture(t_vis *vis)
 {
 	mlx_clear_window(vis->mlx, vis->win);
 	ft_bzero((void *)vis->pic.addr, CONST_WIDTH * CONST_HEINTH * 4);
-	ft_memset((void *)vis->pic.near, 0x80, CONST_WIDTH * CONST_HEINTH * 4);
+	ft_memset((void *)vis->pic.z_buffer, 0x80, CONST_WIDTH * CONST_HEINTH * 4);
 
 	//ft_change_points5(vis);
 	if (!vis->is_need_print_obstacles)
@@ -1177,7 +1189,7 @@ void ft_del_all_print_error(char *msg_error)
 	if (vis)
 	{
 		free(vis->pic.addr);
-		free(vis->pic.near);
+		free(vis->pic.z_buffer);
 		ft_del_vektor(&(vis->points));
 		ft_del_lines(&(vis->lines));
 		free(vis);
