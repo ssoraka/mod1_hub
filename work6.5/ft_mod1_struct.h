@@ -96,23 +96,19 @@ typedef struct		s_part
 {
 	int				type;
 	REAL			density;
-	REAL			delta_density;
 	REAL			press_0;
 	REAL			press;
 	REAL			mass;
 	REAL			h;
-	REAL			c;
-	struct s_point	jik;
 	struct s_dpoint	a;
 	struct s_dpoint	speed;
-	struct s_dpoint	delta_pos;
 	struct s_vektr	pos;
 	struct s_part	*next;
 }					t_part;
 
 typedef struct		s_cpart
 {
-	struct s_part	****begin;
+	struct s_part	***begin;
 	struct s_part	*origin;
 	struct s_part	*surround[9];
 }					t_cpart;
@@ -129,7 +125,9 @@ typedef struct		s_vis
 	int				is_need_print_obstacles;
 	int				grad;
 	double			len;
-	struct s_dpoint	ang;
+	double			ang_x;
+	double			ang_y;
+	double			ang_z;
 	struct s_pict	pic;
 	struct s_oxyz	oxyz;
 	void			*img;

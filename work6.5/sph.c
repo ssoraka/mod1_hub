@@ -38,6 +38,20 @@
 */
 
 
+
+/*
+typedef struct		s_part
+{
+	REAL			density;
+	REAL			press;
+	REAL			mass;
+	REAL			h;
+	struct s_dpoint	a;
+	struct s_dpoint	speed;
+	struct s_vektr	p;
+}					t_part;
+*/
+
 /*
 gamma = 7;
 p0 = 1; //начальная плотность жидкости
@@ -48,9 +62,44 @@ P0 = 200 * p0 * g * (H - y) / gamma;
 */
 
 
+#define DIR_X 1
+#define DIR_Y 2
+#define DIR_Z 4
+#define SCALAR (DIR_X + DIR_Y + DIR_Z)
+
+//начальная плотность жидкости
+#define DENSITY_0 1.0
+//ускорение свободного падения
+#define FG 10.0
+//характеристика адиабаты
+#define GAMMA 7
+//радиус сферы у одной частицы
+#define PART_H 0.5
+
+#define PI 3.141592
+//масса сферы одной частицы
+#define PART_MASS_0 (PI * 0.75 * PART_H * PART_H * PART_H)
+//высоту столба воды можно как-то иначе определить, тут ее на шару поставил...
+#define PRESS_0 (200 * DENSITY_0 * FG * JMAX * DELTA / GAMMA)
+//скорость звука в среде
+#define SPEED_OF_SOUND_C 1500
+
+//для итерирования по окружению
+#define COUNT_NEAR_CELL_IN_ONE_DIMENSION 3
+#define COUNT_NEAR_CELL 9
+
+//для расчета искусственной вязкости
+//коэффициент квадратичной искусственной вязкости (0.02 - 0.03)
+#define CONST_B 0.0
+//коэффициент линнейной искусственной вязкости (0.02 - 0.03)
+#define CONST_A 0.02
+//соотношение максимальной скорости частицы со скоростью звука ~ 10 раз
+#define CONST_E 0.1
+//коэффициент влияния
+#define CONST_EP 0.1
 
 
-REAL	kernel_function_xyz(REAL ri, REAL rj, REAL h, int projection)
+REAL kernel_function_xyz(REAL ri, REAL rj, REAL h, int projection)
 {
 	REAL r;
 	REAL r_h;
@@ -72,48 +121,40 @@ REAL	kernel_function_xyz(REAL ri, REAL rj, REAL h, int projection)
 }
 
 
-REAL	ft_norma_vektora(REAL x, REAL y, REAL z)
-{
-	REAL norma;
-
-	norma = sqrt(x * x + y * y + z * z);
-	return (norma);
-}
-
-REAL	ft_distanse(t_dpoint *pi, t_dpoint *pj, REAL radius, int projection)
+REAL ft_distanse(t_dpoint *pi, t_dpoint *pj, int projection)
 {
 	REAL r;
 
-	r = ft_norma_vektora(pi->x - pj->x, pi->y - pj->y, pi->z - pj->z);
-	if (r > radius || projection == SCALAR)
-		return (r);
+	r = 0.0;
+	if (projection == SCALAR)
+		r = sqrt(pow(pi->x - pj->x, 2.0) + pow(pi->y - pj->y, 2.0) + pow(pi->z - pj->z, 2.0));
 	else if (projection == DIR_X)
 		r = pi->x - pj->x;
 	else if (projection == DIR_Y)
 		r = pi->y - pj->y;
 	else if (projection == DIR_Z)
 		r = pi->z - pj->z;
-	//хз, надо ли в модуль определять...
 	if (r < 0.0)
 		r = -r;
 	return (r);
 }
 
 
-REAL	ft_kernel_function(t_dpoint *pi, t_dpoint *pj, REAL h, int projection)
+REAL ft_kernel_function(t_dpoint *pi, t_dpoint *pj, REAL h, int projection)
 {
 	REAL r;
 	REAL r_h;
 	REAL k;
 	REAL answer;
 
-	r = ft_distanse(pi, pj, 2.0 * h, projection);
+	r = ft_distanse(pi, pj, projection);
 	r_h = r / h;
+	if (r_h >= 2.0)
+		return (0);
 	k = 1.0 / (PI * h);
-	answer = 0.0;
-	if (r_h < 1.0 && r_h > 0)
+	if (r_h < 1.0)
 		answer = k * (1.0 - 1.5 * r_h * r_h + 0.75 * r_h * r_h * r_h);
-	else if (r_h <= 2.0 && r_h >= 1.0)
+	else
 		answer = k * 0.25 * pow((2.0 - r_h), 3);
 	return (answer);
 
@@ -132,22 +173,6 @@ void	ft_use_function(t_part *begin, void *param, void (*f)(t_part *, void *))
 	}
 }
 
-void	ft_use_function2(t_part **begin, void *param, void (*f)(t_part **, t_part *, void *))
-{
-	t_part **prev;
-	t_part *part;
-
-	if (!begin || !f)
-		return ;
-	prev = begin;
-	part = *begin;
-	while (part)
-	{
-		f(prev, part, param);
-		prev = &part;
-		part = part->next;
-	}
-}
 
 void	ft_comparison_part_with_list(t_part *part1, t_part *begin2, void *param, void (*f)(void *, t_part *, t_part *))
 {
@@ -231,33 +256,28 @@ void	ft_fill_param_of_part(t_part *part, void *param)
 	part->c = SPEED_OF_SOUND_C;
 	part->mass = PART_MASS_0;
 	part->press_0 = PRESS_0;
-	if (part->type == WATER)
-		part->speed.x = U_CONST;
-	else
-		part->density = DENSITY_0;
+	part->density = DENSITY_0;
+	part->speed.x = U_CONST;
 }
 
 
 /*
 **	высчитываем начальную плотность для каждой частицы
 */
-void	ft_init_density(void *param, int j, int i, int k)
+void	ft_init_parts(void *param, int j, int i, int k)
 {
 	t_cpart cell;
 
 	cell.begin = (t_part ****)param;
 	cell.origin = cell.begin[j][i][k];
+	ft_use_function(cell.origin, NULL, &ft_fill_param_of_part);
 	ft_fill_surrounding_of_cell_by_j_i(&cell, j, i, k);
 	ft_comparison_list_with_lists(&cell, NULL, &ft_first_density);
 }
 
-void	ft_init_parts(void *param, int j, int i, int k)
-{
-	t_part *begin;
 
-	begin = ((t_part ****)param)[j][i][k];
-	ft_use_function(begin, NULL, &ft_fill_param_of_part);
-}
+
+
 /*
 **	формула для плотности каждой частицы p = p + dp/dt
 */
@@ -386,14 +406,10 @@ void	ft_recalk_delta_speed(void *param, t_part *part_i, t_part *part_j)
 
 void	ft_change_speeds(t_part *part, void *param)
 {
-	REAL tmp;
-	part->speed.x += (part->a.x + g.x) * deltat;
-	part->speed.y += (part->a.y + g.y) * deltat;
-	part->speed.z += (part->a.z + g.z) * deltat;
+	part->speed.x += (part->a.x + gx) * deltat;
+	part->speed.y += (part->a.y + gy) * deltat;
+	part->speed.z += (part->a.z + gz) * deltat;
 	ft_fill_dpoint(&(part->a), 0.0, 0.0, 0.0);
-	tmp = ft_norma_vektora(part->speed.x, part->speed.y, part->speed.z);
-	if (tmp > norm_speed)
-		norm_speed = tmp;
 }
 
 
@@ -419,23 +435,11 @@ void	ft_new_speeds(void *param, int j, int i, int k)
 
 void	ft_change_coordinates(t_part *part, void *param)
 {
-	if (part->type == WATER)
-	{
-		part->pos.abs.x += (part->speed.x + CONST_EP * part->delta_pos.x) * deltat;
-		part->pos.abs.y += (part->speed.y + CONST_EP * part->delta_pos.y) * deltat;
-		part->pos.abs.z += (part->speed.z + CONST_EP * part->delta_pos.z) * deltat;
-	}
+	part->pos.abs.x += (part->speed.x + CONST_EP * part->delta_pos.x) * deltat;
+	part->pos.abs.y += (part->speed.y + CONST_EP * part->delta_pos.y) * deltat;
+	part->pos.abs.z += (part->speed.z + CONST_EP * part->delta_pos.z) * deltat;
 	ft_fill_dpoint(&(part->delta_pos), 0.0, 0.0, 0.0);
 }
-
-void	ft_change_cells(t_part **prev, t_part *part, void *param)
-{
-	if (ft_part_change_cell(part))
-		ft_replace_part(prev, part, (t_part ****)param);
-}
-
-
-
 /*
 //простой вариант
 void	ft_new_coordinates(void *param, int j, int i, int k)
@@ -472,41 +476,36 @@ void	ft_new_coordinates(void *param, int j, int i, int k)
 	ft_fill_surrounding_of_cell_by_j_i(&cell, j, i, k);
 	ft_comparison_list_with_lists(&cell, NULL, &ft_recalk_delta_coord);
 	ft_use_function(cell.begin[j][i][k], NULL, &ft_change_coordinates);
-	ft_use_function2(&(cell.begin[j][i][k]), param, &ft_change_cells);
 }
 
 
-
-/*
-**	типовой расчет частиц
-*/
-
-void	ft_solve_and_move_parts(void)
+while (i <= parts_count)
 {
-	t_point start;
-	t_point end;
-
-	deltat = ft_time_control(SPEED_OF_SOUND_C, norm_speed, min_h);
-	ft_fill_point(&start, 1, 1, 1);
-	ft_fill_point(&end, JMAX, IMAX, KMAX);
-	ft_cycle_cube(NULL, &ft_new_density, &start, &end);
-	ft_cycle_cube(NULL, &ft_new_speeds, &start, &end);
-	ft_cycle_cube((void *)parts, &ft_new_coordinates, &start, &end);
+	u.x = parts[i].v.x;
+	u.y = parts[i].v.y;
+	u.z = parts[i].v.z;
+	j = 0;
+	while (j <= parts_count)
+	{
+		Pij = (parts[i].P + parts[j].P) / 2;
+		e = ?;
+		u.x += e * parts[j].m * ft_kernel_xyz(parts[i].x, parts[j].x, H)
+		* (parts[i].v.x - parts[j].v.x) / Pij;
+		u.y += ...;
+		u.z += ...;
+		j++;
+	}
+	parts[i].x += u.x * delta_t;
+	parts[i].y += u.y * delta_t;
+	parts[i].z += u.z * delta_t;
+	i++;
 }
 
 
-void	ft_init_first_value_of_part_parameters(void)
-{
-	t_point start;
-	t_point end;
 
-	ft_fill_point(&start, 0, 0, 0);
-	ft_fill_point(&end, JMAX + 1, IMAX + 1, KMAX + 1);
-	ft_cycle_cube(NULL, &ft_init_parts, &start, &end);
-	ft_fill_point(&start, 1, 1, 1);
-	ft_fill_point(&end, JMAX, IMAX, KMAX);
-	ft_cycle_cube(NULL, &ft_init_density, &start, &end);
-}
+
+
+
 
 
 
