@@ -96,6 +96,7 @@ typedef struct		s_part
 {
 	int				type;
 	REAL			density;
+	REAL			density_0;
 	REAL			delta_density;
 	REAL			press_0;
 	REAL			press;
@@ -114,7 +115,7 @@ typedef struct		s_cpart
 {
 	struct s_part	****begin;
 	struct s_part	*origin;
-	struct s_part	*surround[9];
+	struct s_part	**surround[9];
 }					t_cpart;
 
 

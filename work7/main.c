@@ -38,11 +38,12 @@ void ft_print_lines(t_vis *vis, t_line *line)
 }
 
 
-void	ft_print_points(t_vis *vis, t_vektr *points)
+void	ft_print_points(t_vis *vis, t_part *points)
 {
 	while (points)
 	{
-		ft_print_rect2(&(vis->pic), &(points->zoom), RADIUS, WATER_COLOR);
+		ft_change_points4(vis, &(points->pos), vis->is_rotate_or_csale);
+		ft_print_rect2(&(vis->pic), &(points->pos.zoom), RADIUS, points->pos.color);
 		points = points->next;
 	}
 }
@@ -198,11 +199,7 @@ void	ft_print_water_in_cell(void *param, int j, int i, int k)
 	t_vis *vis;
 
 	vis = (t_vis *)param;
-	ft_change_points5(vis, parts[j][i][k]);
-	if (!flags_surface[j][i][k])
-		ft_print_points(vis, parts[j][i][k]);
-	else
-		ft_print_points(vis, parts[j][i][k]);
+	ft_print_points(vis, parts[j][i][k]);
 }
 
 
@@ -332,9 +329,9 @@ int loop_hook(void *param)
 }
 
 
-void	ft_del_each_vektrs(void *param, int j, int i, int k)
+void	ft_del_each_parts(void *param, int j, int i, int k)
 {
-	ft_del_vektor(&(parts[j][i][k]));
+	ft_del_part(&(parts[j][i][k]));
 }
 
 
@@ -347,7 +344,7 @@ void ft_del_all_print_error(char *msg_error)
 
 	ft_fill_point(&start, 0, 0, 0);
 	ft_fill_point(&end, jmax + 1, imax + 1, kmax + 1);
-	ft_cycle_cube(NULL, &ft_del_each_vektrs, &start, &end);
+	ft_cycle_cube(NULL, &ft_del_each_parts, &start, &end);
 	if (vis)
 	{
 		free(vis->pic.addr);
@@ -368,12 +365,24 @@ void	ft_create_stable_level_of_water(void *param, int j, int i, int k)
 
 	num = PARTS_COUNT;
 
-	if (map[j][i][k] == EMPTY && j < TEST_WATER_LEVEL// && j < TEST_WATER_LEVEL + 3
-	&& i > TEST_WATER_WALL)
+	if (j <= 1)
 	{
-		map[j][i][k] = WATER;
+		num = OBSTACLES;
 		ft_create_new_water_in_cell((void *)(&num), j, i, k);
 	}
+	else if (map[j][i][k] == EMPTY && j < TEST_WATER_LEVEL + 5 && j > 2// TEST_WATER_LEVEL + 8
+	&& i > TEST_WATER_WALL && i < TEST_WATER_WALL + 8
+	&& k > TEST_WATER_WALL && k < TEST_WATER_WALL + 8)
+	//else if (j == 2 && k == 2 && i == 2)
+	{
+		//map[j][i][k] = WATER;
+
+		num = WATER;
+		ft_create_new_water_in_cell((void *)(&num), j, i, k);
+	}
+	//else if (map[j][i][k] == OBSTACLES || j == 1)
+
+
 }
 
 
@@ -383,7 +392,7 @@ void	ft_create_first_water(void)
 	t_point start;
 	t_point end;
 
-	ft_fill_point(&start, 1, 1, 1);
+	ft_fill_point(&start, 0, 1, 1);
 	ft_fill_point(&end, jmax, imax, kmax);
 	ft_cycle_cube(NULL, &ft_create_stable_level_of_water, &start, &end);
 }
@@ -395,14 +404,14 @@ int main(int ac, char **av)
 	vis = ft_memalloc(sizeof(t_vis));
 	ft_create_xyz(vis);
 	vis->ang.z = M_PI;
-	vis->is_rotate_or_csale = TRUE;
+	//vis->is_rotate_or_csale = TRUE;
 
 
 	if (!(ground = ft_read_ground_from_file3("demo.txt")))
 		return(0);
 
 
-	int i;
+	/*int i;
 	int k;
 
 	k = 0;
@@ -416,7 +425,7 @@ int main(int ac, char **av)
 		}
 		printf("\n");
 		k++;
-	}
+	}*/
 
 	/*int **comlex_ground;
 
@@ -467,12 +476,26 @@ int main(int ac, char **av)
 
 
 	//создаем модель для 3д карты
-	ft_create_points_in_cells(vis);
+	//ft_create_points_in_cells(vis);
 	//ft_create_relief(vis, comlex_ground);
 
+	srand(time(NULL));
 
 	//ft_create_points_in_cells(vis);
 	ft_create_first_water();
+	/*t_part *p = parts[20][16][16];
+	int n = 0;
+	while (p)
+	{
+		n++;
+		p = p->next;
+	}
+	ft_putnbr(n);
+	exit(0);*/
+
+	ft_init_first_value_of_part_parameters();
+
+	//ft_solve_and_move_parts();
 	//создаем имейдж и z-буфер
 	ft_create_img(vis);
 	mlx_hook(vis->win, 2, 0, deal_key, (void *)vis);

@@ -21,6 +21,8 @@
 #include "mlx.h"
 #include "ft_mod1_struct.h"
 
+#include <time.h>
+
 #define ABS(nbr) ((nbr) >= 0 ? (nbr) : (-1) * (nbr))
 
 #define T_INFINITY 10000000000.0
@@ -29,10 +31,10 @@
 #define W_CONST 1.7
 //#define CONST_RE 0.105
 #define CONST_RE 100.011
-#define CONST_GY -2.00
+#define CONST_GY -9.8
 #define CONST_GX 0.0
 #define CONST_GZ 0.0
-#define T_DELTA 0.2
+#define T_DELTA 0.0101
 #define T_END 5.0
 #define TAU 0.2
 #define MAX_ITERATIONS 50
@@ -52,10 +54,10 @@
 #define JMAX 30
 #define KMAX 30
 
-#define DELTA 32.0
+#define DELTA 1.0
 #define DELTA_X DELTA
 #define DELTA_Y DELTA
-
+#define DELTA_Z DELTA
 
 #define SURF '~'
 #define EMPTY ' '
@@ -63,8 +65,8 @@
 #define BLOB 'b'
 #define OBSTACLES '#'
 #define BOUNDARY '\0'
-#define PARTS_COUNT 3
-#define TEST_WATER_LEVEL 10
+#define PARTS_COUNT 1
+#define TEST_WATER_LEVEL (12)
 #define TEST_WATER_WALL 12
 //#define MAP_HEIGTH 50
 #define WATER_COLOR 0xFFFF
@@ -83,9 +85,9 @@
 #define SCALAR (DIR_X + DIR_Y + DIR_Z)
 
 //начальная плотность жидкости
-#define DENSITY_0 1.0
+#define DENSITY_0 1000.0
 //ускорение свободного падения
-#define FG 10.0
+#define FG CONST_GY
 //характеристика адиабаты
 #define GAMMA 7
 //радиус сферы у одной частицы
@@ -93,11 +95,12 @@
 
 #define PI 3.141592
 //масса сферы одной частицы
-#define PART_MASS_0 (PI * 0.75 * PART_H * PART_H * PART_H)
+#define PART_MASS_0 (DENSITY_0 * DELTA * DELTA * DELTA / PARTS_COUNT / PARTS_COUNT / PARTS_COUNT)
 //высоту столба воды можно как-то иначе определить, тут ее на шару поставил...
-#define PRESS_0 (200 * DENSITY_0 * FG * JMAX * DELTA / GAMMA)
+#define PRESS_0 (200 * DENSITY_0 * FG * 3.0 * DELTA / GAMMA)
+//#define PRESS_0 (2200000000)
 //скорость звука в среде
-#define SPEED_OF_SOUND_C 1500
+#define SPEED_OF_SOUND_C 120.0
 
 //для итерирования по окружению
 #define COUNT_NEAR_CELL_IN_ONE_DIMENSION 3
@@ -119,11 +122,11 @@
 */
 #define CONST_WIDTH 2000
 #define CONST_HEINTH 1500
-#define CAM_X 1700
-#define CAM_Y 1200
+#define CAM_X 700
+#define CAM_Y 300
 //#define RADIUS (DELTA * CONST_LEN * 0.7)
 #define RADIUS 3
-#define CONST_LEN 2.0
+#define CONST_LEN 100.0
 #define KOEFF (1.0 / (DELTA_XY))
 #define SLEEP1
 
@@ -156,7 +159,7 @@ t_vis *vis;
 */
 int		ft_znak(int num);
 void	ft_print_lines(t_vis *vis, t_line *line);
-void	ft_print_points(t_vis *vis, t_vektr *points);
+void	ft_print_points(t_vis *vis, t_part *points);
 void	ft_print_points2(t_vis *vis, t_vektr *points);
 void	ft_create_cube_poligons(t_plgn **plgn, t_vektr **p, int color);
 void	ft_create_obstacles(void *ptr, int j, int i, int k);
@@ -172,7 +175,7 @@ void	ft_print_char(void *param, int j, int i, int k);
 void	ft_print_real(void *param, int j, int i, int k);
 void	ft_print_arr(void *arr, void (*f)(void *, int, int, int), int k);
 int		loop_hook(void *param);
-void	ft_del_each_vektrs(void *param, int j, int i, int k);
+void	ft_del_each_parts(void *param, int j, int i, int k);
 void	ft_del_all_print_error(char *msg_error);
 void	ft_create_stable_level_of_water(void *param, int j, int i, int k);
 void	ft_create_first_water(void);
@@ -285,9 +288,11 @@ REAL	ft_time_control(REAL max_c, REAL norm_speed, REAL min_h);
 **	parts.c
 */
 void	ft_create_new_water_in_cell(void *param, int j, int i, int k);
-void	ft_replace_part(t_part **prev, t_part *part, t_part ****parts);
+void	ft_replace_part(t_part *prev, t_part **part, t_part ****parts);
 int		ft_part_change_cell(t_part *part);
-
+void	ft_del_part(t_part **begin);
+t_part	*ft_new_part(t_dpoint *p, int type);
+t_part	*ft_add_part(void *ptr, t_dpoint *p, int type);
 /*
 **	map.c
 */
@@ -327,9 +332,9 @@ REAL	ft_kernel_function(t_dpoint *pi, t_dpoint *pj, REAL h, int projection);
 REAL	ft_calc_fake_viscosity(t_part *p_i, t_part *p_j, t_dpoint *d_speed, t_dpoint *d_pos);
 REAL	ft_return_fake_viscosity(t_part *p_i, t_part *p_j);
 void	ft_use_function(t_part *begin, void *param, void (*f)(t_part *, void *));
-void	ft_use_function2(t_part **begin, void *param, void (*f)(t_part **, t_part *, void *));
+void	ft_use_function2(t_part **begin, void *param, void (*f)(t_part *, t_part **, void *));
 void	ft_comparison_part_with_list(t_part *part1, t_part *begin2, void *param, void (*f)(void *, t_part *, t_part *));
-void	ft_comparison_part_with_lists(t_part *part, t_part **surround, void *param, void (*f)(void *, t_part *, t_part *));
+void	ft_comparison_part_with_lists(t_part *part, t_part ***surround, void *param, void (*f)(void *, t_part *, t_part *));
 void	ft_comparison_list_with_lists(t_cpart *cell, void *param, void (*f)(void *, t_part *, t_part *));
 void	ft_fill_surrounding_of_cell_by_j_i(t_cpart *cell, int j, int i, int k);
 void	ft_first_density(void *param, t_part *part_i, t_part *part_j);
