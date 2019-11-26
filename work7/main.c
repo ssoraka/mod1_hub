@@ -365,14 +365,14 @@ void	ft_create_stable_level_of_water(void *param, int j, int i, int k)
 
 	num = PARTS_COUNT;
 
-	if (j <= 1)
+	/*if (j <= 1)
 	{
 		num = OBSTACLES;
 		ft_create_new_water_in_cell((void *)(&num), j, i, k);
-	}
-	else if (map[j][i][k] == EMPTY && j < TEST_WATER_LEVEL + 5 && j > 2// TEST_WATER_LEVEL + 8
-	&& i > TEST_WATER_WALL && i < TEST_WATER_WALL + 8
-	&& k > TEST_WATER_WALL && k < TEST_WATER_WALL + 8)
+	}//j < TEST_WATER_LEVEL - 1
+	else*/ if (map[j][i][k] == EMPTY && j < 12 && j > 1// TEST_WATER_LEVEL + 8
+	&& i > TEST_WATER_WALL && i < TEST_WATER_WALL + 10
+	&& k > TEST_WATER_WALL && k < TEST_WATER_WALL + 10)
 	//else if (j == 2 && k == 2 && i == 2)
 	{
 		//map[j][i][k] = WATER;
@@ -398,8 +398,13 @@ void	ft_create_first_water(void)
 }
 
 
+
+
+
+
 int main(int ac, char **av)
 {
+
 
 	vis = ft_memalloc(sizeof(t_vis));
 	ft_create_xyz(vis);
@@ -493,7 +498,7 @@ int main(int ac, char **av)
 	ft_putnbr(n);
 	exit(0);*/
 
-	ft_init_first_value_of_part_parameters();
+	//ft_init_first_value_of_part_parameters();
 
 	//ft_solve_and_move_parts();
 	//создаем имейдж и z-буфер

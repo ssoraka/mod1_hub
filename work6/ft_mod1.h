@@ -41,7 +41,7 @@
 /*
 **	добавляем по 2 вершины между вершинами расчетной модели для сплайна
 */
-#define ADD_POINT 1
+#define ADD_POINT 3
 
 #define MAP_KOEF 0.7
 #define MAP_HEIGTH2 1000

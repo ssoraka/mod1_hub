@@ -50,10 +50,10 @@ void ft_put_pixel_to_img2(t_pict *pic, t_point *p, int color)
 {
 	if (p->x < 0 || p->y < 0 || p->x >= CONST_WIDTH || p->y >= CONST_HEINTH)
 		return ;
-	if (pic->near[p->y * CONST_WIDTH + p->x] > p->z)
+	if (pic->z_buffer[p->y * CONST_WIDTH + p->x] > p->z)
 		return ;
 	pic->addr[p->y * CONST_WIDTH + p->x] = color;
-	pic->near[p->y * CONST_WIDTH + p->x] = p->z;
+	pic->z_buffer[p->y * CONST_WIDTH + p->x] = p->z;
 }
 
 int ft_interpolation(int percent, int color1, int color2, int byte)
@@ -197,8 +197,8 @@ int		ft_not_need_print(t_line *line, t_pict *pic)
 	if (line->p1->abs.x >= CONST_WIDTH && line->p2->abs.x >= CONST_WIDTH)
 		return (TRUE);
 	//хз, спорное условие...
-	if (pic->near[line->p1->abs.y * CONST_WIDTH + line->p1->abs.x] > line->p1->abs.z + 10
-	&& pic->near[line->p2->abs.y * CONST_WIDTH + line->p2->abs.x] > line->p2->abs.z + 10)
+	if (pic->z_buffer[line->p1->abs.y * CONST_WIDTH + line->p1->abs.x] > line->p1->abs.z + 10
+	&& pic->z_buffer[line->p2->abs.y * CONST_WIDTH + line->p2->abs.x] > line->p2->abs.z + 10)
 		return (TRUE);
 	return (FALSE);
 }
@@ -499,9 +499,13 @@ int		deal_key(int key, void *param)
 	if (key == 35)
 		vis->pause = !vis->pause;
 	if (key == 34)
-		vis->is_need_print_obstacles = !vis->is_need_print_obstacles;
+		if ((vis->is_need_print_obstacles = !vis->is_need_print_obstacles))
+			vis->is_shift = TRUE;
 	if (key == 5)
+	{
 		vis->grad = !vis->grad;
+		vis->is_shift = TRUE;
+	}
 	return (0);
 }
 
@@ -793,7 +797,9 @@ int ft_create_img(t_vis *vis)
 	vis->cam_y = CAM_Y;
 	vis->len = CONST_LEN;
 	vis->pic.addr = (int *)mlx_get_data_addr(vis->img, &(vis->pic.bits_per_pixel), &(vis->pic.size_line), &(vis->pic.endian));
-	vis->pic.near = (int *)ft_memalloc(CONST_WIDTH * CONST_HEINTH * 4);
+	vis->pic.z_buffer = (int *)ft_memalloc(CONST_WIDTH * CONST_HEINTH * 4);
+	vis->pic.addr_copy = (int *)ft_memalloc(CONST_WIDTH * CONST_HEINTH * 4);
+	vis->pic.z_buffer_copy = (int *)ft_memalloc(CONST_WIDTH * CONST_HEINTH * 4);
 	return (0);
 }
 
@@ -922,9 +928,9 @@ int		ft_need_print_traing(t_vektr **p, t_pict *pic)
 		return (FALSE);
 	if (p[0]->abs.x >= CONST_WIDTH && p[1]->abs.x >= CONST_WIDTH && p[2]->abs.x >= CONST_WIDTH)
 		return (FALSE);
-	/*if (pic->near[p[0]->abs.y * CONST_WIDTH + p[0]->abs.x] > p[0]->abs.z
-	&& pic->near[p[1]->abs.y * CONST_WIDTH + p[1]->abs.x] > p[1]->abs.z
-	&& pic->near[p[2]->abs.y * CONST_WIDTH + p[2]->abs.x] > p[2]->abs.z)
+	/*if (pic->z_buffer[p[0]->abs.y * CONST_WIDTH + p[0]->abs.x] > p[0]->abs.z
+	&& pic->z_buffer[p[1]->abs.y * CONST_WIDTH + p[1]->abs.x] > p[1]->abs.z
+	&& pic->z_buffer[p[2]->abs.y * CONST_WIDTH + p[2]->abs.x] > p[2]->abs.z)
 		return (FALSE);*/
 	return (TRUE);
 }
@@ -987,13 +993,22 @@ void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad)
 void ft_print_poligons(t_vis *vis, t_plgn *plgn)
 {
 	if (vis->is_rotate_or_csale || vis->is_shift)
-		ft_change_points5(vis, vis->points);
-	vis->is_rotate_or_csale = FALSE;
-	vis->is_shift = FALSE;
-	while (plgn)
 	{
-		ft_print_plgn(plgn, &(vis->pic), vis->grad);
-		plgn = plgn->next;
+		ft_change_points5(vis, vis->points);
+		vis->is_rotate_or_csale = FALSE;
+		vis->is_shift = FALSE;
+		while (plgn)
+		{
+			ft_print_plgn(plgn, &(vis->pic), vis->grad);
+			plgn = plgn->next;
+		}
+		ft_memcpy((void *)(vis->pic.addr_copy), (void *)(vis->pic.addr), CONST_WIDTH * CONST_HEINTH * 4);
+		ft_memcpy((void *)(vis->pic.z_buffer_copy), (void *)(vis->pic.z_buffer), CONST_WIDTH * CONST_HEINTH * 4);
+	}
+	else
+	{
+		ft_memcpy((void *)(vis->pic.addr), (void *)(vis->pic.addr_copy), CONST_WIDTH * CONST_HEINTH * 4);
+		ft_memcpy((void *)(vis->pic.z_buffer), (void *)(vis->pic.z_buffer_copy), CONST_WIDTH * CONST_HEINTH * 4);
 	}
 }
 
@@ -1051,7 +1066,7 @@ void	ft_refresh_picture(t_vis *vis)
 {
 	mlx_clear_window(vis->mlx, vis->win);
 	ft_bzero((void *)vis->pic.addr, CONST_WIDTH * CONST_HEINTH * 4);
-	ft_memset((void *)vis->pic.near, 0x80, CONST_WIDTH * CONST_HEINTH * 4);
+	ft_memset((void *)vis->pic.z_buffer, 0x80, CONST_WIDTH * CONST_HEINTH * 4);
 
 	//ft_change_points5(vis);
 	if (!vis->is_need_print_obstacles)
@@ -1177,7 +1192,9 @@ void ft_del_all_print_error(char *msg_error)
 	if (vis)
 	{
 		free(vis->pic.addr);
-		free(vis->pic.near);
+		free(vis->pic.z_buffer);
+		free(vis->pic.addr_copy);
+		free(vis->pic.z_buffer_copy);
 		ft_del_vektor(&(vis->points));
 		ft_del_lines(&(vis->lines));
 		free(vis);
@@ -1302,8 +1319,8 @@ int main(int ac, char **av)
 
 
 	//создаем модель для 3д карты
-	ft_create_points_in_cells(vis);
-	//ft_create_relief(vis, comlex_ground);
+	//ft_create_points_in_cells(vis);
+	ft_create_relief(vis, comlex_ground);
 
 
 	//ft_create_points_in_cells(vis);

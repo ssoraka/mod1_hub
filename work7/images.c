@@ -12,6 +12,11 @@
 
 #include "ft_mod1.h"
 
+
+/*
+** надо пачку защит маллока наставить ...
+*/
+
 int		ft_create_img(t_vis *vis)
 {
 	vis->mlx = mlx_init();
@@ -22,6 +27,8 @@ int		ft_create_img(t_vis *vis)
 	vis->len = CONST_LEN;
 	vis->pic.addr = (int *)mlx_get_data_addr(vis->img, &(vis->pic.bits_per_pixel), &(vis->pic.size_line), &(vis->pic.endian));
 	vis->pic.z_buffer = (int *)ft_memalloc(CONST_WIDTH * CONST_HEINTH * 4);
+	vis->pic.addr_copy = (int *)ft_memalloc(CONST_WIDTH * CONST_HEINTH * 4);
+	vis->pic.z_buffer_copy = (int *)ft_memalloc(CONST_WIDTH * CONST_HEINTH * 4);
 	return (0);
 }
 

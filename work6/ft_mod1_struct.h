@@ -90,7 +90,9 @@ typedef struct		s_pict
 	int				size_line;
 	int				endian;
 	int				*addr;
-	int				*near;
+	int				*z_buffer;
+	int				*addr_copy;
+	int				*z_buffer_copy;
 }					t_pict;
 
 

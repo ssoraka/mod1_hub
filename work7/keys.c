@@ -66,7 +66,11 @@ int		deal_key(int key, void *param)
 	if (key == 35)
 		vis->pause = !vis->pause;
 	if (key == 34)
+	{
 		vis->is_need_print_obstacles = !vis->is_need_print_obstacles;
+		if (vis->is_need_print_obstacles) //возможно следует изменить эту херь
+			vis->is_rotate_or_csale = TRUE;
+	}
 	if (key == 5)
 		vis->grad = !vis->grad;
 	return (0);

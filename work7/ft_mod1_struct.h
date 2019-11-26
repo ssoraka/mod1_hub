@@ -14,6 +14,7 @@
 # define FT_MOD1_STRUCT_H
 
 # define MAX_POINT 50
+# define MAX_NEIGHBORS 200
 
 typedef double REAL;
 typedef double mytype;
@@ -81,6 +82,8 @@ typedef struct		s_pict
 	int				endian;
 	int				*addr;
 	int				*z_buffer;
+	int				*addr_copy;
+	int				*z_buffer_copy;
 }					t_pict;
 
 
@@ -91,6 +94,22 @@ typedef struct		s_oxyz
 	struct s_dpoint	oz;
 }					t_oxyz;
 
+typedef struct		s_neigh
+{
+	int				stage;
+	REAL			h_ij;
+	REAL			r_ij;
+	REAL			w_ij;
+	struct s_dpoint	nabla_w_ij;
+	struct s_neigh	*neigh_clone;
+	struct s_part	*part_j;
+}					t_neigh;
+
+typedef struct		s_neighs
+{
+	int				neigh_count;
+	struct s_neigh	neigh[MAX_NEIGHBORS];
+}					t_neighs;
 
 typedef struct		s_part
 {
@@ -108,6 +127,7 @@ typedef struct		s_part
 	struct s_dpoint	speed;
 	struct s_dpoint	delta_pos;
 	struct s_vektr	pos;
+	struct s_neighs	neighs;
 	struct s_part	*next;
 }					t_part;
 
@@ -117,8 +137,6 @@ typedef struct		s_cpart
 	struct s_part	*origin;
 	struct s_part	**surround[9];
 }					t_cpart;
-
-
 
 typedef struct		s_vis
 {

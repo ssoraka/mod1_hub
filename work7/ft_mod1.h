@@ -50,9 +50,9 @@
 #define COLOR_UP 0xFFFFFF
 #define COLOR_DOWN 0x704214
 //#define MAX_POINT 50
-#define IMAX 30
-#define JMAX 30
-#define KMAX 30
+#define IMAX 20
+#define JMAX 20
+#define KMAX 20
 
 #define DELTA 1.0
 #define DELTA_X DELTA
@@ -66,8 +66,8 @@
 #define OBSTACLES '#'
 #define BOUNDARY '\0'
 #define PARTS_COUNT 1
-#define TEST_WATER_LEVEL (12)
-#define TEST_WATER_WALL 12
+#define TEST_WATER_LEVEL (4)
+#define TEST_WATER_WALL 4
 //#define MAP_HEIGTH 50
 #define WATER_COLOR 0xFFFF
 #define OBSTACLES_TOP_COLOR 0x704214
@@ -110,11 +110,11 @@
 //коэффициент квадратичной искусственной вязкости (0.02 - 0.03)
 #define CONST_B 0.0
 //коэффициент линнейной искусственной вязкости (0.02 - 0.03)
-#define CONST_A 0.02
+#define CONST_A 0.08
 //соотношение максимальной скорости частицы со скоростью звука ~ 10 раз
 #define CONST_E 0.1
 //коэффициент влияния
-#define CONST_EP 0.1
+#define CONST_EP 0.3
 
 
 /*
@@ -122,8 +122,8 @@
 */
 #define CONST_WIDTH 2000
 #define CONST_HEINTH 1500
-#define CAM_X 700
-#define CAM_Y 300
+#define CAM_X 1700
+#define CAM_Y 1300
 //#define RADIUS (DELTA * CONST_LEN * 0.7)
 #define RADIUS 3
 #define CONST_LEN 100.0

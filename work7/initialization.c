@@ -34,7 +34,7 @@ void	ft_init_delta_xyz(void)
 	g.y = CONST_GY;
 	g.z = CONST_GZ;
 
-	norm_speed = ft_norma_vektora(U_CONST, U_CONST, U_CONST);
+	norm_speed = U_CONST * 1.8;
 	min_h = PART_H;
 	deltat = T_DELTA;
 
