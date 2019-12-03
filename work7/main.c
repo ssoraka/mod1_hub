@@ -43,7 +43,10 @@ void	ft_print_points(t_vis *vis, t_part *points)
 	while (points)
 	{
 		ft_change_points4(vis, &(points->pos), vis->is_rotate_or_csale);
-		ft_print_rect2(&(vis->pic), &(points->pos.zoom), RADIUS, points->pos.color);
+		//if (points->tension.is_surface)
+		//	ft_print_rect2(&(vis->pic), &(points->pos.zoom), RADIUS, 0xFF0000);
+		//else
+			ft_print_rect2(&(vis->pic), &(points->pos.zoom), RADIUS, points->pos.color);
 		points = points->next;
 	}
 }
@@ -365,14 +368,14 @@ void	ft_create_stable_level_of_water(void *param, int j, int i, int k)
 
 	num = PARTS_COUNT;
 
-	/*if (j <= 1)
+	if (j <= 1)
 	{
 		num = OBSTACLES;
 		ft_create_new_water_in_cell((void *)(&num), j, i, k);
 	}//j < TEST_WATER_LEVEL - 1
-	else*/ if (map[j][i][k] == EMPTY && j < 12 && j > 1// TEST_WATER_LEVEL + 8
-	&& i > TEST_WATER_WALL && i < TEST_WATER_WALL + 10
-	&& k > TEST_WATER_WALL && k < TEST_WATER_WALL + 10)
+	else if (/*map[j][i][k] == EMPTY &&*/ j < 20 && j > 1// TEST_WATER_LEVEL + 8
+	&& i > TEST_WATER_WALL + 1+0 && i < TEST_WATER_WALL + 10
+	&& k > TEST_WATER_WALL + 1+0 && k < TEST_WATER_WALL + 20)
 	//else if (j == 2 && k == 2 && i == 2)
 	{
 		//map[j][i][k] = WATER;
@@ -498,7 +501,7 @@ int main(int ac, char **av)
 	ft_putnbr(n);
 	exit(0);*/
 
-	//ft_init_first_value_of_part_parameters();
+	ft_init_first_value_of_part_parameters();
 
 	//ft_solve_and_move_parts();
 	//создаем имейдж и z-буфер

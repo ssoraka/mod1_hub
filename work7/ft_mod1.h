@@ -31,7 +31,7 @@
 #define W_CONST 1.7
 //#define CONST_RE 0.105
 #define CONST_RE 100.011
-#define CONST_GY -9.8
+#define CONST_GY -10.0
 #define CONST_GX 0.0
 #define CONST_GZ 0.0
 #define T_DELTA 0.0101
@@ -66,8 +66,8 @@
 #define OBSTACLES '#'
 #define BOUNDARY '\0'
 #define PARTS_COUNT 1
-#define TEST_WATER_LEVEL (4)
-#define TEST_WATER_WALL 4
+#define TEST_WATER_LEVEL (0)
+#define TEST_WATER_WALL 0
 //#define MAP_HEIGTH 50
 #define WATER_COLOR 0xFFFF
 #define OBSTACLES_TOP_COLOR 0x704214
@@ -95,7 +95,7 @@
 
 #define PI 3.141592
 //масса сферы одной частицы
-#define PART_MASS_0 (DENSITY_0 * DELTA * DELTA * DELTA / PARTS_COUNT / PARTS_COUNT / PARTS_COUNT)
+#define PART_MASS_0 (DENSITY_0 * DELTA * DELTA * DELTA *0.99 / PARTS_COUNT / PARTS_COUNT / PARTS_COUNT)
 //высоту столба воды можно как-то иначе определить, тут ее на шару поставил...
 #define PRESS_0 (200 * DENSITY_0 * FG * 3.0 * DELTA / GAMMA)
 //#define PRESS_0 (2200000000)
@@ -108,15 +108,16 @@
 
 //для расчета искусственной вязкости
 //коэффициент квадратичной искусственной вязкости (0.02 - 0.03)
-#define CONST_B 0.0
+#define CONST_B 0.5
 //коэффициент линнейной искусственной вязкости (0.02 - 0.03)
-#define CONST_A 0.08
+#define CONST_A 0.38
 //соотношение максимальной скорости частицы со скоростью звука ~ 10 раз
 #define CONST_E 0.1
 //коэффициент влияния
 #define CONST_EP 0.3
 
-
+//#define SIGMA 5000000000000000000000000000.000
+#define SIGMA 0000.0000000
 /*
 **	images
 */
@@ -337,7 +338,7 @@ void	ft_comparison_part_with_list(t_part *part1, t_part *begin2, void *param, vo
 void	ft_comparison_part_with_lists(t_part *part, t_part ***surround, void *param, void (*f)(void *, t_part *, t_part *));
 void	ft_comparison_list_with_lists(t_cpart *cell, void *param, void (*f)(void *, t_part *, t_part *));
 void	ft_fill_surrounding_of_cell_by_j_i(t_cpart *cell, int j, int i, int k);
-void	ft_first_density(void *param, t_part *part_i, t_part *part_j);
+//void	ft_first_density(void *param, t_part *p_i, t_part *part_j);
 void	ft_fill_param_of_part(t_part *part, void *param);
 void	ft_init_density(void *param, int j, int i, int k);
 void	ft_init_parts(void *param, int j, int i, int k);

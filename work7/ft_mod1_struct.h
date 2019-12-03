@@ -14,7 +14,7 @@
 # define FT_MOD1_STRUCT_H
 
 # define MAX_POINT 50
-# define MAX_NEIGHBORS 200
+# define MAX_NEIGHBORS 300
 
 typedef double REAL;
 typedef double mytype;
@@ -111,6 +111,18 @@ typedef struct		s_neighs
 	struct s_neigh	neigh[MAX_NEIGHBORS];
 }					t_neighs;
 
+
+typedef struct		s_tens
+{
+	int				is_surface;
+	REAL			color;
+	REAL			smoothed_color;
+	struct s_dpoint	normal;
+	struct s_dpoint	unit_n;
+	struct s_dpoint	k;
+}					t_tens;
+
+
 typedef struct		s_part
 {
 	int				type;
@@ -128,6 +140,7 @@ typedef struct		s_part
 	struct s_dpoint	delta_pos;
 	struct s_vektr	pos;
 	struct s_neighs	neighs;
+	struct s_tens	tension;
 	struct s_part	*next;
 }					t_part;
 
