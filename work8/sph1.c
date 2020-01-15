@@ -772,9 +772,15 @@ void	ft_solve_and_move_parts(void)
 	ft_fill_point(&start, 1, 1, 1);
 	ft_fill_point(&end, JMAX, IMAX, KMAX);
 
+
+
 	ft_cycle_cube((void *)parts, &ft_clear_neighbors, &start, &end);
+	//long start_clock = clock();
 	//надо допилить эту функцию
 	ft_cycle_cube((void *)parts, &ft_new_neighbors, &start, &end);
+	//long end_clock = clock();
+	//printf("%ld\n", end_clock - start_clock);
+
 	//считаем изменение плотности
 	ft_cycle_cube((void *)parts, &ft_init_density, &start, &end);
 	ft_cycle_cube((void *)parts, &ft_new_delta_density, &start, &end);
@@ -784,17 +790,20 @@ void	ft_solve_and_move_parts(void)
 	//считаем изменение скорости
 	ft_cycle_cube((void *)parts, &ft_new_delta_speeds, &start, &end);
 	//считаем силу поверхостного натяжения
-	ft_cycle_cube((void *)parts, &ft_new_smoothed_color_func, &start, &end);
+	/*ft_cycle_cube((void *)parts, &ft_new_smoothed_color_func, &start, &end);
 	ft_cycle_cube((void *)parts, &ft_new_normal_to_surface, &start, &end);
 	ft_cycle_cube((void *)parts, &ft_new_unit_normal_to_surface, &start, &end);
-	ft_cycle_cube((void *)parts, &ft_new_curvature_of_surface, &start, &end);
+	ft_cycle_cube((void *)parts, &ft_new_curvature_of_surface, &start, &end);*/
 	//считаем скорости
+
 	ft_cycle_cube((void *)parts, &ft_new_speeds2, &start, &end);
 	//считаем изменение координат
 	ft_cycle_cube((void *)parts, &ft_new_delta_coordinates2, &start, &end);
 
 	ft_cycle_cube((void *)parts, &ft_new_coordinates2, &start, &end);
-	printf("%lf\n", deltat);
+	//printf("%lf\n", deltat);
+
+
 }
 
 
@@ -814,9 +823,9 @@ void	ft_fill_param_of_part(t_part *part, void *param)
 	{
 		;
 		//part->speed.x = U_CONST;
-		part->pos.abs.x += ((REAL)(rand() % 100)) / 500.0;
+		/*part->pos.abs.x += ((REAL)(rand() % 100)) / 500.0;
 		part->pos.abs.y += ((REAL)(rand() % 100)) / 500.0;
-		part->pos.abs.z += ((REAL)(rand() % 100)) / 500.0;
+		part->pos.abs.z += ((REAL)(rand() % 100)) / 500.0;*/
 		/*part->speed.x += ((REAL)(rand() % 100)) / 500.0;
 		part->speed.y += ((REAL)(rand() % 100)) / 500.0;
 		part->speed.z += ((REAL)(rand() % 100)) / 500.0;*/

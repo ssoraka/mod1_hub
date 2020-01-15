@@ -14,6 +14,8 @@
 
 void	ft_init_variable(void)
 {
+	g_cell = NULL;
+	g_parts = NULL;
 	map = NULL;
 	flags_surface = NULL;
 	parts = NULL;
@@ -66,9 +68,11 @@ void	ft_init_map_arrs(void)
 {
 	if (!(map = (char ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(char))))
 		ft_del_variable();
-	if (!(flags_surface = (int ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(int))))
-		ft_del_variable();
+	//if (!(flags_surface = (int ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(int))))
+	//	ft_del_variable();
 	if (!(parts = (t_part ****)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(t_part *))))
+		ft_del_variable();
+	if (!(g_parts = ft_init_all_clear_parts()))
 		ft_del_variable();
 }
 
@@ -101,5 +105,25 @@ void	ft_del_variable(void)
 	ft_del_cube_arr((void ****)(&map));
 	ft_del_cube_arr((void ****)(&flags_surface));
 	ft_del_cube_arr((void ****)(&parts));
+	ft_del_arr(&g_parts);
 	exit(0);
+}
+
+void	*ft_cube_arr2(int jmax, int imax, int kmax, int size)
+{
+	return (ft_memalloc(jmax * imax * kmax * size));
+}
+
+int		ft_get_index(int j, int i, int k)
+{
+	if (i < I0 || i > IMAX || j < J0 || j > JMAX || k < K0 || k > KMAX)
+		return (-1);
+	return (k * (IMAX + 1) * (JMAX + 1) + j * (IMAX + 1) + i);
+}
+
+t_part	*ft_get_elem_cube_arr(int j, int i, int k)
+{
+	if (i > IMAX + 1 || j > JMAX + 1 || k > KMAX + 1)
+		return (NULL);
+	return (g_cell + (k * (IMAX + 1) * (JMAX + 1) + j * (IMAX + 1) + i) * sizeof(t_part));
 }

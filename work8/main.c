@@ -219,6 +219,20 @@ void	ft_print_all_water(t_vis *vis)
 	vis->is_rotate_or_csale = FALSE;
 }
 
+void	ft_print_all_water2(void *ptr, void *param)
+{
+	t_part *part;
+	t_vis *vis;
+
+	vis = (t_vis *)param;
+	part = (t_part *)ptr;
+
+	int rad = RADIUS;
+	ft_change_points4(vis, &(part->pos), TRUE);
+	if (part->type == OBSTACLES)
+		rad *= 2;
+	ft_print_rect2(&(vis->pic), &(part->pos.zoom), rad, part->pos.color);
+}
 
 
 
@@ -232,7 +246,10 @@ void	ft_refresh_picture(t_vis *vis)
 	//ft_change_points5(vis);
 	//if (!vis->is_need_print_obstacles)
 	//	ft_print_poligons(vis, vis->plgn);
-	ft_print_all_water(vis);
+	//ft_print_all_water(vis);
+	//vis->is_rotate_or_csale = TRUE;
+	ft_for_each_elem(g_parts, ft_print_all_water2, (void *)vis);
+	//vis->is_rotate_or_csale = FALSE;
 	//ft_print_lines(vis, vis->lines);
 
 	mlx_put_image_to_window(vis->mlx, vis->win, vis->img, 0, 0);
@@ -304,7 +321,6 @@ int loop_hook(void *param)
 		ft_solve_and_move_parts();
 	}
 
-
 	/*ft_print_arr(flags, &ft_print_int, 6);
 	ft_print_arr(map, &ft_print_char, 6);
 	//ft_print_arr(flags_surface, &ft_print_int, 6);
@@ -323,11 +339,15 @@ int loop_hook(void *param)
 	//ft_print_fluid(fluid, fluid->speed_v);
 	//ft_print_flags(fluid, fluid->flags);
 	//ft_print_flags2(fluid, fluid->flags, C_X);
+
 	ft_refresh_picture(vis);
+
 	//ft_new_pos_of_points(vis);
-	#ifdef SLEEP
-	sleep(1);
-	#endif
+
+
+	printf("%ld\n", clock() - g_clock);
+	g_clock = clock();
+
 	return (0);
 }
 
@@ -368,21 +388,25 @@ void	ft_create_stable_level_of_water(void *param, int j, int i, int k)
 
 	num = PARTS_COUNT;
 
-	if (j <= 1)
+	if (j == J0 || j == 2)
 	{
-		num = OBSTACLES;
-		ft_create_new_water_in_cell((void *)(&num), j, i, k);
+		map[j][i][k] = OBSTACLES;
+		//ft_create_new_water_in_cell((void *)(&num), j, i, k);
 	}//j < TEST_WATER_LEVEL - 1
-	else if (/*map[j][i][k] == EMPTY &&*/ j < 20 && j > 1// TEST_WATER_LEVEL + 8
-	&& i > TEST_WATER_WALL + 1+0 && i < TEST_WATER_WALL + 15
-	&& k > TEST_WATER_WALL + 1+0 && k < TEST_WATER_WALL + 20)
+	else if ((i == 30 && j < 10) || (i == 10 && j < 6))
+		map[j][i][k] = OBSTACLES;
+	else if (map[j][i][k] == EMPTY && j < 20 && j > J0// TEST_WATER_LEVEL + 8
+	&& i > TEST_WATER_WALL + I0 +10 && i < TEST_WATER_WALL + 30
+	&& k > TEST_WATER_WALL + K0 +10 && k < TEST_WATER_WALL + 30)
 	//else if (j == 2 && k == 2 && i == 2)
 	{
-		//map[j][i][k] = WATER;
+		map[j][i][k] = WATER;
 
-		num = WATER;
-		ft_create_new_water_in_cell((void *)(&num), j, i, k);
+		//num = WATER;
+		//ft_create_new_water_in_cell((void *)(&num), j, i, k);
 	}
+	else
+		map[j][i][k] = EMPTY;
 	//else if (map[j][i][k] == OBSTACLES || j == 1)
 
 
@@ -395,8 +419,8 @@ void	ft_create_first_water(void)
 	t_point start;
 	t_point end;
 
-	ft_fill_point(&start, 0, 1, 1);
-	ft_fill_point(&end, jmax, imax, kmax);
+	ft_fill_point(&start, J0, I0, K0);
+	ft_fill_point(&end, JMAX, IMAX, KMAX);
 	ft_cycle_cube(NULL, &ft_create_stable_level_of_water, &start, &end);
 }
 
@@ -405,9 +429,76 @@ void	ft_create_first_water(void)
 
 
 
+int ft_ft(void *ptr)
+{
+	int val = *((int *)ptr);
+
+	if (val < 5)
+		return (TRUE);
+	return (FALSE);
+}
+
+
+void ft_del(void *ptr)
+{
+	char **str;
+
+	str = (char **)ptr;
+	if (str && *str)
+		free(*str);
+}
+
+void ft_check(void)
+{
+	t_arr *elems;
+
+	elems = ft_create_arr(sizeof(char **), 1, &ft_del);
+	//ft_del_arr(&elems);
+
+
+	int i = 0;
+	char *s;
+	while (i < 12)
+	{
+		s = ft_itoa(i);
+		ft_arr_add(&elems, (void *)&s);
+		i++;
+	}
+	//ft_del_elems(elems, &ft_ft);
+	/*
+	i = 0;
+	while (i < 9)
+	{
+		ft_del_elem(elems, 0);
+		i++;
+	}*/
+
+	char **k;
+	i = 0;
+	while (i < 120)
+	{
+		k = ft_arr_get(elems, i);
+		if (k && *k)
+			printf("%p  %s\n", *k, *k);
+		i++;
+	}
+	ft_del_arr(&elems);
+	;
+}
+
+
+
+
+
 int main(int ac, char **av)
 {
 
+	/*double i = -2.0;
+	while( i < 3.0){
+		printf("%lf_%lf\n", i, ft_derivative_kernel_function2(0.5, i));
+		i += 0.1;
+	}
+	exit(0);*/
 
 	vis = ft_memalloc(sizeof(t_vis));
 	ft_create_xyz(vis);
@@ -458,6 +549,7 @@ int main(int ac, char **av)
 	//инициализируем все глобальные переменные
 	ft_initialization_of_global_variable();
 
+
 	//заполняем 3д карту с 2д рельефа
 	ft_fill_map_from_ground(ground);
 
@@ -487,10 +579,19 @@ int main(int ac, char **av)
 	//ft_create_points_in_cells(vis);
 	//ft_create_relief(vis, comlex_ground);
 
-	srand(time(NULL));
+	//srand(time(NULL));
 
 	//ft_create_points_in_cells(vis);
+	//////
 	ft_create_first_water();
+	//////
+
+	ft_create_new_area_of_water(&g_parts);
+
+	//while (1)
+	//	ft_solve_and_move_parts();
+
+
 	/*t_part *p = parts[20][16][16];
 	int n = 0;
 	while (p)
@@ -500,12 +601,13 @@ int main(int ac, char **av)
 	}
 	ft_putnbr(n);
 	exit(0);*/
-
-	ft_init_first_value_of_part_parameters();
-
+	////////
+	//ft_init_first_value_of_part_parameters();
+	////////
 	//ft_solve_and_move_parts();
 	//создаем имейдж и z-буфер
 	ft_create_img(vis);
+	//g_clock = clock();
 	mlx_hook(vis->win, 2, 0, deal_key, (void *)vis);
 	mlx_loop_hook(vis->mlx, loop_hook, (void *)vis);
 	mlx_loop(vis->mlx);

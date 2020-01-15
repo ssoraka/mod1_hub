@@ -50,9 +50,13 @@
 #define COLOR_UP 0xFFFFFF
 #define COLOR_DOWN 0x704214
 //#define MAX_POINT 50
-#define IMAX 30
-#define JMAX 30
-#define KMAX 30
+#define IMAX 40
+#define JMAX 40
+#define KMAX 40
+#define I0 1
+#define J0 1
+#define K0 1
+#define CELL_COUNT (KMAX + 1) * (JMAX + 1) * (IMAX + 1)
 
 #define DELTA 1.0
 #define DELTA_X DELTA
@@ -138,6 +142,8 @@ char	***map;
 int		***flags_surface;
 
 t_part	****parts;
+t_part	*g_cell;
+t_arr	*g_parts;
 
 t_dpoint delta;
 
@@ -155,6 +161,10 @@ int imax;
 int jmax;
 int kmax;
 int iteration;
+
+long g_clock;
+long g_clock2;
+long g_tmp;
 
 t_vis *vis;
 
@@ -297,6 +307,11 @@ int		ft_part_change_cell(t_part *part);
 void	ft_del_part(t_part **begin);
 t_part	*ft_new_part(t_dpoint *p, int type);
 t_part	*ft_add_part(void *ptr, t_dpoint *p, int type);
+t_arr	*ft_init_all_clear_parts(void);
+void	ft_create_new_area_of_water(t_arr **parts);
+void	ft_insert_part(t_part *part);
+void	ft_cut_part(t_part *part);
+void	ft_replace_part2(t_part *part);
 /*
 **	map.c
 */
@@ -326,9 +341,25 @@ t_plgn	*ft_create_poligons_of_relief(t_vektr **p_arr);
 int		ft_create_line_of_poligons_of_relief(t_plgn **plgn, t_vektr *p1, t_vektr *p2);
 int		ft_create_rectang_poligon2(t_plgn **plgn, t_vektr **p, int color);
 
+
+/*
+** arr.c
+*/
+void	ft_del_arr(t_arr **arr);
+t_arr	*ft_create_arr(int elem_size, int elems_count, void (*func_del)(void *));
+t_arr	*ft_realloc_arr(t_arr **arr);
+void	*ft_arr_add(t_arr **arr, void *elem);
+void	*ft_arr_get(t_arr *arr, int num);
+void	ft_del_elem(t_arr *arr, int num);
+void	ft_del_elems(t_arr *arr, int (*need_del)(void *));
+void	ft_for_each_elem(t_arr *arr, void (*func)(void *, void *), void *param);
+void	*ft_arr_get_next(t_arr *arr);
+
 /*
 **	sph.c
 */
+REAL	ft_derivative_kernel_function2(REAL h, REAL r);
+REAL	ft_kernel_function5(REAL h, REAL r);
 REAL	kernel_function_xyz(REAL ri, REAL rj, REAL h, int projection);
 REAL	ft_norma_vektora(REAL x, REAL y, REAL z);
 REAL	ft_distanse(t_dpoint *pi, t_dpoint *pj, REAL radius, int projection);
@@ -343,7 +374,7 @@ void	ft_comparison_list_with_lists(t_cpart *cell, void *param, void (*f)(void *,
 void	ft_fill_surrounding_of_cell_by_j_i(t_cpart *cell, int j, int i, int k);
 //void	ft_first_density(void *param, t_part *p_i, t_part *part_j);
 void	ft_fill_param_of_part(t_part *part, void *param);
-void	ft_init_density(void *param, int j, int i, int k);
+void	ft_init_density2(void *p_i, void *param);
 void	ft_init_parts(void *param, int j, int i, int k);
 void	ft_recalk_delta_density(void *param, t_part *part_i, t_part *part_j);
 void	ft_change_density(t_part *part, void *param);
@@ -351,12 +382,11 @@ void	ft_new_density(void *param, int j, int i, int k);
 void	ft_recalk_pressure(t_part *part, void *param);
 void	ft_new_pressure(void *param, int j, int i, int k);
 void	ft_recalk_delta_speed(void *param, t_part *part_i, t_part *part_j);
-void	ft_change_speeds(t_part *part, void *param);
-void	ft_new_speeds(void *param, int j, int i, int k);
+void	ft_change_speeds(void *part, void *param);
+void	ft_new_speeds(void *p_i, void *param);
 void	ft_change_coordinates(t_part *part, void *param);
-void	ft_new_coordinates(void *param, int j, int i, int k);
+void	ft_new_coordinates(void *p_i, void *param);
 void	ft_recalk_delta_coord(void *param, t_part *part_i, t_part *part_j);
-void	ft_new_coordinates(void *param, int j, int i, int k);
 void	ft_solve_and_move_parts(void);
 void	ft_init_first_value_of_part_parameters(void);
 #endif

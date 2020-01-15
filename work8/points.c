@@ -1,27 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   solver_3d.c                                        :+:      :+:    :+:   */
+/*   points.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ssoraka <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/10/05 16:29:13 by ssoraka           #+#    #+#             */
-/*   Updated: 2019/10/05 16:29:13 by ssoraka          ###   ########.fr       */
+/*   Created: 2019/10/27 17:51:06 by ssoraka           #+#    #+#             */
+/*   Updated: 2019/10/27 17:51:07 by ssoraka          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_mod1.h"
 
-
-
-REAL	ft_time_control(REAL max_c, REAL norm_speed, REAL min_h)
+void	ft_fill_point(t_point *p, int y, int x, int z)
 {
-	REAL deltat;
+	if (!p)
+		return ;
+	p->x = x;
+	p->y = y;
+	p->z = z;
+}
 
-	//printf("%lf_%lf_%lf\n", max_c, norm_speed, min_h);
-	deltat = CONST_CUR * min_h / (max_c + norm_speed);
-	if (deltat != deltat || !deltat || deltat > T_DELTA || deltat < 0)
-	deltat = T_DELTA;
-	//printf("%lf\n", deltat);
-	return (deltat);
+void	ft_fill_dpoint(t_dpoint *p, REAL y, REAL x, REAL z)
+{
+	if (!p)
+		return ;
+	p->x = x;
+	p->y = y;
+	p->z = z;
+}
+
+void	ft_create_xyz(t_vis *vis)
+{
+	ft_fill_dpoint(&(vis->oxyz.ox), 0.0, 1.0, 0.0);
+	ft_fill_dpoint(&(vis->oxyz.oy), 1.0, 0.0, 0.0);
+	ft_fill_dpoint(&(vis->oxyz.oz), 0.0, 0.0, 1.0);
 }
