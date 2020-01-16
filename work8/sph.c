@@ -12,10 +12,6 @@
 
 #include "ft_mod1.h"
 
-#define DENSITY_ALREADY_CALC 1
-#define SPEED_ALREADY_CALC 2
-#define POS_ALREADY_CALC 3
-
 
 /*
 **	я большой молодец, надо сделать функцию, которая будет применять функции
@@ -699,30 +695,30 @@ void	ft_solve_and_move_parts(void)
 
 
 	//считаем изменение плотности
-	ft_for_each_elem(g_parts, &ft_init_density2, NULL);
+	ft_for_each_ptr(g_parts, &ft_init_density2, NULL);
 
-	ft_for_each_elem(g_parts, &ft_new_delta_density, NULL);
+	ft_for_each_ptr(g_parts, &ft_new_delta_density, NULL);
 
 
 
 	//пересчитываем плотность и давление
-	ft_for_each_elem(g_parts, &ft_new_density_and_press_and_color, NULL);
+	ft_for_each_ptr(g_parts, &ft_new_density_and_press_and_color, NULL);
 	//считаем изменение скорости
-	ft_for_each_elem(g_parts, &ft_new_delta_speeds, NULL);
+	ft_for_each_ptr(g_parts, &ft_new_delta_speeds, NULL);
 	//считаем силу поверхостного натяжения
 	/*ft_cycle_cube((void *)parts, &ft_new_smoothed_color_func, &start, &end);
 	ft_cycle_cube((void *)parts, &ft_new_normal_to_surface, &start, &end);
 	ft_cycle_cube((void *)parts, &ft_new_unit_normal_to_surface, &start, &end);
 	ft_cycle_cube((void *)parts, &ft_new_curvature_of_surface, &start, &end);*/
 	//считаем скорости
-	ft_for_each_elem(g_parts, &ft_new_speeds, NULL);
+	ft_for_each_ptr(g_parts, &ft_new_speeds, NULL);
 	//считаем изменение координат
-	ft_for_each_elem(g_parts, &ft_new_delta_coordinates, NULL);
+	ft_for_each_ptr(g_parts, &ft_new_delta_coordinates, NULL);
 
-	ft_for_each_elem(g_parts, &ft_new_coordinates, NULL);
+	ft_for_each_ptr(g_parts, &ft_new_coordinates, NULL);
 
 	g_tmp = 0;
-	ft_for_each_elem(g_parts, &ft_clear_all, NULL);
+	ft_for_each_ptr(g_parts, &ft_clear_all, NULL);
 	//ft_del_elems(g_parts, &ft_clear_all2);
 	//printf("%lf\n", deltat);
 	printf("связи %ld\n", g_tmp);

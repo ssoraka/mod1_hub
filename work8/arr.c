@@ -55,7 +55,7 @@ t_arr	*ft_create_arr(int elem_size, int elems_count, void (*func_del)(void *))
 		arr->elem_size = elem_size;
 		arr->func_del = func_del;
 		arr->next = NEXT_START;
-		if (!(arr->elems = malloc(elem_size * elems_count)))
+		if (!(arr->elems = ft_memalloc(elem_size * elems_count)))
 			ft_del_arr(&arr);
 	}
 	return (arr);
@@ -71,12 +71,13 @@ t_arr	*ft_realloc_arr(t_arr **arr)
 	tmp = NULL;
 	count = (*arr)->elems_count * ARR_REALLOC_COEF;
 	if (count > (*arr)->elems_count)
-		tmp = malloc(count * (*arr)->elem_size);
+		tmp = ft_memalloc(count * (*arr)->elem_size);
 	if (!tmp)
 		return (NULL);
-	ft_memcpy(tmp, (*arr)->elems, count * (*arr)->elem_size);
+	ft_memcpy(tmp, (*arr)->elems, (*arr)->elems_count * (*arr)->elem_size);
 	free((*arr)->elems);
 	(*arr)->elems = tmp;
+	(*arr)->elems_count = count;
 	return (*arr);
 }
 
@@ -88,7 +89,10 @@ void	*ft_arr_add(t_arr **arr, void *elem)
 		return (NULL);
 	if ((*arr)->elems_used == (*arr)->elems_count)
 		if (!ft_realloc_arr(arr))
+		{
+			ft_del_all_print_error("need more memory");
 			return (NULL);
+		}
 	tmp = (*arr)->elems + (*arr)->elems_used * (*arr)->elem_size;
 	ft_memcpy(tmp, elem, (*arr)->elem_size);
 	((*arr)->elems_used)++;
@@ -156,6 +160,23 @@ void	ft_for_each_elem(t_arr *arr, void (*func)(void *, void *), void *param)
 		elem = ft_arr_get(arr, i);
 		if (elem)
 			func(elem, param);
+		i++;
+	}
+}
+
+void	ft_for_each_ptr(t_arr *arr, void (*func)(void *, void *), void *param)
+{
+	int i;
+	void **elem;
+
+	if (!func)
+		return ;
+	i = 0;
+	while (i < arr->elems_used)
+	{
+		elem = (void **)ft_arr_get(arr, i);
+		if (*elem)
+			func(*elem, param);
 		i++;
 	}
 }

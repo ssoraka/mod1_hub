@@ -68,8 +68,6 @@ void	ft_init_map_arrs(void)
 {
 	if (!(map = (char ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(char))))
 		ft_del_variable();
-	//if (!(flags_surface = (int ***)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(int))))
-	//	ft_del_variable();
 	if (!(parts = (t_part ****)ft_cube_arr(jmax + 2, imax + 2, kmax + 2, sizeof(t_part *))))
 		ft_del_variable();
 	if (!(g_parts = ft_init_all_clear_parts()))
@@ -101,11 +99,10 @@ void	ft_del_cube_arr(void ****arr)
 
 void	ft_del_variable(void)
 {
+	ft_del_arr(&g_parts);
 	ft_str_arr_free((char ***)(&ground));
 	ft_del_cube_arr((void ****)(&map));
-	ft_del_cube_arr((void ****)(&flags_surface));
 	ft_del_cube_arr((void ****)(&parts));
-	ft_del_arr(&g_parts);
 	exit(0);
 }
 

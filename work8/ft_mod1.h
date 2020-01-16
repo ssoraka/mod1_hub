@@ -352,6 +352,7 @@ void	*ft_arr_add(t_arr **arr, void *elem);
 void	*ft_arr_get(t_arr *arr, int num);
 void	ft_del_elem(t_arr *arr, int num);
 void	ft_del_elems(t_arr *arr, int (*need_del)(void *));
+void	ft_for_each_ptr(t_arr *arr, void (*func)(void *, void *), void *param);
 void	ft_for_each_elem(t_arr *arr, void (*func)(void *, void *), void *param);
 void	*ft_arr_get_next(t_arr *arr);
 

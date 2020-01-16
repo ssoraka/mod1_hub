@@ -248,7 +248,7 @@ void	ft_refresh_picture(t_vis *vis)
 	//	ft_print_poligons(vis, vis->plgn);
 	//ft_print_all_water(vis);
 	//vis->is_rotate_or_csale = TRUE;
-	ft_for_each_elem(g_parts, ft_print_all_water2, (void *)vis);
+	ft_for_each_ptr(g_parts, ft_print_all_water2, (void *)vis);
 	//vis->is_rotate_or_csale = FALSE;
 	//ft_print_lines(vis, vis->lines);
 
@@ -588,6 +588,12 @@ int main(int ac, char **av)
 
 	ft_create_new_area_of_water(&g_parts);
 
+
+	ft_del_arr(&g_parts);
+	ft_str_arr_free((char ***)(&ground));
+	ft_del_cube_arr((void ****)(&map));
+	ft_del_cube_arr((void ****)(&parts));
+	return (0);
 	//while (1)
 	//	ft_solve_and_move_parts();
 
