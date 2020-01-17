@@ -97,8 +97,11 @@ typedef struct		s_oxyz
 typedef struct		s_neigh
 {
 	REAL			h_ij;
-	REAL			r_ij;
+	//REAL			r_ij;
 	REAL			w_ij;
+	REAL			mu_ij;//коэффициент динамической вязкости
+	struct s_dpoint	r_ij;
+	struct s_dpoint	u_ij;
 	struct s_dpoint	nabla_w_ij;
 	struct s_part	*part_j;
 }					t_neigh;

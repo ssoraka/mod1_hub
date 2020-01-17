@@ -13,8 +13,8 @@
 #include "ft_mod1.h"
 
 # define MAX_NEIGHBORS 32
-# define DELTA_H 0.800
-
+# define DELTA_H 0.78
+//0.78
 int ppp = 0;
 
 void ft_del_parts(void *ptr)

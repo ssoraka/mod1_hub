@@ -21,7 +21,7 @@ REAL	ft_time_control(REAL max_c, REAL norm_speed, REAL min_h)
 	//printf("%lf_%lf_%lf\n", max_c, norm_speed, min_h);
 	deltat = CONST_CUR * min_h / (max_c + norm_speed);
 	if (deltat != deltat || !deltat || deltat > T_DELTA || deltat < 0)
-	deltat = T_DELTA;
+		deltat = T_DELTA;
 	//printf("%lf\n", deltat);
 	return (deltat);
 }

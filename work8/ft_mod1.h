@@ -122,6 +122,7 @@
 //коэффициент влияния
 #define CONST_EP 0.3
 
+#define VISCOSITY 010.0
 //#define SIGMA 5000000.0000000
 #define SIGMA 0000000.0000000
 /*

@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "ft_mod1.h"
-
+#include <pthread.h>
 
 int ft_znak(int num)
 {
@@ -313,12 +313,17 @@ void	ft_print_arr(void *arr, void (*f)(void *, int, int, int), int k)
 int loop_hook(void *param)
 {
 	t_vis *vis;
+	int i;
 
 	vis = (t_vis *)param;
-
+	i = 0;
 	if (!vis->pause)
 	{
-		ft_solve_and_move_parts();
+		while(i < 10)
+		{
+			ft_solve_and_move_parts();
+			i++;
+		}
 	}
 
 	/*ft_print_arr(flags, &ft_print_int, 6);
@@ -393,9 +398,9 @@ void	ft_create_stable_level_of_water(void *param, int j, int i, int k)
 		map[j][i][k] = OBSTACLES;
 		//ft_create_new_water_in_cell((void *)(&num), j, i, k);
 	}//j < TEST_WATER_LEVEL - 1
-	else if ((i == 30 && j < 10) || (i == 10 && j < 6))
+	else if ((i == 30 && j < 7) || (i == 39 && j < 25) || (i == 1 && j < 10) || (i == 20 && j > 10 && j < 20))
 		map[j][i][k] = OBSTACLES;
-	else if (map[j][i][k] == EMPTY && j < 20 && j > J0// TEST_WATER_LEVEL + 8
+	else if (/*map[j][i][k] == EMPTY && */j < 30 && j > J0 + 10// TEST_WATER_LEVEL + 8
 	&& i > TEST_WATER_WALL + I0 +10 && i < TEST_WATER_WALL + 30
 	&& k > TEST_WATER_WALL + K0 +10 && k < TEST_WATER_WALL + 30)
 	//else if (j == 2 && k == 2 && i == 2)
@@ -429,62 +434,51 @@ void	ft_create_first_water(void)
 
 
 
-int ft_ft(void *ptr)
-{
-	int val = *((int *)ptr);
 
-	if (val < 5)
-		return (TRUE);
-	return (FALSE);
+/* Контроль переходит потоковой функции */
+void *potok_plus(void *param)
+{
+  int i = 0;
+  while (i < 1000000)
+  {
+	  *((int *)param) += i;
+	  i++;
+  }
+  pthread_exit(0);
+}
+
+/* Контроль переходит потоковой функции */
+void *potok_minus(void *param)
+{
+  int i = 0;
+  while (i < 1000000)
+  {
+	  *((int *)param) -= i;
+	  i++;
+  }
+  pthread_exit(0);
 }
 
 
-void ft_del(void *ptr)
-{
-	char **str;
-
-	str = (char **)ptr;
-	if (str && *str)
-		free(*str);
-}
 
 void ft_check(void)
 {
-	t_arr *elems;
+  pthread_t tid[2]; /* идентификатор потока */
+  pthread_attr_t attr; /* атрибуты потока */
+  int num = 0;
+/* получаем дефолтные значения атрибутов */
+  pthread_attr_init(&attr);
 
-	elems = ft_create_arr(sizeof(char **), 1, &ft_del);
-	//ft_del_arr(&elems);
+/* создаем новый поток */
+  pthread_create(&tid[0],&attr,potok_plus,&num);
+  pthread_create(&tid[1],&attr,potok_minus,&num);
+/* ждем завершения исполнения потока */
+  pthread_join(tid[0],NULL);
+  pthread_join(tid[1],NULL);
+  printf("count = %d\n", num);
 
-
-	int i = 0;
-	char *s;
-	while (i < 12)
-	{
-		s = ft_itoa(i);
-		ft_arr_add(&elems, (void *)&s);
-		i++;
-	}
-	//ft_del_elems(elems, &ft_ft);
-	/*
-	i = 0;
-	while (i < 9)
-	{
-		ft_del_elem(elems, 0);
-		i++;
-	}*/
-
-	char **k;
-	i = 0;
-	while (i < 120)
-	{
-		k = ft_arr_get(elems, i);
-		if (k && *k)
-			printf("%p  %s\n", *k, *k);
-		i++;
-	}
-	ft_del_arr(&elems);
-	;
 }
+
 
 
 
@@ -492,7 +486,8 @@ void ft_check(void)
 
 int main(int ac, char **av)
 {
-
+	//ft_check();
+	//return (0);
 	/*double i = -2.0;
 	while( i < 3.0){
 		printf("%lf_%lf\n", i, ft_derivative_kernel_function2(0.5, i));
@@ -588,12 +583,6 @@ int main(int ac, char **av)
 
 	ft_create_new_area_of_water(&g_parts);
 
-
-	ft_del_arr(&g_parts);
-	ft_str_arr_free((char ***)(&ground));
-	ft_del_cube_arr((void ****)(&map));
-	ft_del_cube_arr((void ****)(&parts));
-	return (0);
 	//while (1)
 	//	ft_solve_and_move_parts();
 

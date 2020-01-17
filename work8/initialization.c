@@ -37,7 +37,7 @@ void	ft_init_delta_xyz(void)
 	g.z = CONST_GZ;
 
 	norm_speed = U_CONST * 1.8;
-	min_h = PART_H;
+	//min_h = PART_H;
 	deltat = T_DELTA / 100.0;
 
 	renolds = CONST_RE;
