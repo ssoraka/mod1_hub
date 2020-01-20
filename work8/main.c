@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "ft_mod1.h"
-#include <pthread.h>
 
 int ft_znak(int num)
 {
@@ -319,7 +318,16 @@ int loop_hook(void *param)
 	i = 0;
 	if (!vis->pause)
 	{
-		while(i < 10)
+		int i = 0;
+		while (i < IMAX)
+		{
+			ft_create_blob(JMAX / 2, i, 2);
+			ft_create_blob(JMAX / 2, i, 39);
+			i++;
+			i++;
+		}
+		i = 0;
+		while(i < 20)
 		{
 			ft_solve_and_move_parts();
 			i++;
@@ -387,29 +395,23 @@ void ft_del_all_print_error(char *msg_error)
 }
 
 
+
+
 void	ft_create_stable_level_of_water(void *param, int j, int i, int k)
 {
-	int num;;
+	int num;
 
 	num = PARTS_COUNT;
 
-	if (j == J0 || j == 2)
+	if (j == J0 || i == IMAX || i == I0 || k == K0 || k == KMAX)
 	{
 		map[j][i][k] = OBSTACLES;
 		//ft_create_new_water_in_cell((void *)(&num), j, i, k);
 	}//j < TEST_WATER_LEVEL - 1
-	else if ((i == 30 && j < 7) || (i == 39 && j < 25) || (i == 1 && j < 10) || (i == 20 && j > 10 && j < 20))
-		map[j][i][k] = OBSTACLES;
-	else if (/*map[j][i][k] == EMPTY && */j < 30 && j > J0 + 10// TEST_WATER_LEVEL + 8
-	&& i > TEST_WATER_WALL + I0 +10 && i < TEST_WATER_WALL + 30
-	&& k > TEST_WATER_WALL + K0 +10 && k < TEST_WATER_WALL + 30)
-	//else if (j == 2 && k == 2 && i == 2)
-	{
-		map[j][i][k] = WATER;
-
-		//num = WATER;
-		//ft_create_new_water_in_cell((void *)(&num), j, i, k);
-	}
+	//else if (map[j][i][k] == EMPTY && j < 20 && j > J0 + 2// TEST_WATER_LEVEL + 8
+	//&& ((i < 15) || (i > 25))
+	//&& k > TEST_WATER_WALL + K0 +10 && k < TEST_WATER_WALL + 30)
+	//	map[j][i][k] = WATER;
 	else
 		map[j][i][k] = EMPTY;
 	//else if (map[j][i][k] == OBSTACLES || j == 1)
@@ -428,57 +430,6 @@ void	ft_create_first_water(void)
 	ft_fill_point(&end, JMAX, IMAX, KMAX);
 	ft_cycle_cube(NULL, &ft_create_stable_level_of_water, &start, &end);
 }
-
-
-
-
-
-
-
-/* Контроль переходит потоковой функции */
-void *potok_plus(void *param)
-{
-  int i = 0;
-  while (i < 1000000)
-  {
-	  *((int *)param) += i;
-	  i++;
-  }
-  pthread_exit(0);
-}
-
-/* Контроль переходит потоковой функции */
-void *potok_minus(void *param)
-{
-  int i = 0;
-  while (i < 1000000)
-  {
-	  *((int *)param) -= i;
-	  i++;
-  }
-  pthread_exit(0);
-}
-
-
-
-void ft_check(void)
-{
-  pthread_t tid[2]; /* идентификатор потока */
-  pthread_attr_t attr; /* атрибуты потока */
-  int num = 0;
-/* получаем дефолтные значения атрибутов */
-  pthread_attr_init(&attr);
-
-/* создаем новый поток */
-  pthread_create(&tid[0],&attr,potok_plus,&num);
-  pthread_create(&tid[1],&attr,potok_minus,&num);
-/* ждем завершения исполнения потока */
-  pthread_join(tid[0],NULL);
-  pthread_join(tid[1],NULL);
-  printf("count = %d\n", num);
-
-}
-
 
 
 
@@ -581,7 +532,15 @@ int main(int ac, char **av)
 	ft_create_first_water();
 	//////
 
-	ft_create_new_area_of_water(&g_parts);
+
+	t_point start;
+	t_point end;
+
+
+	ft_fill_point(&start, J0, I0, K0);
+	ft_fill_point(&end, JMAX, IMAX, KMAX);
+
+	ft_create_new_area_of_water(&g_parts, &start, &end);
 
 	//while (1)
 	//	ft_solve_and_move_parts();

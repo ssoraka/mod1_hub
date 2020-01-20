@@ -182,6 +182,18 @@ REAL	ft_return_fake_viscosity2(t_part *p_i, t_neigh *n_j)
 	return (viskosity);
 }
 
+
+void	ft_refresh_max_stress(t_neigh *n_j)
+{
+	REAL tmp;
+
+	tmp = ft_vekt_norm2(&(n_j->r_ij), &(n_j->u_ij)) / ft_vekt_norm2(&(n_j->r_ij), &(n_j->r_ij)) * n_j->h_ij;
+	if (tmp > norm_speed)
+	{
+		norm_speed = tmp;
+	}
+}
+
 void	ft_calk_delta_speed_if_needs(void *neigh_j, void *part_i)
 {
 	REAL tmp;
@@ -202,6 +214,8 @@ void	ft_calk_delta_speed_if_needs(void *neigh_j, void *part_i)
 		tmp -= p_i->press / (p_i->density * p_i->density)
 		+ n_j->part_j->press / (n_j->part_j->density * n_j->part_j->density)
 		+ ft_return_fake_viscosity2(p_i, n_j);
+	//	tmp -= (p_i->press + n_j->part_j->press) / (p_i->density * n_j->part_j->density)
+	//	+ ft_return_fake_viscosity2(p_i, n_j);
 	}
 
 	ft_vekt_scalar_multiplication(&(n_j->nabla_w_ij), n_j->part_j->mass * tmp, &a_tmp);
@@ -257,10 +271,10 @@ void	ft_recalk_curvature_if_needs(void *param, t_part *p_i, t_neigh *n_j)
 
 void	ft_refresh_max_speed(REAL speed, REAL speed_c)
 {
-	if (speed > norm_speed)
-		norm_speed = speed;
-	if (speed_c > max_c)
-		max_c = speed_c;
+	//if (speed > norm_speed)
+	//	norm_speed = speed;
+	if (speed_c * 10 > max_c)
+		max_c = speed_c * 10;
 }
 
 void	ft_new_speeds(void *p_i, void *param)
@@ -274,12 +288,11 @@ void	ft_new_speeds(void *p_i, void *param)
 		part->speed.y += (part->a.y + g.y - SIGMA * part->tension.k.y * part->tension.normal.y) * deltat;
 		part->speed.z += (part->a.z + g.z - SIGMA * part->tension.k.z * part->tension.normal.z) * deltat;
 
-		if (ft_vekt_norm(&(part->speed)) > part->c * 0.1)
-		{
+		if (ft_vekt_norm(&(part->speed)) > part->c * 0.15)
 			ft_vekt_scalar_multiplication(&(part->speed), 0.1 * part->c / ft_vekt_norm(&(part->speed)), &(part->speed));
 			//ft_fill_dpoint(&(part->speed), 0.0, 0.0, 0.0);
 			//part->type = EMPTY;
-		}
+
 		ft_refresh_max_speed(ft_vekt_norm(&(part->speed)), part->c);
 	}
 	ft_fill_dpoint(&(part->a), 0.0, 0.0, 0.0);
@@ -409,6 +422,8 @@ int		ft_clear_all2(void *part)
 	t_part *p;
 
 	p = *((void **)part);
+	//if (ft_part_change_cell(p))
+	  //ft_replace_part2(p);
 	if (p->type == EMPTY)
 		return (TRUE);
 	p->neigh->elems_used = 0;
@@ -501,6 +516,11 @@ void	ft_new_delta_coordinates(void *p_i, void *param)
 	if (((t_part *)p_i)->type != WATER)
 		return ;
 	ft_for_each_elem(((t_part *)p_i)->neigh, &ft_calk_delta_coord_if_needs, p_i);
+	ft_new_coordinates(p_i, param);
+	if (ft_part_change_cell(p_i))
+	{
+		ft_replace_part2(p_i);
+	}
 }
 
 
@@ -549,8 +569,7 @@ void	ft_new_coordinates(void *p_i, void *param)
 	part->pos.abs.z += (part->speed.z + CONST_EP * part->delta_pos.z) * deltat;
 	//ft_cheek_new_pos(part);
 	ft_fill_dpoint(&(part->delta_pos), 0.0, 0.0, 0.0);
-	if (ft_part_change_cell(part))
-		ft_replace_part2(part);
+
 //
 //	ft_use_function2(&(((t_part ****)param)[j][i][k]), param, &ft_change_cells);
 }
@@ -665,14 +684,25 @@ void	ft_solve_and_move_parts(void)
 	t_point end;
 
 
-	deltat = ft_time_control(max_c, norm_speed, PART_H);
-	norm_speed = norm_speed * 0.1;
-	max_c = max_c * 0.1;
+	//max_c = max_c * 0.1;
 
 	//printf("%lf\n", deltat);
 
 	ft_fill_point(&start, J0, I0, K0);
 	ft_fill_point(&end, JMAX, IMAX, KMAX);
+
+	//ft_create_blob(JMAX / 2, IMAX / 2, KMAX / 2);
+	/*int i = 0;
+	while (i < IMAX)
+	{
+		ft_create_blob(JMAX / 2, i, KMAX / 2);
+		i++;
+		i++;
+		i++;
+		i++;
+	}*/
+
+
 	//надо допилить эту функцию
 	g_clock2 = clock();
 
@@ -681,8 +711,12 @@ void	ft_solve_and_move_parts(void)
 	//printf("таймер %ld\n", clock() - g_clock2);
 
 
+	deltat = 9 * ft_time_control(max_c, norm_speed, PART_H);
+
 	//считаем изменение плотности
 	ft_for_each_ptr(g_parts, &ft_init_density2, NULL);
+
+
 
 	ft_for_each_ptr(g_parts, &ft_new_delta_density, NULL);
 
@@ -699,10 +733,11 @@ void	ft_solve_and_move_parts(void)
 	ft_cycle_cube((void *)parts, &ft_new_curvature_of_surface, &start, &end);*/
 	//считаем скорости
 	ft_for_each_ptr(g_parts, &ft_new_speeds, NULL);
+
 	//считаем изменение координат
 	ft_for_each_ptr(g_parts, &ft_new_delta_coordinates, NULL);
 
-	ft_for_each_ptr(g_parts, &ft_new_coordinates, NULL);
+	//ft_for_each_ptr(g_parts, &ft_new_coordinates, NULL);
 
 	//ft_for_each_ptr(g_parts, &ft_clear_all, NULL);
 	ft_del_elems(g_parts, &ft_clear_all2);
@@ -724,7 +759,7 @@ void	ft_fill_param_of_part(t_part *part, void *param)
 
 	part->press_0 = 0.0;
 	part->density = part->mass;
-	part->speed.x = 15;
+	part->speed.x = 0;
 	/*if (part->type == WATER)
 		part->density = part->mass;
 	else

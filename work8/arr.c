@@ -166,17 +166,77 @@ void	ft_for_each_elem(t_arr *arr, void (*func)(void *, void *), void *param)
 
 void	ft_for_each_ptr(t_arr *arr, void (*func)(void *, void *), void *param)
 {
-	int i;
 	void **elem;
+	int i;
 
 	if (!func)
 		return ;
+	elem = (void **)ft_arr_get(arr, 0);
 	i = 0;
 	while (i < arr->elems_used)
 	{
-		elem = (void **)ft_arr_get(arr, i);
 		if (*elem)
 			func(*elem, param);
+		elem++;
 		i++;
 	}
+}
+
+typedef struct		s_thread
+{
+	int				start;
+	int				end;
+	struct s_arr	*arr;
+	void			*param;
+	void			(*func)(void *, void *);
+}					t_thread;
+
+
+void	*ft_use_thread(void *param)
+{
+	t_thread *thread;
+	void **elem;
+	int i;
+
+	thread = param;
+	i = thread->start;
+	elem = (void **)ft_arr_get(thread->arr, i);
+	while (thread->start < thread->end)
+	{
+		if (*elem)
+			thread->func(*elem, thread->param);
+		elem++;
+		(thread->start)++;
+	}
+	pthread_exit(0);
+	return (NULL);
+}
+
+void	ft_for_each_ptr2(t_arr *arr, void (*func)(void *, void *), void *param)
+{
+	pthread_t tid[THREAD_COUNT]; /* идентификатор потока */
+	pthread_attr_t attr; /* атрибуты потока */
+	t_thread thrd[THREAD_COUNT];
+	int i;
+	int count;
+
+	pthread_attr_init(&attr);
+	/* создаем новый поток */
+	count = arr->elems_used / THREAD_COUNT;
+	i = -1;
+	while (++i < THREAD_COUNT)
+	{
+		thrd[i].arr = arr;
+		thrd[i].param = param;
+		thrd[i].start = count * i;
+		thrd[i].end = count * (i + 1);
+		if (i == THREAD_COUNT - 1)
+			thrd[i].end = arr->elems_used;
+		thrd[i].func = func;
+		pthread_create(&tid[i], &attr, ft_use_thread, &thrd[i]);
+	}
+	/* ждем завершения исполнения потока */
+	i = -1;
+	while (++i < THREAD_COUNT)
+		pthread_join(tid[i],NULL);
 }

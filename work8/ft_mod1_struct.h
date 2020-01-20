@@ -186,4 +186,5 @@ typedef struct		s_vis
 	struct s_line	*lines;
 }					t_vis;
 
+
 #endif

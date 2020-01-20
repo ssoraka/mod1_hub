@@ -14,7 +14,7 @@
 
 # define MAX_NEIGHBORS 32
 # define DELTA_H 0.78
-//0.78
+
 int ppp = 0;
 
 void ft_del_parts(void *ptr)
@@ -47,14 +47,22 @@ void	ft_fill_part(t_part *part, t_dpoint *p, int type)
 {
 	if (!part || !p)
 		return ;
-	part->type = type;
 	ft_fill_point(&(part->jik), (int)p->y + 0, (int)p->x + 0, (int)p->z + 0);
 	ft_fill_dpoint(&(part->pos.abs), p->y, p->x, p->z);
 	ft_fill_param_of_part(part, NULL);
 	if (type == WATER)
 		part->pos.color = WATER_COLOR;
+	else if (type == BLOB)
+		part->pos.color = 0x8F8F8F;
 	else
 		part->pos.color = OBSTACLES_TOP_COLOR;
+	if (type == BLOB)
+	{
+		part->speed.y = -20.0;
+		type = WATER;
+	}
+	part->type = type;
+
 }
 
 void	ft_insert_part(t_part *part)
@@ -63,6 +71,13 @@ void	ft_insert_part(t_part *part)
 
 	if (!part)
 		return ;
+	if (part->jik.x < I0 || part->jik.y < J0 || part->jik.z < K0
+	|| part->jik.x > IMAX || part->jik.y > JMAX || part->jik.z > KMAX)
+	{
+		part->type = EMPTY;
+		ft_fill_dpoint(&(part->pos.abs), JMAX + 1, IMAX + 1, KMAX + 1);
+		ft_fill_point(&(part->jik), JMAX + 1, IMAX + 1, KMAX + 1);
+	}
 	tmp = parts[part->jik.y][part->jik.x][part->jik.z];
 	part->next = tmp;
 	if (tmp)
@@ -92,7 +107,7 @@ void	ft_cut_part(t_part *part)
 	part->next = NULL;
 }
 
-void	ft_create_new_water_in_area(t_arr **p_arr, t_dpoint *start)
+void	ft_create_new_water_in_area(t_arr **p_arr, t_dpoint *start, t_point *end)
 {
 	REAL i;
 	REAL k;
@@ -102,13 +117,14 @@ void	ft_create_new_water_in_area(t_arr **p_arr, t_dpoint *start)
 
 	//ft_bzero((void *)&part, sizeof(t_part));
 	i = start->x;
-	while (i <= IMAX)
+	while (i < end->x + 1 && i < IMAX + 1)
 	{
 		k = start->z;
-		while (k <= KMAX)
+		while (k < end->z + 1 && k < KMAX + 1)
 		{
 			cell_type = map[(int)(start->y)][(int)i][(int)k];
-			if (cell_type != EMPTY)
+			//if (cell_type != EMPTY)
+			if (cell_type == WATER || cell_type == BLOB)
 			{
 				ft_fill_dpoint(&pos, start->y, i, k);
 				//ft_fill_part(&part, &pos, cell_type);
@@ -124,21 +140,58 @@ void	ft_create_new_water_in_area(t_arr **p_arr, t_dpoint *start)
 	}
 }
 
-void	ft_create_new_area_of_water(t_arr **parts)
+void	ft_clear_map_from_water_and_blob(t_arr **parts)
 {
-	t_dpoint start;
+	int i;
+	int j;
+	int k;
+
+	j = J0 - 1;
+	while (++j < JMAX + 1)
+	{
+		i = I0 - 1;
+		while (++i < IMAX + 1)
+		{
+			k = K0 - 1;
+			while (++k < KMAX + 1)
+			{
+
+			}
+		}
+	}
+}
+
+void	ft_create_blob(int j, int i, int k)
+{
+	t_point cell;
+
+	if (map[j][i][k] == OBSTACLES)
+		return;
+	ft_fill_point(&cell, j, i, k);
+	if (!parts[j][i][k])
+	{
+		map[j][i][k] = BLOB;
+		ft_create_new_area_of_water(&g_parts, &cell, &cell);
+		map[j][i][k] = EMPTY;
+	}
+}
+
+
+void	ft_create_new_area_of_water(t_arr **parts, t_point *start, t_point *end)
+{
+	t_dpoint tmp;
 	int n;
 
 	n = 0;
-	start.y = J0 + 0.5;
-	while (start.y <= JMAX)
+	tmp.y = start->y + 0.2;
+	while (tmp.y < end->y + 1 && tmp.y < JMAX + 1)
 	{
 		if (n % 2)
-			ft_fill_dpoint(&start, start.y, I0 + 0.2, K0 + 0.2);
+			ft_fill_dpoint(&tmp, tmp.y, start->x + 0.2, start->z + 0.2);
 		else
-			ft_fill_dpoint(&start, start.y, I0 + 0.7, K0 + 0.7);
-		ft_create_new_water_in_area(parts, &start);
-		start.y += DELTA_H;
+			ft_fill_dpoint(&tmp, tmp.y, start->x + 0.7, start->z + 0.7);
+		ft_create_new_water_in_area(parts, &tmp, end);
+		tmp.y += DELTA_H;
 		n++;
 	}
 }
@@ -205,24 +258,113 @@ void	ft_replace_part(t_part *prev, t_part **part, t_part ****parts)
 
 void	ft_replace_part2(t_part *part)
 {
+	ft_insert_part(part);
+}
+
+
+#define COEFF_SPEED 0.5
+
+void	ft_come_back_part(t_part *part, int *j, int *i, int *k)
+{
+	if (*i < I0)
+	{
+		part->pos.abs.x = I0;
+		part->speed.x = -part->speed.x * COEFF_SPEED;
+		part->jik.x = I0;
+		*i = part->jik.x;
+	}
+	else if (*i > IMAX)
+	{
+		part->pos.abs.x = IMAX + 0.999;
+		part->speed.x = -part->speed.x * COEFF_SPEED;
+		part->jik.x = IMAX;
+		*i = part->jik.x;
+	}
+	if (*j < J0)
+	{
+		part->pos.abs.y = J0;
+		part->speed.y = -part->speed.y * COEFF_SPEED;
+		part->jik.y = J0;
+		*j = part->jik.y;
+	}
+	else if (*j > JMAX)
+	{
+		part->pos.abs.y = JMAX + 0.999;
+		part->speed.y = -part->speed.y * COEFF_SPEED;
+		part->jik.y = JMAX;
+		*j = part->jik.y;
+	}
+	if (*k < K0)
+	{
+		part->pos.abs.z = K0;
+		part->speed.z = -part->speed.z * COEFF_SPEED;
+		part->jik.z = K0;
+		*k = part->jik.z;
+	}
+	else if (*k > KMAX)
+	{
+		part->pos.abs.z = KMAX + 0.999;
+		part->speed.z = -part->speed.z * COEFF_SPEED;
+		part->jik.z = KMAX;
+		*k = part->jik.z;
+	}
+}
+
+
+
+void	ft_come_back_part2(t_part *part, int *j, int *i, int *k)
+{
+	if (map[part->jik.y][*i][part->jik.z] == OBSTACLES)
+	{
+		if (part->jik.x < *i)
+			part->pos.abs.x = *i - 0.001;
+		else
+			part->pos.abs.x = part->jik.x;
+		part->speed.x = -part->speed.x * COEFF_SPEED;
+		*i = part->jik.x;
+	}
+	if (map[*j][part->jik.x][part->jik.z] == OBSTACLES)
+	{
+		if (part->jik.y < *j)
+			part->pos.abs.y = *j - 0.001;
+		else
+			part->pos.abs.y = part->jik.y;
+		part->speed.y = -part->speed.y * COEFF_SPEED;
+		*j = part->jik.y;
+	}
+	if (map[part->jik.y][part->jik.x][*k] == OBSTACLES)
+	{
+		if (part->jik.z < *k)
+			part->pos.abs.z = *k - 0.001;
+		else
+			part->pos.abs.z = part->jik.z;
+		part->speed.z = -part->speed.z * COEFF_SPEED;
+		*k = part->jik.z;
+	}
+}
+
+int		ft_part_change_cell(t_part *part)
+{
 	int i;
 	int j;
 	int k;
 
-	i = part->jik.x;
-	j = part->jik.y;
-	k = part->jik.z;
-	if (i < I0 || j < J0 || k < K0 || i > IMAX || j > JMAX || k > KMAX)
+	i = (int)(part->pos.abs.x / delta.x) + 0;
+	j = (int)(part->pos.abs.y / delta.y) + 0;
+	k = (int)(part->pos.abs.z / delta.z) + 0;
+	if (i != part->jik.x || j != part->jik.y || k != part->jik.z)
 	{
-		part->type = EMPTY;
-		part->pos.color = 0xFFFFFF;
-		ft_fill_dpoint(&(part->pos.abs), JMAX + 1, IMAX + 1, KMAX + 1);
-		ft_fill_point(&(part->jik), JMAX + 1, IMAX + 1, KMAX + 1);
+		if (i >= I0 && j >= J0 && k >= K0 && i <= IMAX && j <= JMAX && k <= KMAX && map[j][i][k] == OBSTACLES)
+			ft_come_back_part2(part, &j, &i, &k);
+		ft_cut_part(part);
+		ft_fill_point(&(part->jik), j, i, k);
+		return (TRUE);
 	}
-	ft_insert_part(part);
+	return (FALSE);
 }
 
-int		ft_part_change_cell(t_part *part)
+
+int		ft_part_change_cell2(t_part *part)
 {
 	int i;
 	int j;

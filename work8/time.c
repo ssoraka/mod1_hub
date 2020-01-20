@@ -22,6 +22,8 @@ REAL	ft_time_control(REAL max_c, REAL norm_speed, REAL min_h)
 	deltat = CONST_CUR * min_h / (max_c + norm_speed);
 	if (deltat != deltat || !deltat || deltat > T_DELTA || deltat < 0)
 		deltat = T_DELTA;
+	norm_speed = norm_speed * 0.1;
+	max_c = SPEED_OF_SOUND_C;
 	//printf("%lf\n", deltat);
 	return (deltat);
 }

@@ -18,12 +18,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <pthread.h>
 #include "mlx.h"
 #include "ft_mod1_struct.h"
 
 #include <time.h>
 
 #define ABS(nbr) ((nbr) >= 0 ? (nbr) : (-1) * (nbr))
+
+#define THREAD_COUNT 4
 
 #define T_INFINITY 10000000000.0
 #define P_CONST 0.0
@@ -114,15 +117,15 @@
 
 //для расчета искусственной вязкости
 //коэффициент квадратичной искусственной вязкости (0.02 - 0.03)
-#define CONST_B 2.0
+#define CONST_B 0.00
 //коэффициент линнейной искусственной вязкости (0.02 - 0.03)
-#define CONST_A 1.08
+#define CONST_A 0.00
 //соотношение максимальной скорости частицы со скоростью звука ~ 10 раз
 #define CONST_E 0.1
 //коэффициент влияния
 #define CONST_EP 0.3
 
-#define VISCOSITY 010.0
+#define VISCOSITY 0.0
 //#define SIGMA 5000000.0000000
 #define SIGMA 0000000.0000000
 /*
@@ -309,10 +312,11 @@ void	ft_del_part(t_part **begin);
 t_part	*ft_new_part(t_dpoint *p, int type);
 t_part	*ft_add_part(void *ptr, t_dpoint *p, int type);
 t_arr	*ft_init_all_clear_parts(void);
-void	ft_create_new_area_of_water(t_arr **parts);
+void	ft_create_new_area_of_water(t_arr **parts, t_point *start, t_point *end);
 void	ft_insert_part(t_part *part);
 void	ft_cut_part(t_part *part);
 void	ft_replace_part2(t_part *part);
+void	ft_create_blob(int j, int i, int k);
 /*
 **	map.c
 */
