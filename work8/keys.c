@@ -65,6 +65,8 @@ int		deal_key(int key, void *param)
 		exit(0);
 	if (key == 35)
 		vis->pause = !vis->pause;
+	if (key == 15)
+		vis->rain = !vis->rain;
 	if (key == 34)
 	{
 		vis->is_need_print_obstacles = !vis->is_need_print_obstacles;
@@ -73,5 +75,6 @@ int		deal_key(int key, void *param)
 	}
 	if (key == 5)
 		vis->grad = !vis->grad;
+	//printf("\n%d\n", key);
 	return (0);
 }

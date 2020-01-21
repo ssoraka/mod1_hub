@@ -49,11 +49,14 @@ void	ft_fill_part(t_part *part, t_dpoint *p, int type)
 		return ;
 	ft_fill_point(&(part->jik), (int)p->y + 0, (int)p->x + 0, (int)p->z + 0);
 	ft_fill_dpoint(&(part->pos.abs), p->y, p->x, p->z);
+	part->type = type;
 	ft_fill_param_of_part(part, NULL);
 	if (type == WATER)
 		part->pos.color = WATER_COLOR;
 	else if (type == BLOB)
-		part->pos.color = 0x8F8F8F;
+		part->pos.color = 0xFFFFFF;
+	else if (type == MAGMA)
+		part->pos.color = 0xFF0000;
 	else
 		part->pos.color = OBSTACLES_TOP_COLOR;
 	if (type == BLOB)
@@ -61,6 +64,8 @@ void	ft_fill_part(t_part *part, t_dpoint *p, int type)
 		part->speed.y = -20.0;
 		type = WATER;
 	}
+	if (type == MAGMA)
+		type = WATER;
 	part->type = type;
 
 }
@@ -107,32 +112,27 @@ void	ft_cut_part(t_part *part)
 	part->next = NULL;
 }
 
-void	ft_create_new_water_in_area(t_arr **p_arr, t_dpoint *start, t_point *end)
+void	ft_create_new_water_in_area(t_arr **p_arr, t_dpoint *start, t_point *end, int type)
 {
 	REAL i;
 	REAL k;
-	int cell_type;
 	t_part *part;
 	t_dpoint pos;
 
-	//ft_bzero((void *)&part, sizeof(t_part));
 	i = start->x;
 	while (i < end->x + 1 && i < IMAX + 1)
 	{
 		k = start->z;
 		while (k < end->z + 1 && k < KMAX + 1)
 		{
-			cell_type = map[(int)(start->y)][(int)i][(int)k];
-			//if (cell_type != EMPTY)
-			if (cell_type == WATER || cell_type == BLOB)
+			if (map[(int)(start->y)][(int)i][(int)k] == EMPTY)
+			//if (cell_type == WATER || cell_type == BLOB)
 			{
 				ft_fill_dpoint(&pos, start->y, i, k);
 				//ft_fill_part(&part, &pos, cell_type);
-				part = ft_new_part(&pos, cell_type);
+				part = ft_new_part(&pos, type);
 				ft_insert_part(part);
 				ft_arr_add(p_arr, (void *)(&part));
-
-				//parts[(int)(start->y)][(int)i][(int)k] = ft_arr_add(p_arr, (void *)&part);
 			}
 			k++;
 		}
@@ -160,7 +160,7 @@ void	ft_clear_map_from_water_and_blob(t_arr **parts)
 		}
 	}
 }
-
+/*
 void	ft_create_blob(int j, int i, int k)
 {
 	t_point cell;
@@ -174,23 +174,23 @@ void	ft_create_blob(int j, int i, int k)
 		ft_create_new_area_of_water(&g_parts, &cell, &cell);
 		map[j][i][k] = EMPTY;
 	}
-}
+}*/
 
 
-void	ft_create_new_area_of_water(t_arr **parts, t_point *start, t_point *end)
+void	ft_create_new_area_of_water(t_arr **parts, t_point *start, t_point *end, int type)
 {
 	t_dpoint tmp;
 	int n;
 
 	n = 0;
-	tmp.y = start->y + 0.2;
+	tmp.y = start->y + 0.5;
 	while (tmp.y < end->y + 1 && tmp.y < JMAX + 1)
 	{
 		if (n % 2)
 			ft_fill_dpoint(&tmp, tmp.y, start->x + 0.2, start->z + 0.2);
 		else
 			ft_fill_dpoint(&tmp, tmp.y, start->x + 0.7, start->z + 0.7);
-		ft_create_new_water_in_area(parts, &tmp, end);
+		ft_create_new_water_in_area(parts, &tmp, end, type);
 		tmp.y += DELTA_H;
 		n++;
 	}

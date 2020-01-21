@@ -87,6 +87,10 @@ void	ft_create_cube_poligons(t_plgn **plgn, t_vektr **p, int color)
 
 
 
+
+
+
+
 void	ft_create_obstacles(void *ptr, int j, int i, int k)
 {
 	t_vis *vis;
@@ -96,24 +100,28 @@ void	ft_create_obstacles(void *ptr, int j, int i, int k)
 
 	if (map[j][i][k] != OBSTACLES)
 		return ;
+	if (map[j + 1][i][k] == OBSTACLES && map[j - 1][i][k] == OBSTACLES
+	&& map[j][i + 1][k] == OBSTACLES && map[j][i - 1][k] == OBSTACLES
+	&& map[j][i][k + 1] == OBSTACLES && map[j][i][k - 1] == OBSTACLES)
+		return ;
 	vis = (t_vis *)ptr;
 	points = (void *)(&(vis->points));
 	ft_fill_point(&xyz, j * delta.y, i * delta.x, k * delta.z);
 	p[0] = ft_add_vektor2(points, &xyz, 0xFF0000);
-	ft_fill_point(&xyz, j * delta.y, (i - 1) * delta.x, k * delta.z);
+	ft_fill_point(&xyz, j * delta.y, (i + 1) * delta.x, k * delta.z);
 	p[1] = ft_add_vektor2(points, &xyz, 0x00FF00);
-	ft_fill_point(&xyz, (j - 1) * delta.y, (i - 1) * delta.x, k * delta.z);
+	ft_fill_point(&xyz, (j + 1) * delta.y, (i + 1) * delta.x, k * delta.z);
 	p[2] = ft_add_vektor2(points, &xyz, 0xFFFFFF);
-	ft_fill_point(&xyz, (j - 1) * delta.y, i * delta.x, k * delta.z);
+	ft_fill_point(&xyz, (j + 1) * delta.y, i * delta.x, k * delta.z);
 	p[3] = ft_add_vektor2(points, &xyz, 0xFFFFFF);
 
-	ft_fill_point(&xyz, j * delta.y, i * delta.x, (k - 1) * delta.z);
+	ft_fill_point(&xyz, j * delta.y, i * delta.x, (k + 1) * delta.z);
 	p[4] = ft_add_vektor2(points, &xyz, 0xFFFFFF);
-	ft_fill_point(&xyz, j * delta.y, (i - 1) * delta.x, (k - 1) * delta.z);
+	ft_fill_point(&xyz, j * delta.y, (i + 1) * delta.x, (k + 1) * delta.z);
 	p[5] = ft_add_vektor2(points, &xyz, 0x0000FF);
-	ft_fill_point(&xyz, (j - 1) * delta.y, (i - 1) * delta.x, (k - 1) * delta.z);
+	ft_fill_point(&xyz, (j + 1) * delta.y, (i + 1) * delta.x, (k + 1) * delta.z);
 	p[6] = ft_add_vektor2(points, &xyz, 0xFFFFFF);
-	ft_fill_point(&xyz, (j - 1) * delta.y, i * delta.x, (k - 1) * delta.z);
+	ft_fill_point(&xyz, (j + 1) * delta.y, i * delta.x, (k + 1) * delta.z);
 	p[7] = ft_add_vektor2(points, &xyz, 0xFF0000);
 
 	ft_create_cube_poligons(&(vis->plgn), p, 0xFFFF00);
@@ -188,8 +196,8 @@ void	ft_create_points_in_cells(t_vis *vis)
 	t_point start;
 	t_point end;
 
-	ft_fill_point(&start, 1, 1, 1);
-	ft_fill_point(&end, jmax, imax, kmax);
+	ft_fill_point(&start, J0 + 1, I0 + 1, K0 + 1);
+	ft_fill_point(&end, JMAX - 1, IMAX - 1, KMAX - 1);
 	ft_cycle_cube((void *)vis, &ft_create_obstacles, &start, &end);
 }
 
@@ -228,7 +236,7 @@ void	ft_print_all_water2(void *ptr, void *param)
 
 	int rad = RADIUS;
 	ft_change_points4(vis, &(part->pos), TRUE);
-	if (part->type == OBSTACLES)
+	if (part->type == OBSTACLES || part->type == MAGMA)
 		rad *= 2;
 	ft_print_rect2(&(vis->pic), &(part->pos.zoom), rad, part->pos.color);
 }
@@ -243,8 +251,8 @@ void	ft_refresh_picture(t_vis *vis)
 	ft_memset((void *)vis->pic.z_buffer, 0x80, CONST_WIDTH * CONST_HEINTH * 4);
 
 	//ft_change_points5(vis);
-	//if (!vis->is_need_print_obstacles)
-	//	ft_print_poligons(vis, vis->plgn);
+	if (!vis->is_need_print_obstacles)
+		ft_print_poligons(vis, vis->plgn);
 	//ft_print_all_water(vis);
 	//vis->is_rotate_or_csale = TRUE;
 	ft_for_each_ptr(g_parts, ft_print_all_water2, (void *)vis);
@@ -318,17 +326,36 @@ int loop_hook(void *param)
 	i = 0;
 	if (!vis->pause)
 	{
-		int i = 0;
-		while (i < IMAX)
+
+		/*while (i < IMAX)
 		{
-			ft_create_blob(JMAX / 2, i, 2);
-			ft_create_blob(JMAX / 2, i, 39);
+			if (parts[39][i][2] || parts[38][i][2])
+				rain = FALSE;
 			i++;
-			i++;
-		}
+		}*/
+		//if (rain)
+		//	ft_create_new_area_of_water(&g_parts, &((t_point){39, 2, 2}), &((t_point){39, 39, 3}), BLOB);
+		//if (vis->rain && !parts[35][2][2] && !parts[34][2][2])
+		//	ft_create_new_area_of_water(&g_parts, &((t_point){35, 2, 2}), &((t_point){35, 39, 39}), BLOB);
+
+		// if (vis->rain)
+		// {
+		// 	ft_create_new_area_of_water(&g_parts, &((t_point){26, 17, 17}), &((t_point){32, 24, 24}), MAGMA);
+		// 	vis->rain = !vis->rain;
+		// }
+		if (vis->rain)// && !parts[34][20][20])
+			ft_create_new_area_of_water(&g_parts, &((t_point){35, 20, 20}), &((t_point){35, 20, 20}), BLOB);
+		// if (vis->rain)// && !parts[34][20][20])
+		// {
+		// 	ft_create_new_area_of_water(&g_parts, &((t_point){35, 10, 10}), &((t_point){35, 11, 11}), BLOB);
+		// 	ft_create_new_area_of_water(&g_parts, &((t_point){35, 30, 10}), &((t_point){35, 31, 11}), BLOB);
+		// 	ft_create_new_area_of_water(&g_parts, &((t_point){35, 10, 30}), &((t_point){35, 11, 31}), BLOB);
+		// 	ft_create_new_area_of_water(&g_parts, &((t_point){35, 30, 30}), &((t_point){35, 31, 31}), BLOB);
+		// }
 		i = 0;
 		while(i < 20)
 		{
+			//ft_create_new_area_of_water(&g_parts, &((t_point){35, 20, 20}), &((t_point){35, 21, 20}), BLOB);
 			ft_solve_and_move_parts();
 			i++;
 		}
@@ -407,11 +434,17 @@ void	ft_create_stable_level_of_water(void *param, int j, int i, int k)
 	{
 		map[j][i][k] = OBSTACLES;
 		//ft_create_new_water_in_cell((void *)(&num), j, i, k);
-	}//j < TEST_WATER_LEVEL - 1
-	//else if (map[j][i][k] == EMPTY && j < 20 && j > J0 + 2// TEST_WATER_LEVEL + 8
-	//&& ((i < 15) || (i > 25))
-	//&& k > TEST_WATER_WALL + K0 +10 && k < TEST_WATER_WALL + 30)
-	//	map[j][i][k] = WATER;
+	}
+	//else if (i == 20 && !(k % 3))
+	//	map[j][i][k] = OBSTACLES;
+	/*else if (map[j][i][k] == EMPTY && j < 20 && j > J0 + 2// TEST_WATER_LEVEL + 8
+	&& ((i > 25))
+	&& k > TEST_WATER_WALL + K0 +10 && k < TEST_WATER_WALL + 30)
+		map[j][i][k] = WATER;*/
+	/*else if (map[j][i][k] == EMPTY && j < 20 && j > J0 + 2// TEST_WATER_LEVEL + 8
+	&& ((i < 15))
+	&& k > TEST_WATER_WALL + K0 +10 && k < TEST_WATER_WALL + 30)
+		map[j][i][k] = BLOB;*/
 	else
 		map[j][i][k] = EMPTY;
 	//else if (map[j][i][k] == OBSTACLES || j == 1)
@@ -520,27 +553,22 @@ int main(int ac, char **av)
 	//ft_init_first_value();
 	//ft_solver();
 
+	//////
+	ft_create_first_water();
+	//////
 
 	//создаем модель для 3д карты
-	//ft_create_points_in_cells(vis);
+	ft_create_points_in_cells(vis);
 	//ft_create_relief(vis, comlex_ground);
 
 	//srand(time(NULL));
 
 	//ft_create_points_in_cells(vis);
-	//////
-	ft_create_first_water();
-	//////
 
 
-	t_point start;
-	t_point end;
-
-
-	ft_fill_point(&start, J0, I0, K0);
-	ft_fill_point(&end, JMAX, IMAX, KMAX);
-
-	ft_create_new_area_of_water(&g_parts, &start, &end);
+	//
+	// ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){20, 10, 38}), WATER);
+	//
 
 	//while (1)
 	//	ft_solve_and_move_parts();

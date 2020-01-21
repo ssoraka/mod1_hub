@@ -691,14 +691,11 @@ void	ft_solve_and_move_parts(void)
 	ft_fill_point(&start, J0, I0, K0);
 	ft_fill_point(&end, JMAX, IMAX, KMAX);
 
-	//ft_create_blob(JMAX / 2, IMAX / 2, KMAX / 2);
+	//ft_create_blob(2, IMAX / 2, KMAX / 2);
 	/*int i = 0;
 	while (i < IMAX)
 	{
 		ft_create_blob(JMAX / 2, i, KMAX / 2);
-		i++;
-		i++;
-		i++;
 		i++;
 	}*/
 
@@ -711,7 +708,7 @@ void	ft_solve_and_move_parts(void)
 	//printf("таймер %ld\n", clock() - g_clock2);
 
 
-	deltat = 9 * ft_time_control(max_c, norm_speed, PART_H);
+	deltat = 5 * ft_time_control(max_c, norm_speed, PART_H);
 
 	//считаем изменение плотности
 	ft_for_each_ptr(g_parts, &ft_init_density2, NULL);
@@ -760,8 +757,9 @@ void	ft_fill_param_of_part(t_part *part, void *param)
 	part->press_0 = 0.0;
 	part->density = part->mass;
 	part->speed.x = 0;
-	/*if (part->type == WATER)
-		part->density = part->mass;
+	//if (part->type == BLOB)
+	//	part->h = PART_H * 0.90000;
+	/*
 	else
 		part->density = DENSITY_0 * 1.00;*/
 }

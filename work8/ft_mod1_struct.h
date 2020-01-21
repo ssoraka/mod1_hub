@@ -170,6 +170,7 @@ typedef struct		s_vis
 	int				cam_x;
 	int				cam_y;
 	int				pause;
+	int				rain;
 	int				is_shift;
 	int				is_rotate_or_csale;
 	int				is_need_print_obstacles;

@@ -69,6 +69,7 @@
 #define SURF '~'
 #define EMPTY ' '
 #define WATER '1'
+#define MAGMA 'M'
 #define BLOB 'b'
 #define OBSTACLES '#'
 #define BOUNDARY '\0'
@@ -125,7 +126,7 @@
 //коэффициент влияния
 #define CONST_EP 0.3
 
-#define VISCOSITY 0.0
+#define VISCOSITY 000.0
 //#define SIGMA 5000000.0000000
 #define SIGMA 0000000.0000000
 /*
@@ -312,7 +313,7 @@ void	ft_del_part(t_part **begin);
 t_part	*ft_new_part(t_dpoint *p, int type);
 t_part	*ft_add_part(void *ptr, t_dpoint *p, int type);
 t_arr	*ft_init_all_clear_parts(void);
-void	ft_create_new_area_of_water(t_arr **parts, t_point *start, t_point *end);
+void	ft_create_new_area_of_water(t_arr **parts, t_point *start, t_point *end, int type);
 void	ft_insert_part(t_part *part);
 void	ft_cut_part(t_part *part);
 void	ft_replace_part2(t_part *part);
