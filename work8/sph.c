@@ -311,7 +311,8 @@ void	ft_calk_delta_coord_if_needs(void *neigh_j, void *part_i)
 	n_j = neigh_j;
 	if ((p_i->press + n_j->part_j->press) == 0.0)
 		return ;
-	tmp = n_j->part_j->mass * 2.0 / (p_i->press + n_j->part_j->press) * n_j->w_ij;
+	//tmp = n_j->part_j->mass * 2.0 / (p_i->press + n_j->part_j->press) * n_j->w_ij;
+	tmp = n_j->part_j->mass * 2.0 / (p_i->density + n_j->part_j->density) * n_j->w_ij;
 	ft_vekt_difference(&(p_i->speed), &(n_j->part_j->speed), &d_speed);
 	ft_vekt_scalar_multiplication(&d_speed, tmp, &d_speed);
 	ft_vekt_summ(&(p_i->delta_pos), &d_speed, &(p_i->delta_pos));
@@ -745,8 +746,11 @@ void	ft_solve_and_move_parts(void)
 
 //сделать правильную инициализацию!!!
 
+
+
 void	ft_fill_param_of_part(t_part *part, void *param)
 {
+
 	//PART_H
 	//ft_putstr("1\n");
 	part->h = PART_H * 1.010000;//1.2 * pow(PART_MASS_0 / DENSITY_0, 1.0 / 3.0);

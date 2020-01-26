@@ -445,8 +445,8 @@ void	ft_create_stable_level_of_water(void *param, int j, int i, int k)
 	&& ((i < 15))
 	&& k > TEST_WATER_WALL + K0 +10 && k < TEST_WATER_WALL + 30)
 		map[j][i][k] = BLOB;*/
-	else
-		map[j][i][k] = EMPTY;
+	//else
+	//	map[j][i][k] = EMPTY;
 	//else if (map[j][i][k] == OBSTACLES || j == 1)
 
 
