@@ -14,9 +14,9 @@
 
 int		ft_rotate_and_csale(t_vis *vis, int key)
 {
-	if (key == 69 && vis->len < 100.0)
+	if ((key == 18 || key == 69) && vis->len < 100.0)
 		vis->len *= 1.1;
-	else if (key == 78 && vis->len > 0.01)
+	else if ((key == 19 || key == 78) && vis->len > 0.01)
 		vis->len /= 1.1;
 	else if (key == 12)
 		vis->ang.z += M_PI / 180;

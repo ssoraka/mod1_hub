@@ -708,7 +708,7 @@ void	ft_solve_and_move_parts(void)
 	//printf("таймер %ld\n", clock() - g_clock2);
 
 
-	deltat = 5 * ft_time_control(max_c, norm_speed, PART_H);
+	deltat = 10 * ft_time_control(max_c, norm_speed, PART_H);
 
 	//считаем изменение плотности
 	ft_for_each_ptr(g_parts, &ft_init_density2, NULL);

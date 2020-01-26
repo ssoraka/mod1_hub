@@ -338,13 +338,13 @@ int loop_hook(void *param)
 		//if (vis->rain && !parts[35][2][2] && !parts[34][2][2])
 		//	ft_create_new_area_of_water(&g_parts, &((t_point){35, 2, 2}), &((t_point){35, 39, 39}), BLOB);
 
-		// if (vis->rain)
-		// {
-		// 	ft_create_new_area_of_water(&g_parts, &((t_point){26, 17, 17}), &((t_point){32, 24, 24}), MAGMA);
-		// 	vis->rain = !vis->rain;
-		// }
-		if (vis->rain)// && !parts[34][20][20])
-			ft_create_new_area_of_water(&g_parts, &((t_point){35, 20, 20}), &((t_point){35, 20, 20}), BLOB);
+		if (vis->rain)
+		{
+			ft_create_new_area_of_water(&g_parts, &((t_point){26, 17, 17}), &((t_point){32, 24, 24}), MAGMA);
+			vis->rain = !vis->rain;
+		}
+		// if (vis->rain)// && !parts[34][20][20])
+		// 	ft_create_new_area_of_water(&g_parts, &((t_point){35, 20, 20}), &((t_point){35, 20, 20}), BLOB);
 		// if (vis->rain)// && !parts[34][20][20])
 		// {
 		// 	ft_create_new_area_of_water(&g_parts, &((t_point){35, 10, 10}), &((t_point){35, 11, 11}), BLOB);
@@ -567,7 +567,7 @@ int main(int ac, char **av)
 
 
 	//
-	// ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){20, 10, 38}), WATER);
+	 ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){20, 10, 38}), WATER);
 	//
 
 	//while (1)
