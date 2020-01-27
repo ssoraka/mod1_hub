@@ -65,13 +65,14 @@ void	ft_vektr_interpolation_by_y(t_vektr *p, t_vektr *p1, t_vektr *p2, int grad)
 	int y;
 
 	delta_y = p1->zoom.y - p2->zoom.y;
-	if (!delta_y)
+	y = p->zoom.y - p2->zoom.y;
+	if (!delta_y || !y)
 	{
 		ft_fill_point(&(p->zoom), p2->zoom.y, p2->zoom.x, p2->zoom.z);
 		p->color = p2->color;
 		return ;
 	}
-	y = p->zoom.y - p2->zoom.y;
+
 	p->zoom.x = ft_int_interpolation(y, delta_y, p2->zoom.x, p1->zoom.x);
 	p->zoom.z = ft_int_interpolation(y, delta_y, p2->zoom.z, p1->zoom.z);
 	p->color = ft_grad_color(y, delta_y, p1->color, p2->color);
@@ -123,7 +124,6 @@ void	ft_draw_traing(t_pict *pic, t_vektr **p, int grad, int color)
 	//line.p2 = p[2];
 	//draw_line_img2(&line, pic, grad);
 }
-
 
 
 void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad)

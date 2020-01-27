@@ -255,11 +255,13 @@ void	ft_refresh_picture(t_vis *vis)
 		ft_print_poligons(vis, vis->plgn);
 	//ft_print_all_water(vis);
 	//vis->is_rotate_or_csale = TRUE;
+
 	ft_for_each_ptr(g_parts, ft_print_all_water2, (void *)vis);
 	//vis->is_rotate_or_csale = FALSE;
 	//ft_print_lines(vis, vis->lines);
 
 	mlx_put_image_to_window(vis->mlx, vis->win, vis->img, 0, 0);
+
 }
 
 
@@ -324,6 +326,7 @@ int loop_hook(void *param)
 
 	vis = (t_vis *)param;
 	i = 0;
+
 	if (!vis->pause)
 	{
 
@@ -352,6 +355,7 @@ int loop_hook(void *param)
 		// 	ft_create_new_area_of_water(&g_parts, &((t_point){35, 10, 30}), &((t_point){35, 11, 31}), BLOB);
 		// 	ft_create_new_area_of_water(&g_parts, &((t_point){35, 30, 30}), &((t_point){35, 31, 31}), BLOB);
 		// }
+
 		i = 0;
 		while(i < 20)
 		{
@@ -359,6 +363,7 @@ int loop_hook(void *param)
 			ft_solve_and_move_parts();
 			i++;
 		}
+
 	}
 
 	/*ft_print_arr(flags, &ft_print_int, 6);
@@ -379,7 +384,6 @@ int loop_hook(void *param)
 	//ft_print_fluid(fluid, fluid->speed_v);
 	//ft_print_flags(fluid, fluid->flags);
 	//ft_print_flags2(fluid, fluid->flags, C_X);
-
 	ft_refresh_picture(vis);
 
 	//ft_new_pos_of_points(vis);
@@ -567,7 +571,7 @@ int main(int ac, char **av)
 
 
 	//
-	 ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){20, 10, 38}), WATER);
+	ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){20, 10, 38}), WATER);
 	//
 
 	//while (1)
@@ -590,6 +594,7 @@ int main(int ac, char **av)
 	//создаем имейдж и z-буфер
 	ft_create_img(vis);
 	//g_clock = clock();
+
 	mlx_hook(vis->win, 2, 0, deal_key, (void *)vis);
 	mlx_loop_hook(vis->mlx, loop_hook, (void *)vis);
 	mlx_loop(vis->mlx);

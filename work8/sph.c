@@ -109,7 +109,7 @@ void	ft_check_and_add_parts_as_neighbors(void *param, t_part *p_i, t_part *p_j)
 	//t_dpoint	r;
 	REAL		len;
 
-	if (!p_i || !p_j || p_i == p_j || p_i->type == EMPTY || p_j->type == EMPTY)
+	if (p_i->type == EMPTY || p_j->type == EMPTY)
 		return ;
 	tmp.h_ij = (p_i->h + p_j->h) / 2.0;
 	ft_vekt_difference(&(p_i->pos.abs), &(p_j->pos.abs), &tmp.r_ij);
@@ -602,7 +602,7 @@ void	ft_comparison_part_with_list(t_part *part1, t_part *begin2, void *param, vo
 		return ;
 	while (begin2)
 	{
-		//if (part1 != begin2)
+		if (part1 != begin2)
 			f(param, part1, begin2);
 		begin2 = begin2->next;
 	}

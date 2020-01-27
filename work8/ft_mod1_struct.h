@@ -48,10 +48,9 @@ typedef struct		s_map
 typedef struct		s_vektr
 {
 	int color;
-	int iteration;
 	struct s_dpoint	abs;
-	struct s_point	zoom;
 	struct s_point	otn;
+	struct s_point	zoom;
 	struct s_vektr	*next;
 }					t_vektr;
 
