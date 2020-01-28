@@ -109,7 +109,7 @@ void	ft_check_and_add_parts_as_neighbors(void *param, t_part *p_i, t_part *p_j)
 	//t_dpoint	r;
 	REAL		len;
 
-	if (p_i->type == EMPTY || p_j->type == EMPTY)
+	if (p_j->type == EMPTY)
 		return ;
 	tmp.h_ij = (p_i->h + p_j->h) / 2.0;
 	ft_vekt_difference(&(p_i->pos.abs), &(p_j->pos.abs), &tmp.r_ij);
@@ -371,10 +371,6 @@ void	ft_change_coordinates2(t_part *part, void *param)
 
 
 
-
-
-
-
 void	ft_use_function(t_part *begin, void *param, void (*f)(t_part *, void *))
 {
 	if (!begin || !f)
@@ -413,7 +409,7 @@ void	ft_clear_all(void *part, void *param)
 	//if (((t_part *)part)->type == WATER)
 	//	printf("%d_", ((t_part *)part)->neigh->elems_used);
 	((t_part *)part)->neigh->elems_used = 0;
-	((t_part *)part)->density = ((t_part *)part)->mass;
+	//((t_part *)part)->density = ((t_part *)part)->mass;
 	//return (FALSE);
 	//((t_part *)part)->delta_density = 0.0;
 }
@@ -428,7 +424,7 @@ int		ft_clear_all2(void *part)
 	if (p->type == EMPTY)
 		return (TRUE);
 	p->neigh->elems_used = 0;
-	p->density = p->mass;
+	//p->density = p->mass;
 	//___//
 	//p->c = max_c;
 	return (FALSE);
@@ -637,6 +633,7 @@ void	ft_new_neighbors2(void *p_i, void *param)
 	if (part->type == EMPTY)
 		return ;
 
+	part->neigh->elems_used = 0;
 	ft_fill_surrounding_of_cell_by_j_i2(surround, part->jik.y, part->jik.x, part->jik.z);
 	ft_comparison_part_with_lists(part, surround, param, &ft_check_and_add_parts_as_neighbors);
 }
@@ -731,7 +728,7 @@ void	ft_solve_and_move_parts(void)
 	//ft_for_each_ptr(g_parts, &ft_new_coordinates, NULL);
 
 	//ft_for_each_ptr(g_parts, &ft_clear_all, NULL);
-	ft_del_elems(g_parts, &ft_clear_all2);
+	//ft_del_elems(g_parts, &ft_clear_all2);
 	//printf("%lf\n", deltat);
 
 }
