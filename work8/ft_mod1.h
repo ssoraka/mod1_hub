@@ -378,8 +378,6 @@ void	ft_use_function(t_part *begin, void *param, void (*f)(t_part *, void *));
 void	ft_use_function2(t_part **begin, void *param, void (*f)(t_part *, t_part **, void *));
 void	ft_comparison_part_with_list(t_part *part1, t_part *begin2, void *param, void (*f)(void *, t_part *, t_part *));
 void	ft_comparison_part_with_lists(t_part *part, t_part ***surround, void *param, void (*f)(void *, t_part *, t_part *));
-void	ft_comparison_list_with_lists(t_cpart *cell, void *param, void (*f)(void *, t_part *, t_part *));
-void	ft_fill_surrounding_of_cell_by_j_i(t_cpart *cell, int j, int i, int k);
 //void	ft_first_density(void *param, t_part *p_i, t_part *part_j);
 void	ft_fill_param_of_part(t_part *part, void *param);
 void	ft_init_density2(void *p_i, void *param);

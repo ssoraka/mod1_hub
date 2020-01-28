@@ -581,20 +581,17 @@ void	ft_new_coordinates(void *p_i, void *param)
 
 
 
-void	ft_fill_surrounding_of_cell_by_j_i(t_cpart *cell, int j, int i, int k)
+void	ft_fill_surrounding_of_cell_by_j_i2(t_part ***surround, int j, int i, int k)
 {
-	t_part ****parts;
-
-	parts = cell->begin;
-	cell->surround[0] = &(parts[j + 1][i + 1][k]);
-	cell->surround[1] = &(parts[j + 1][i - 1][k]);
-	cell->surround[2] = &(parts[j - 1][i + 1][k]);
-	cell->surround[3] = &(parts[j - 1][i - 1][k]);
-	cell->surround[4] = &(parts[j + 1][i][k]);
-	cell->surround[5] = &(parts[j - 1][i][k]);
-	cell->surround[6] = &(parts[j][i + 1][k]);
-	cell->surround[7] = &(parts[j][i - 1][k]);
-	cell->surround[8] = &(parts[j][i][k]);
+	surround[0] = &(parts[j + 1][i + 1][k]);
+	surround[1] = &(parts[j + 1][i - 1][k]);
+	surround[2] = &(parts[j - 1][i + 1][k]);
+	surround[3] = &(parts[j - 1][i - 1][k]);
+	surround[4] = &(parts[j + 1][i][k]);
+	surround[5] = &(parts[j - 1][i][k]);
+	surround[6] = &(parts[j][i + 1][k]);
+	surround[7] = &(parts[j][i - 1][k]);
+	surround[8] = &(parts[j][i][k]);
 }
 
 void	ft_comparison_part_with_list(t_part *part1, t_part *begin2, void *param, void (*f)(void *, t_part *, t_part *))
@@ -630,41 +627,18 @@ void	ft_comparison_part_with_lists(t_part *part, t_part ***surround, void *param
 	}
 }
 
-void	ft_comparison_list_with_lists(t_cpart *cell, void *param, void (*f)(void *, t_part *, t_part *))
-{
-	while (cell->origin)
-	{
-		ft_comparison_part_with_lists(cell->origin, cell->surround, param, f);
-		cell->origin = cell->origin->next;
-	}
-}
-
-
-void	ft_new_neighbors(void *param, int j, int i, int k)
-{
-	t_cpart cell;
-
-	cell.begin = (t_part ****)param;
-	cell.origin = cell.begin[j][i][k];
-	if (!cell.origin)
-		return ;
-	ft_fill_surrounding_of_cell_by_j_i(&cell, j, i, k);
-	ft_comparison_list_with_lists(&cell, NULL, &ft_check_and_add_parts_as_neighbors);
-}
 
 void	ft_new_neighbors2(void *p_i, void *param)
 {
-	//t_part *part;
-	//part = (t_part *)p_i;
-	t_cpart cell;
+	t_part *part;
+	t_part	**surround[9];
 
-	cell.begin = (t_part ****)param;
-	cell.origin = (t_part *)p_i;
-	if (cell.origin->type == EMPTY)
+	part = (t_part *)p_i;
+	if (part->type == EMPTY)
 		return ;
 
-	ft_fill_surrounding_of_cell_by_j_i(&cell, cell.origin->jik.y, cell.origin->jik.x, cell.origin->jik.z);
-	ft_comparison_part_with_lists(cell.origin, cell.surround, param, &ft_check_and_add_parts_as_neighbors);
+	ft_fill_surrounding_of_cell_by_j_i2(surround, part->jik.y, part->jik.x, part->jik.z);
+	ft_comparison_part_with_lists(part, surround, param, &ft_check_and_add_parts_as_neighbors);
 }
 
 

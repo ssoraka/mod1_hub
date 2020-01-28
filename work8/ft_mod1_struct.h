@@ -155,14 +155,6 @@ typedef struct		s_part
 }					t_part;
 
 
-
-typedef struct		s_cpart
-{
-	struct s_part	****begin;
-	struct s_part	*origin;
-	struct s_part	**surround[9];
-}					t_cpart;
-
 typedef struct		s_vis
 {
 	int				cam_x;
