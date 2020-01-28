@@ -469,7 +469,6 @@ void	ft_new_delta_speeds(void *p_i, void *param)
 	if (((t_part *)p_i)->type != WATER)
 		return ;
 	ft_for_each_elem(((t_part *)p_i)->neigh, &ft_calk_delta_speed_if_needs, p_i);
-	//ft_new_speeds(p_i, param);
 }
 
 void	ft_new_smoothed_color_func(void *param, int j, int i, int k)
@@ -652,20 +651,7 @@ void	ft_new_neighbors(void *param, int j, int i, int k)
 	ft_comparison_list_with_lists(&cell, NULL, &ft_check_and_add_parts_as_neighbors);
 }
 
-void	ft_new_neighbors2(void *p_i, void *param)
-{
-	//t_part *part;
-	//part = (t_part *)p_i;
-	t_cpart cell;
 
-	cell.begin = (t_part ****)param;
-	cell.origin = (t_part *)p_i;
-	if (cell.origin->type == EMPTY)
-		return ;
-
-	ft_fill_surrounding_of_cell_by_j_i(&cell, cell.origin->jik.y, cell.origin->jik.x, cell.origin->jik.z);
-	ft_comparison_part_with_lists(cell.origin, cell.surround, param, &ft_check_and_add_parts_as_neighbors);
-}
 
 
 /*
@@ -718,8 +704,7 @@ void	ft_solve_and_move_parts(void)
 	//надо допилить эту функцию
 	g_clock2 = clock();
 
-	//ft_cycle_cube((void *)parts, &ft_new_neighbors, &start, &end);
-	ft_for_each_ptr(g_parts, &ft_new_neighbors2,(void *)parts);
+	ft_cycle_cube((void *)parts, &ft_new_neighbors, &start, &end);
 
 	//printf("таймер %ld\n", clock() - g_clock2);
 
@@ -738,18 +723,14 @@ void	ft_solve_and_move_parts(void)
 	//пересчитываем плотность и давление
 	ft_for_each_ptr(g_parts, &ft_new_density_and_press_and_color, NULL);
 	//считаем изменение скорости
-	//////
 	ft_for_each_ptr(g_parts, &ft_new_delta_speeds, NULL);
-	/////
 	//считаем силу поверхостного натяжения
 	/*ft_cycle_cube((void *)parts, &ft_new_smoothed_color_func, &start, &end);
 	ft_cycle_cube((void *)parts, &ft_new_normal_to_surface, &start, &end);
 	ft_cycle_cube((void *)parts, &ft_new_unit_normal_to_surface, &start, &end);
 	ft_cycle_cube((void *)parts, &ft_new_curvature_of_surface, &start, &end);*/
 	//считаем скорости
-	/////
 	ft_for_each_ptr(g_parts, &ft_new_speeds, NULL);
-	/////
 
 	//считаем изменение координат
 	ft_for_each_ptr(g_parts, &ft_new_delta_coordinates, NULL);

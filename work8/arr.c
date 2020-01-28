@@ -154,12 +154,13 @@ void	ft_for_each_elem(t_arr *arr, void (*func)(void *, void *), void *param)
 
 	if (!func)
 		return ;
+	elem = (void **)ft_arr_get(arr, 0);
 	i = 0;
 	while (i < arr->elems_used)
 	{
-		elem = ft_arr_get(arr, i);
 		if (elem)
 			func(elem, param);
+		elem += arr->elem_size;
 		i++;
 	}
 }

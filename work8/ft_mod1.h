@@ -361,6 +361,7 @@ void	ft_del_elems(t_arr *arr, int (*need_del)(void *));
 void	ft_for_each_ptr(t_arr *arr, void (*func)(void *, void *), void *param);
 void	ft_for_each_elem(t_arr *arr, void (*func)(void *, void *), void *param);
 void	*ft_arr_get_next(t_arr *arr);
+void	ft_for_each_ptr2(t_arr *arr, void (*func)(void *, void *), void *param);
 
 /*
 **	sph.c

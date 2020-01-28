@@ -571,7 +571,7 @@ int main(int ac, char **av)
 
 
 	//
-	ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){20, 10, 38}), WATER);
+	ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){20, 15, 38}), WATER);
 	//
 
 	//while (1)
