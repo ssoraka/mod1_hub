@@ -719,7 +719,7 @@ void	ft_solve_and_move_parts(void)
 	g_clock2 = clock();
 
 	//ft_cycle_cube((void *)parts, &ft_new_neighbors, &start, &end);
-	ft_for_each_ptr(g_parts, &ft_new_neighbors2,(void *)parts);
+	ft_for_each_ptr2(g_parts, &ft_new_neighbors2,(void *)parts);
 
 	//printf("таймер %ld\n", clock() - g_clock2);
 
