@@ -20,8 +20,6 @@
 */
 
 
-
-
 REAL	ft_vekt_norm2(t_dpoint *v1, t_dpoint *v2)
 {
 	return (v1->x * v2->x + v1->y * v2->y + v1->z * v2->z);

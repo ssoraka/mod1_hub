@@ -364,6 +364,21 @@ void	*ft_arr_get_next(t_arr *arr);
 void	ft_for_each_ptr2(t_arr *arr, void (*func)(void *, void *), void *param);
 
 /*
+**	llist.c
+*/
+
+t_llist	*ft_create_llist(void (*func_del)(void *, int));
+void	ft_for_each_llist(t_llist *list, void (*func)(void *, void *), void *param);
+void	ft_del_llist(t_llist **list);
+void	*ft_llist_add(t_llist *list, void *elem);
+void	*ft_llist_get_next(t_llist *list);
+void	*ft_llist_get(t_llist *list, int num);
+void	ft_llist_del_elem(t_llist *list, int num);
+void	ft_del_llist_elems(t_llist *list, int (*need_del)(void *));
+void	*ft_llist_cut_elem(t_llist *list, void *elem);
+
+
+/*
 **	sph.c
 */
 REAL	ft_derivative_kernel_function2(REAL h, REAL r);

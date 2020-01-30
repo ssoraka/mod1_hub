@@ -449,8 +449,8 @@ void	ft_create_stable_level_of_water(void *param, int j, int i, int k)
 	&& ((i < 15))
 	&& k > TEST_WATER_WALL + K0 +10 && k < TEST_WATER_WALL + 30)
 		map[j][i][k] = BLOB;*/
-	else
-		map[j][i][k] = EMPTY;
+	//else
+	//	map[j][i][k] = EMPTY;
 	//else if (map[j][i][k] == OBSTACLES || j == 1)
 
 
@@ -470,12 +470,78 @@ void	ft_create_first_water(void)
 
 
 
+/*
+t_llist	*ft_create_llist(void (*func_del)(void *, int));
+void	ft_for_each_llist(t_llist *list, void (*func)(void *, void *), void *param);
+void	ft_del_llist(t_llist **list);
+void	*ft_llist_add(t_llist *list, void *elem);
+void	*ft_llist_get_next(t_llist *list);
+void	*ft_llist_get(t_llist *list, int num);
+void	ft_llist_del_elem(t_llist *list, int num);
+void	ft_del_llist_elems(t_llist *list, int (*need_del)(void *));
+void	*ft_llist_cut_elem(t_llist *list, void *elem);
+*/
+
+
+void print(void *str, void *param)
+{
+	printf("%s\n", str);
+}
+
+int need_del(void *str)
+{
+
+		return (1);
+
+}
+
+void func_del(void *str, int type)
+{
+	free(str);
+}
+
+void ft_check()
+{
+	t_llist	*list;
+
+	list = ft_create_llist(&func_del);
+	ft_llist_add(list, (void *)ft_strdup("0"));
+	ft_llist_add(list, (void *)ft_strdup("1"));
+	ft_llist_add(list, (void *)ft_strdup("2"));
+	ft_llist_add(list, (void *)ft_strdup("3"));
+	ft_llist_add(list, (void *)ft_strdup("4"));
+	ft_llist_add(list, (void *)ft_strdup("5"));
+	ft_llist_add(list, (void *)ft_strdup("6"));
+	ft_llist_add(list, (void *)ft_strdup("7"));
+
+	//ft_for_each_llist(list, &print, NULL);
+	char *str;
+
+	while((str = ft_llist_get_next(list)))
+		printf("%s\n", (char *)str);
+	printf("\n");
+
+	/*int i = -3;
+	while (i < 10)
+	{
+		printf("%s\n", (char *)ft_llist_get(list, i));
+		i++;
+	}*/
+
+	//free(ft_llist_cut_elem(list, ft_llist_get(list, 7)));
+
+	ft_del_llist_elems(list, &need_del);
+
+	while((str = ft_llist_get_next(list)))
+		printf("%s\n", (char *)str);
+
+	ft_del_llist(&list);
+}
+
 
 
 int main(int ac, char **av)
 {
-	//ft_check();
-	//return (0);
 	/*double i = -2.0;
 	while( i < 3.0){
 		printf("%lf_%lf\n", i, ft_derivative_kernel_function2(0.5, i));

@@ -14,7 +14,7 @@
 
 #define ARR_REALLOC_COEF 1.5
 #define ARR_FIRST_COUNT 16
-#define NEXT_START -1
+#define NEXT_START 0
 
 void	ft_del_arr(t_arr **arr)
 {
@@ -57,6 +57,7 @@ t_arr	*ft_create_arr(int elem_size, int elems_count, void (*func_del)(void *))
 		arr->next = NEXT_START;
 		if (!(arr->elems = ft_memalloc(elem_size * elems_count)))
 			ft_del_arr(&arr);
+		arr->current = arr->elems - arr->elem_size;
 	}
 	return (arr);
 }
@@ -108,13 +109,16 @@ void	*ft_arr_get(t_arr *arr, int num)
 
 void	*ft_arr_get_next(t_arr *arr)
 {
-	if (!arr || arr->next < NEXT_START || arr->elems_used - 1 < arr->next)
+	(arr->next)++;
+	if (arr->next < arr->elems_used)
+		arr->current += arr->elem_size;
+	else
 	{
 		arr->next = NEXT_START;
+		arr->current = arr->elems - arr->elem_size;
 		return (NULL);
 	}
-	(arr->next)++;
-	return (arr->elems + arr->elem_size * arr->next);
+	return (arr->current);
 }
 
 void	ft_del_elem(t_arr *arr, int num)
@@ -122,7 +126,7 @@ void	ft_del_elem(t_arr *arr, int num)
 	void *dst;
 	void *src;
 
-	if (!arr || arr->elems_used == 0 || num < 0 || arr->elems_used - 1 < num)
+	if (!arr || arr->elems_used == 0 || num < 0 || num >= arr->elems_used)
 		return ;
 	(arr->elems_used)--;
 	dst = arr->elems + arr->elem_size * num;

@@ -12,23 +12,6 @@
 
 #include "ft_mod1.h"
 
-typedef struct		s_lnode
-{
-	void			*elem;
-	struct s_lnode	*next;
-	struct s_lnode	*prev;
-	int				info;
-}					t_lnode;
-
-typedef struct		s_llist
-{
-	struct s_lnode	start;
-	struct s_lnode	end;
-	struct s_lnode	*current;
-	int				count;
-	int				next;
-	void			(*func_del)(void *, int);
-}					t_llist;
 
 t_llist	*ft_create_llist(void (*func_del)(void *, int))
 {
@@ -41,6 +24,7 @@ t_llist	*ft_create_llist(void (*func_del)(void *, int))
 		list->start.prev = (&list->end);
 		list->end.next = (&list->start);
 		list->end.prev = (&list->start);
+		list->func_del = func_del;
 	}
 	return (list);
 }
@@ -127,16 +111,16 @@ void	*ft_llist_add(t_llist *list, void *elem)
 
 void	*ft_llist_get_next(t_llist *list)
 {
-	if (list->current != &(list->end))
-		list->current = list->current->next;
-	else if (list->current == NULL)
+	if (!list->current)
 		list->current = list->start.next;
+	else if (list->current->next != &(list->end))
+		list->current = list->current->next;
 	else
 	{
-		list->current = list->start.next;
+		list->current = NULL;
 		return (NULL);
 	}
-	return (list->current);
+	return (list->current->elem);
 }
 
 
@@ -147,7 +131,7 @@ void	*ft_lnode_get(t_llist *list, int num)
 
 	if (!list || num < 0 || num >= list->count)
 		return (NULL);
-	if (num < list->count >> 1)
+	if (num <= list->count >> 1)
 	{
 		node = list->start.next;
 		while (num > 0)
@@ -159,7 +143,7 @@ void	*ft_lnode_get(t_llist *list, int num)
 	else
 	{
 		node = list->end.prev;
-		while (num < list->count)
+		while (num < list->count - 1)
 		{
 			node = node->prev;
 			num++;
@@ -190,6 +174,29 @@ void	ft_llist_del_elem(t_llist *list, int num)
 }
 
 
+void	*ft_llist_cut_elem(t_llist *list, void *elem)
+{
+	t_lnode *node;
+	t_lnode *end;
+
+	if (!list->count)
+		return (NULL);
+	node = list->start.next;
+	end = &(list->end);
+	while (node != end)
+	{
+		if (node->elem == elem)
+		{
+			ft_cut_lnode(node);
+			free(node);
+			(list->count)--;
+			return (elem);
+		}
+		node = node->next;
+	}
+	return (NULL);
+}
+
 void	ft_del_llist_elems(t_llist *list, int (*need_del)(void *))
 {
 	t_lnode *node;
@@ -203,7 +210,7 @@ void	ft_del_llist_elems(t_llist *list, int (*need_del)(void *))
 		tmp = node->next;
 		if (need_del(node->elem))
 			ft_del_lnode(list, &node);
-		node = node->next;
+		node = tmp;
 	}
 }
 
