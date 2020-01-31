@@ -59,15 +59,6 @@ void	ft_fill_part(t_part *part, t_dpoint *p, int type)
 		part->pos.color = 0xFF0000;
 	else
 		part->pos.color = OBSTACLES_TOP_COLOR;
-	if (type == BLOB)
-	{
-		part->speed.y = -20.0;
-		type = WATER;
-	}
-	if (type == MAGMA)
-		type = WATER;
-	part->type = type;
-
 }
 
 void	ft_insert_part(t_part *part)

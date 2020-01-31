@@ -109,7 +109,7 @@ void	ft_check_and_add_parts_as_neighbors(void *param, t_part *p_i, t_part *p_j)
 
 	if (p_j->type == EMPTY)
 		return ;
-	tmp.h_ij = (p_i->h + p_j->h) / 2.0;
+	tmp.h_ij = (g_param[p_i->type][F_H] + g_param[p_j->type][F_H]) / 2.0;
 	ft_vekt_difference(&(p_i->pos.abs), &(p_j->pos.abs), &tmp.r_ij);
 	len = ft_vekt_norm(&tmp.r_ij);
 	tmp.w_ij = ft_kernel_function5(tmp.h_ij, len);
@@ -138,13 +138,19 @@ void	ft_calk_delta_density(void *neigh_j, void *part_i)
 	ft_vekt_difference(&(p_i->speed), &(n_j->part_j->speed), &d_speed);
 	tmp = ft_vekt_norm2(&d_speed, &(n_j->nabla_w_ij));
 
-	p_i->delta_density += n_j->part_j->mass * tmp;
+	p_i->delta_density += g_param[n_j->part_j->type][F_MASS] * tmp;
 }
 
 void	ft_recalk_pressure(t_part *part, void *param)
 {
 	//B https://ru.wikipedia.org/wiki/%D0%9E%D0%B1%D1%8A%D1%91%D0%BC%D0%BD%D1%8B%D0%B9_%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8C_%D1%83%D0%BF%D1%80%D1%83%D0%B3%D0%BE%D1%81%D1%82%D0%B8
-	part->press = 220000000.0 * (pow((part->density) / DENSITY_0, GAMMA) - 1.0);
+	part->press = g_param[part->type][F_PRESS] * (pow((part->density) / g_param[part->type][F_DENS], GAMMA) - 1.0);
+	/*if (part->press < 0.0)
+	{
+		part->press = 0.0;
+	}*/
+	//if (part->type == MAGMA)
+	//	part->press *= 20.0;
 }
 
 //тут надо бы пересчитать скорость звука и радиус сглаживания
@@ -173,7 +179,7 @@ REAL	ft_return_fake_viscosity2(t_part *p_i, t_neigh *n_j)
 	if (ft_vekt_norm2(&(n_j->r_ij), &(n_j->u_ij)) < 0.0)
 	{
 		press_ij = (p_i->press + n_j->part_j->press) / 2.0; //полусумма давлений
-		c_ij = (p_i->c + n_j->part_j->c) / 2.0; // полусумма скоростей звука частиц
+		c_ij = (g_param[p_i->type][F_C] + g_param[n_j->part_j->type][F_C]) / 2.0; // полусумма скоростей звука частиц
 		//printf("mu__%lf__\n", mu_ij);
 		viskosity = n_j->h_ij * n_j->mu_ij * (n_j->h_ij * n_j->mu_ij * CONST_B - CONST_A * c_ij) / press_ij;
 	}
@@ -206,7 +212,7 @@ void	ft_calk_delta_speed_if_needs(void *neigh_j, void *part_i)
 	/ (ft_vekt_norm2(&(n_j->r_ij), &(n_j->r_ij)) + CONST_E * CONST_E * n_j->h_ij * n_j->h_ij);
 
 	//вязкость
-	tmp = 4 * VISCOSITY * n_j->mu_ij / (p_i->density + n_j->part_j->density);
+	tmp = 4 * g_param[p_i->type][F_VIS] * n_j->mu_ij / (p_i->density + n_j->part_j->density);
 	if (p_i->press != 0.0 || n_j->part_j->press != 0.0)
 	{
 		tmp -= p_i->press / (p_i->density * p_i->density)
@@ -216,7 +222,7 @@ void	ft_calk_delta_speed_if_needs(void *neigh_j, void *part_i)
 	//	+ ft_return_fake_viscosity2(p_i, n_j);
 	}
 
-	ft_vekt_scalar_multiplication(&(n_j->nabla_w_ij), n_j->part_j->mass * tmp, &a_tmp);
+	ft_vekt_scalar_multiplication(&(n_j->nabla_w_ij), g_param[n_j->part_j->type][F_MASS] * tmp, &a_tmp);
 	ft_vekt_summ(&(p_i->a), &a_tmp, &(p_i->a));
 
 }
@@ -267,17 +273,11 @@ void	ft_recalk_curvature_if_needs(void *param, t_part *p_i, t_neigh *n_j)
 
 
 
-void	ft_refresh_max_speed(REAL speed, REAL speed_c)
-{
-	//if (speed > norm_speed)
-	//	norm_speed = speed;
-	if (speed_c * 10 > max_c)
-		max_c = speed_c * 10;
-}
 
 void	ft_new_speeds(void *p_i, void *param)
 {
 	t_part *part;
+	REAL tmp;
 
 	part = (t_part *)p_i;
 	if (part->type != OBSTACLES)
@@ -286,12 +286,10 @@ void	ft_new_speeds(void *p_i, void *param)
 		part->speed.y += (part->a.y + g.y - SIGMA * part->tension.k.y * part->tension.normal.y) * deltat;
 		part->speed.z += (part->a.z + g.z - SIGMA * part->tension.k.z * part->tension.normal.z) * deltat;
 
-		if (ft_vekt_norm(&(part->speed)) > part->c * 0.15)
-			ft_vekt_scalar_multiplication(&(part->speed), 0.1 * part->c / ft_vekt_norm(&(part->speed)), &(part->speed));
-			//ft_fill_dpoint(&(part->speed), 0.0, 0.0, 0.0);
-			//part->type = EMPTY;
+		tmp = ft_vekt_norm(&(part->speed));
+		if (tmp > 0.15 * g_param[part->type][F_C])
+			ft_vekt_scalar_multiplication(&(part->speed), 0.12 * g_param[part->type][F_C] / tmp, &(part->speed));
 
-		ft_refresh_max_speed(ft_vekt_norm(&(part->speed)), part->c);
 	}
 	ft_fill_dpoint(&(part->a), 0.0, 0.0, 0.0);
 
@@ -310,7 +308,7 @@ void	ft_calk_delta_coord_if_needs(void *neigh_j, void *part_i)
 	if ((p_i->press + n_j->part_j->press) == 0.0)
 		return ;
 	//tmp = n_j->part_j->mass * 2.0 / (p_i->press + n_j->part_j->press) * n_j->w_ij;
-	tmp = n_j->part_j->mass * 2.0 / (p_i->density + n_j->part_j->density) * n_j->w_ij;
+	tmp = g_param[n_j->part_j->type][F_MASS] * 2.0 / (p_i->density + n_j->part_j->density) * n_j->w_ij;
 	ft_vekt_difference(&(p_i->speed), &(n_j->part_j->speed), &d_speed);
 	ft_vekt_scalar_multiplication(&d_speed, tmp, &d_speed);
 	ft_vekt_summ(&(p_i->delta_pos), &d_speed, &(p_i->delta_pos));
@@ -356,13 +354,13 @@ void	ft_cheek_new_pos(t_part *part)
 
 void	ft_change_coordinates2(t_part *part, void *param)
 {
-	if (part->type == WATER)
-	{
+	//if (part->type == WATER)
+	//{
 		part->pos.abs.x += (part->speed.x + CONST_EP * part->delta_pos.x) * deltat;
 		part->pos.abs.y += (part->speed.y + CONST_EP * part->delta_pos.y) * deltat;
 		part->pos.abs.z += (part->speed.z + CONST_EP * part->delta_pos.z) * deltat;
 		ft_cheek_new_pos(part);
-	}
+	//}
 
 	ft_fill_dpoint(&(part->delta_pos), 0.0, 0.0, 0.0);
 }
@@ -453,15 +451,15 @@ int		ft_is_part_of_surface(t_part ****parts, int j, int i, int k)
 
 void	ft_new_delta_density(void *p_i, void *param)
 {
-	if (((t_part *)p_i)->type != WATER)
-		return ;
+	//if (((t_part *)p_i)->type != WATER)
+	//	return ;
 	ft_for_each_elem(((t_part *)p_i)->neigh, &ft_calk_delta_density, p_i);
 }
 
 void	ft_new_delta_speeds(void *p_i, void *param)
 {
-	if (((t_part *)p_i)->type != WATER)
-		return ;
+	//if (((t_part *)p_i)->type != WATER)
+	//	return ;
 	ft_for_each_elem(((t_part *)p_i)->neigh, &ft_calk_delta_speed_if_needs, p_i);
 	//ft_new_speeds(p_i, param);
 }
@@ -509,8 +507,8 @@ void	ft_new_curvature_of_surface(void *param, int j, int i, int k)
 
 void	ft_new_delta_coordinates(void *p_i, void *param)
 {
-	if (((t_part *)p_i)->type != WATER)
-		return ;
+	//if (((t_part *)p_i)->type != WATER)
+	//	return ;
 	ft_for_each_elem(((t_part *)p_i)->neigh, &ft_calk_delta_coord_if_needs, p_i);
 	ft_new_coordinates(p_i, param);
 	if (ft_part_change_cell(p_i))
@@ -557,8 +555,8 @@ void	ft_new_coordinates(void *p_i, void *param)
 
 	t_part *part;
 
-	if (((t_part *)p_i)->type != WATER)
-		return ;
+	//if (((t_part *)p_i)->type != WATER)
+	//	return ;
 	part = p_i;
 	part->pos.abs.x += (part->speed.x + CONST_EP * part->delta_pos.x) * deltat;
 	part->pos.abs.y += (part->speed.y + CONST_EP * part->delta_pos.y) * deltat;
@@ -645,16 +643,20 @@ void	ft_first_density(void *n_j, void *p_i)
 	//if (((t_part *)p_i)->type != WATER)
 	//	return ;
 
-	((t_part *)p_i)->density += ((t_neigh *)n_j)->part_j->mass * ((t_neigh *)n_j)->w_ij;
+	((t_part *)p_i)->density += g_param[((t_neigh *)n_j)->part_j->type][F_MASS] * ((t_neigh *)n_j)->w_ij;
 }
 
 void	ft_init_density2(void *p_i, void *param)
 {
 	//t_part *part;
 	//part = (t_part *)p_i;
-	if (((t_part *)p_i)->type == EMPTY)
+	int type;
+
+	type = ((t_part *)p_i)->type;
+	if (type == EMPTY)
 		return ;
-	((t_part *)p_i)->density = ((t_part *)p_i)->mass;
+	((t_part *)p_i)->density = g_param[type][F_MASS];
+
 	ft_for_each_elem(((t_part *)p_i)->neigh, &ft_first_density, p_i);
 }
 
@@ -692,8 +694,8 @@ void	ft_solve_and_move_parts(void)
 
 	//printf("таймер %ld\n", clock() - g_clock2);
 
-
-	deltat = 10 * ft_time_control(max_c, norm_speed, PART_H);
+	//printf("___%lf\n", max_c);
+	deltat = 10 * ft_time_control(SPEED_OF_SOUND_C, norm_speed, PART_H);
 
 	//считаем изменение плотности
 	ft_for_each_ptr(g_parts, &ft_init_density2, NULL);
@@ -741,22 +743,19 @@ void	ft_fill_param_of_part(t_part *part, void *param)
 
 	//PART_H
 	//ft_putstr("1\n");
-	part->h = PART_H * 1.010000;//1.2 * pow(PART_MASS_0 / DENSITY_0, 1.0 / 3.0);
-	part->mass = PART_MASS_0 * 1.0;
+	//part->h = PART_H * 1.010000;//1.2 * pow(PART_MASS_0 / DENSITY_0, 1.0 / 3.0);
+	//part->mass = PART_MASS_0 * 1.0;
 	//part->h = 1.3 * pow(part->mass / DENSITY_0, 1.0 / 3.0);
-	part->c = SPEED_OF_SOUND_C;
+	//part->c = g_param[part->type][F_C];
 
-	part->press_0 = 0.0;
-	part->density = part->mass;
-	part->speed.x = 0;
+	//part->density = part->mass;
+	part->speed.y = g_param[part->type][F_Y_SPEED];
 	//if (part->type == BLOB)
 	//	part->h = PART_H * 0.90000;
 	/*
 	else
 		part->density = DENSITY_0 * 1.00;*/
 }
-
-
 
 
 

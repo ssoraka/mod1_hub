@@ -157,11 +157,7 @@ typedef struct		s_part
 	int				type;
 	REAL			density;
 	REAL			delta_density;
-	REAL			press_0;
 	REAL			press;
-	REAL			mass;
-	REAL			h;
-	REAL			c;
 	struct s_point	jik;
 	struct s_dpoint	a;
 	struct s_dpoint	speed;
@@ -174,6 +170,21 @@ typedef struct		s_part
 	struct s_part	*prev;
 }					t_part;
 
+typedef struct		s_cell
+{
+	int				obctacle;
+	struct s_arr	*neigh;
+}					t_cell;
+
+typedef struct		s_param
+{
+	REAL			h;
+	REAL			c;
+	REAL			mass;
+	REAL			press_0;
+	REAL			density_0;
+	REAL			viskosity;
+}					t_param;
 
 typedef struct		s_vis
 {

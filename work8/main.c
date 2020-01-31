@@ -12,6 +12,17 @@
 
 #include "ft_mod1.h"
 
+
+REAL	g_param[FLUIDS][COLUMN_COUNT] =
+{
+	{FLUID, F_H, F_C, F_MASS, F_PRESS, F_DENS, F_VIS, F_Y_SPEED},
+	{WATER, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0.0, 0.0},
+	{MAGMA, PART_H, 120.0, PART_MASS_0 * 10.0, 2200000000.0, 10000.0, 0.0, 0.0},
+	{BLOB, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0.0, -20.0},
+};
+
+
+
 int ft_znak(int num)
 {
 	int znak;
@@ -343,7 +354,7 @@ int loop_hook(void *param)
 
 		if (vis->rain)
 		{
-			ft_create_new_area_of_water(&g_parts, &((t_point){26, 17, 17}), &((t_point){32, 24, 24}), MAGMA);
+			ft_create_new_area_of_water(&g_parts, &((t_point){JMAX - 10, IMAX / 2 - 2, KMAX / 2 - 2}), &((t_point){JMAX - 2, IMAX / 2 + 2, KMAX / 2 + 2}), MAGMA);
 			vis->rain = !vis->rain;
 		}
 		// if (vis->rain)// && !parts[34][20][20])
@@ -449,8 +460,8 @@ void	ft_create_stable_level_of_water(void *param, int j, int i, int k)
 	&& ((i < 15))
 	&& k > TEST_WATER_WALL + K0 +10 && k < TEST_WATER_WALL + 30)
 		map[j][i][k] = BLOB;*/
-	//else
-	//	map[j][i][k] = EMPTY;
+	else
+		map[j][i][k] = EMPTY;
 	//else if (map[j][i][k] == OBSTACLES || j == 1)
 
 
@@ -637,7 +648,9 @@ int main(int ac, char **av)
 
 
 	//
-	ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){20, 15, 38}), WATER);
+	ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){25, 10, 38}), WATER);
+	ft_create_new_area_of_water(&g_parts, &((t_point){2, 29, 2}), &((t_point){25, 38, 38}), WATER);
+	//ft_create_new_area_of_water(&g_parts, &((t_point){I0, I0, I0}), &((t_point){10, IMAX, IMAX}), WATER);
 	//
 
 	//while (1)

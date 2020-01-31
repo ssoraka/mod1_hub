@@ -66,13 +66,8 @@
 #define DELTA_Y DELTA
 #define DELTA_Z DELTA
 
-#define SURF '~'
 #define EMPTY ' '
-#define WATER '1'
-#define MAGMA 'M'
-#define BLOB 'b'
 #define OBSTACLES '#'
-#define BOUNDARY '\0'
 #define PARTS_COUNT 1
 #define TEST_WATER_LEVEL (0)
 #define TEST_WATER_WALL 0
@@ -109,7 +104,7 @@
 #define PRESS_0 (200 * DENSITY_0 * FG * 3.0 * DELTA / GAMMA)
 //#define PRESS_0 (2200000000)
 //скорость звука в среде
-#define SPEED_OF_SOUND_C 120.0
+#define SPEED_OF_SOUND_C 1200.0
 //Постоянна Куранта для расчета времени 0-1 для расчета промежутка времени
 #define CONST_CUR 0.5
 //для итерирования по окружению
@@ -172,6 +167,35 @@ long g_clock2;
 long g_tmp;
 
 t_vis *vis;
+
+
+
+typedef enum	e_fluids
+{
+	//EMPTY = 0,
+	WATER = 1,
+	MAGMA,
+	BLOB,
+	FLUIDS
+}				t_fluids;
+
+typedef enum	e_column
+{
+	FLUID = 0,
+	F_H,
+	F_C,
+	F_MASS,
+	F_PRESS,
+	F_DENS,
+	F_VIS,
+	F_Y_SPEED,
+	COLUMN_COUNT
+}				t_column;
+
+
+
+
+REAL	g_param[FLUIDS][COLUMN_COUNT];
 
 /*
 **	main.c
