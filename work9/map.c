@@ -139,7 +139,7 @@ void	ft_superposition(void *param, int j, int i, int k)
 	{
 		dist = ft_power(map->p[num].x - map->first.x - map->delta * i, 2)
 		+ ft_power(map->p[num].y - map->first.y - map->delta * k, 2);
-		sigma = map->delta * map->delta * IMAX;
+		sigma = map->delta * map->delta * (IMAX);
 		all_dist += 1.0 / (1.0 + dist);
 		e += exp2(-dist / (sigma * 2.0)) * map->p[num].z / (1.0 + dist);
 		num++;
@@ -154,8 +154,8 @@ void	ft_fill_map_arr(t_map *map)
 	t_point start;
 	t_point end;
 
-	ft_fill_point(&start, 0, 0, 0);
-	ft_fill_point(&end, 0, IMAX -1, KMAX - 1);
+	ft_fill_point(&start, 0, I0, K0);
+	ft_fill_point(&end, 0, IMAX, KMAX);
 	ft_cycle_cube((void *)map, &ft_superposition, &start, &end);
 }
 
