@@ -47,14 +47,7 @@ void	ft_fill_part(t_part *part, t_dpoint *p, int type)
 	ft_fill_dpoint(&(part->pos.abs), p->y, p->x, p->z);
 	part->type = type;
 	ft_fill_param_of_part(part, NULL);
-	if (type == WATER)
-		part->pos.color = WATER_COLOR;
-	else if (type == BLOB)
-		part->pos.color = 0xFFFFFF;
-	else if (type == MAGMA)
-		part->pos.color = 0xFF0000;
-	else
-		part->pos.color = OBSTACLES_TOP_COLOR;
+	part->pos.color = g_color[type][COLOR];
 }
 
 

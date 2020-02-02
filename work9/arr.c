@@ -136,7 +136,7 @@ void	ft_del_elem(t_arr *arr, int num)
 	ft_memcpy(dst, src, arr->elem_size);
 }
 
-void	ft_del_elems_if(t_arr *arr, int (*need_del)(void *))
+void	ft_del_elems_if(t_arr *arr, int (*need_del)(void *, void *), void *param)
 {
 	int i;
 	void *elem;
@@ -145,7 +145,7 @@ void	ft_del_elems_if(t_arr *arr, int (*need_del)(void *))
 	elem = ft_arr_get(arr, i);
 	while (i >= 0)
 	{
-		if (need_del(elem))
+		if (need_del(elem, param))
 			ft_del_elem(arr, i);
 		elem -= arr->elem_size;
 		i--;
@@ -163,8 +163,7 @@ void	ft_for_each_elem(t_arr *arr, void (*func)(void *, void *), void *param)
 	i = 0;
 	while (i < arr->elems_used)
 	{
-		if (elem)
-			func(elem, param);
+		func(elem, param);
 		elem += arr->elem_size;
 		i++;
 	}

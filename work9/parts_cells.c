@@ -83,20 +83,20 @@ void	ft_come_back_part3(t_part *part, t_cell *cell)
 }
 
 
-int		ft_cant_add_part_in_cell(void *p_i)
+int		ft_cant_add_part_in_cell(void *p_i, void *g_cell)
 {
 	t_cell *cell;
 	t_part *part;
 
 	part = *((t_part **)p_i);
-	cell = ft_get_cell_by_part(part, g_cell);
+	cell = ft_get_cell_by_part(part, (t_cell *)g_cell);
 
 	if (part->type != OBSTCL)
 	{
 		if (cell && cell->obstacle)
 		{
-			ft_come_back_part3(part, g_cell);
-			cell = ft_get_cell_by_part(part, g_cell);
+			ft_come_back_part3(part, (t_cell *)g_cell);
+			cell = ft_get_cell_by_part(part, (t_cell *)g_cell);
 		}
 		if (!cell)
 			part->type = EMPTY;

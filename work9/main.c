@@ -17,9 +17,22 @@ REAL	g_param[FLUIDS][COLUMN_COUNT] =
 {
 	{FLUID, F_H, F_C, F_MASS, F_PRESS, F_DENS, F_VIS, F_Y_SPEED},
 	{WATER, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0000.0, 00.0},
-	{MAGMA, PART_H, 120.0, PART_MASS_0 * 10.0, 2200000000.0, 10000.0, 000.0, 0.0},
+	{WATER2, PART_H, 120.0, PART_MASS_0 * 0.50, 22000.0, 500.0, 0000.0, 00.0},
+	{MAGMA, PART_H, 120.0, PART_MASS_0 * 10.0, 2200000000.0, 10000.0, 500.0, 0.0},
+	{MAGMA2, PART_H, 120.0, PART_MASS_0 * 10.0, 2200000000.0, 10000.0, 2000.0, 0.0},
 	{BLOB, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0.0, -20.0},
 	{OBSTCL, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0000.0, 00.0},
+};
+
+int	g_color[FLUIDS][COLUMN_COUNT2] =
+{
+	{FLUID, COLOR, RADIUS2},
+	{WATER, WATER_COLOR, 3},
+	{WATER2, 0xFFFFFF, 3},
+	{MAGMA, 0xFF0000, 5},
+	{MAGMA2, OBSTACLES_TOP_COLOR, 5},
+	{BLOB, 0xFFFFFF, 3},
+	{OBSTCL, OBSTACLES_TOP_COLOR, 5},
 };
 
 
@@ -189,11 +202,8 @@ void	ft_print_all_water2(void *ptr, void *param)
 	vis = (t_vis *)param;
 	part = (t_part *)ptr;
 
-	int rad = RADIUS;
 	ft_change_points4(vis, &(part->pos), TRUE);
-	if (part->type == OBSTACLES || part->type == MAGMA)
-		rad *= 2;
-	ft_print_rect2(&(vis->pic), &(part->pos.zoom), rad, part->pos.color);
+	ft_print_rect2(&(vis->pic), &(part->pos.zoom), g_color[part->type][RADIUS2], g_color[part->type][COLOR]);
 }
 
 
@@ -488,7 +498,7 @@ int main(int ac, char **av)
 	//
 
 	ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){25, 10, 38}), WATER);
-	//ft_create_new_area_of_water(&g_parts, &((t_point){2, 29, 2}), &((t_point){25, 38, 38}), MAGMA);
+	ft_create_new_area_of_water(&g_parts, &((t_point){2, 29, 2}), &((t_point){15, 38, 38}), MAGMA);
 	//ft_create_new_area_of_water(&g_parts, &((t_point){I0, I0, I0}), &((t_point){10, IMAX, IMAX}), WATER);
 	//
 	vis->pause = 1;

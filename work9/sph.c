@@ -117,6 +117,12 @@ void	ft_try_add_part_as_neighbor(void *part_j, void *part_i)
 	tmp.w_ij = ft_kernel_function5(tmp.h_ij, len);
 	if (tmp.w_ij > 0.0)
 	{
+		#ifdef CHANGE_FLUIDS
+		if (p_i->type == MAGMA && p_j->type == WATER)
+			p_i->type = MAGMA2;
+	//	else if (p_i->type == WATER && p_j->type == MAGMA2)
+	//		p_i->type = WATER2;
+		#endif
 		ft_vekt_scalar_multiplication(&tmp.r_ij, (ft_derivative_kernel_function2(tmp.h_ij, len) / len), &(tmp.nabla_w_ij));
 		tmp.part_j = p_j;
 		if (!ft_arr_add(&(p_i->neigh), (void *)&tmp))
@@ -125,27 +131,6 @@ void	ft_try_add_part_as_neighbor(void *part_j, void *part_i)
 }
 
 
-
-void	ft_check_and_add_parts_as_neighbors(void *param, t_part *p_i, t_part *p_j)
-{
-	t_neigh		tmp;
-	//t_dpoint	r;
-	REAL		len;
-
-	if (p_j->type == EMPTY)
-		return ;
-	tmp.h_ij = (g_param[p_i->type][F_H] + g_param[p_j->type][F_H]) / 2.0;
-	ft_vekt_difference(&(p_i->pos.abs), &(p_j->pos.abs), &tmp.r_ij);
-	len = ft_vekt_norm(&tmp.r_ij);
-	tmp.w_ij = ft_kernel_function5(tmp.h_ij, len);
-	if (tmp.w_ij > 0.0)
-	{
-		ft_vekt_scalar_multiplication(&tmp.r_ij, (ft_derivative_kernel_function2(tmp.h_ij, len) / len), &(tmp.nabla_w_ij));
-		tmp.part_j = p_j;
-		if (!ft_arr_add(&(p_i->neigh), (void *)&tmp))
-			ft_del_all_print_error("need more memory");
-	}
-}
 
 /*
 **	формула для плотности каждой частицы p = p + dp/dt
@@ -171,9 +156,7 @@ void	ft_recalk_pressure(t_part *part, void *param)
 	//B https://ru.wikipedia.org/wiki/%D0%9E%D0%B1%D1%8A%D1%91%D0%BC%D0%BD%D1%8B%D0%B9_%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8C_%D1%83%D0%BF%D1%80%D1%83%D0%B3%D0%BE%D1%81%D1%82%D0%B8
 	part->press = g_param[part->type][F_PRESS] * (pow((part->density) / g_param[part->type][F_DENS], GAMMA) - 1.0);
 	if (part->press < 0.0)
-	{
 		part->press = 0.0;
-	}
 	//if (part->type == MAGMA)
 	//	part->press *= 20.0;
 }
@@ -305,7 +288,7 @@ void	ft_new_speeds(void *p_i, void *param)
 	REAL tmp;
 
 	part = (t_part *)p_i;
-	if (part->type != OBSTACLES)
+	if (part->type != OBSTCL)
 	{
 		part->speed.x += (part->a.x + g.x - SIGMA * part->tension.k.x * part->tension.normal.x) * deltat;
 		part->speed.y += (part->a.y + g.y - SIGMA * part->tension.k.y * part->tension.normal.y) * deltat;
@@ -316,6 +299,8 @@ void	ft_new_speeds(void *p_i, void *param)
 			ft_vekt_scalar_multiplication(&(part->speed), 0.12 * g_param[part->type][F_C] / tmp, &(part->speed));
 
 	}
+	else
+		ft_fill_dpoint(&(part->speed), 0.0, 0.0, 0.0);
 	ft_fill_dpoint(&(part->a), 0.0, 0.0, 0.0);
 
 }
@@ -452,8 +437,8 @@ void	ft_new_delta_density(void *p_i, void *param)
 
 void	ft_new_delta_speeds(void *p_i, void *param)
 {
-	//if (((t_part *)p_i)->type != WATER)
-	//	return ;
+	if (((t_part *)p_i)->type == OBSTCL)
+		return ;
 	ft_for_each_elem(((t_part *)p_i)->neigh, &ft_calk_delta_speed_if_needs, p_i);
 	//ft_new_speeds(p_i, param);
 }
@@ -501,8 +486,8 @@ void	ft_new_curvature_of_surface(void *param, int j, int i, int k)
 
 void	ft_new_delta_coordinates(void *p_i, void *param)
 {
-	//if (((t_part *)p_i)->type != WATER)
-	//	return ;
+	if (((t_part *)p_i)->type == OBSTCL)
+		return ;
 	ft_for_each_elem(((t_part *)p_i)->neigh, &ft_calk_delta_coord_if_needs, p_i);
 	ft_new_coordinates(p_i, param);
 }
@@ -557,42 +542,24 @@ void	ft_init_density2(void *p_i, void *param)
 	ft_for_each_elem(((t_part *)p_i)->neigh, &ft_first_density, p_i);
 }
 
+
+
+
 /*
 **	типовой расчет частиц
 */
 
 void	ft_solve_and_move_parts(void)
 {
-	t_point start;
-	t_point end;
-
-
-	//max_c = max_c * 0.1;
-
-	//printf("%lf\n", deltat);
-
-	ft_fill_point(&start, J0, I0, K0);
-	ft_fill_point(&end, JMAX, IMAX, KMAX);
-
-	//ft_create_blob(2, IMAX / 2, KMAX / 2);
-	/*int i = 0;
-	while (i < IMAX)
-	{
-		ft_create_blob(JMAX / 2, i, KMAX / 2);
-		i++;
-	}*/
-
-
 	//надо допилить эту функцию
 	g_clock2 = clock();
 
-	//ft_cycle_cube((void *)parts, &ft_new_neighbors, &start, &end);
 	//////
 	//ft_for_each_ptr2(g_parts, &ft_new_neighbors2,(void *)parts);
 	//////
 
 	ft_clear_cells(g_cell);
-	ft_del_elems_if(g_parts, &ft_cant_add_part_in_cell);
+	ft_del_elems_if(g_parts, &ft_cant_add_part_in_cell, (void *)g_cell);
 	ft_for_each_ptr2(g_parts, &ft_new_neighbors3, NULL);
 	//printf("таймер %ld\n", clock() - g_clock2);
 

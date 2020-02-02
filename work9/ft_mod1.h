@@ -13,6 +13,10 @@
 #ifndef FT_MOD1_H
 # define FT_MOD1_H
 
+// в файле cells.c
+#define EMPTY_MAP
+#define CHANGE_FLUIDS
+
 #include "libft.h"
 #include <math.h>
 #include <stdlib.h>
@@ -53,9 +57,9 @@
 #define COLOR_UP 0xFFFFFF
 #define COLOR_DOWN 0x704214
 //#define MAX_POINT 50
-#define IMAX 30
-#define JMAX 30
-#define KMAX 30
+#define IMAX 40
+#define JMAX 40
+#define KMAX 40
 #define I0 1
 #define J0 1
 #define K0 1
@@ -169,16 +173,24 @@ long g_tmp;
 t_vis *vis;
 
 
-
 typedef enum	e_fluids
 {
 	//EMPTY = 0,
 	WATER = 1,
+	WATER2,
 	MAGMA,
+	MAGMA2,
 	BLOB,
 	OBSTCL,
 	FLUIDS
 }				t_fluids;
+
+typedef enum	e_print
+{
+	COLOR = 1,
+	RADIUS2,
+	COLUMN_COUNT2
+}				t_print;
 
 typedef enum	e_column
 {
@@ -195,8 +207,9 @@ typedef enum	e_column
 
 
 
-
+int		g_color[FLUIDS][COLUMN_COUNT2];
 REAL	g_param[FLUIDS][COLUMN_COUNT];
+
 
 /*
 **	main.c
@@ -379,7 +392,7 @@ t_arr	*ft_realloc_arr(t_arr **arr);
 void	*ft_arr_add(t_arr **arr, void *elem);
 void	*ft_arr_get(t_arr *arr, int num);
 void	ft_del_elem(t_arr *arr, int num);
-void	ft_del_elems_if(t_arr *arr, int (*need_del)(void *));
+void	ft_del_elems_if(t_arr *arr, int (*need_del)(void *, void *), void *param);
 void	ft_for_each_ptr(t_arr *arr, void (*func)(void *, void *), void *param);
 void	ft_for_each_elem(t_arr *arr, void (*func)(void *, void *), void *param);
 void	*ft_arr_get_next(t_arr *arr);
@@ -415,7 +428,7 @@ void	ft_clear_cells(t_cell *cells);
 t_cell	*ft_get_cell_by_part(t_part *part, t_cell *cell);
 void	ft_set_part_to_cell(t_part *part, t_cell *cell);
 void	ft_come_back_part3(t_part *part, t_cell *cell);
-int		ft_cant_add_part_in_cell(void *p_i);
+int		ft_cant_add_part_in_cell(void *p_i, void *g_cell);
 void	ft_find_neighbors(void *p_i, int j, int i, int k);
 void	ft_new_neighbors3(void *p_i, void *param);
 

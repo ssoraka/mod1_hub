@@ -60,8 +60,10 @@ int		ft_is_cell_obstacle(int **ground, int cell_number)
 	//	return (TRUE);
 	//хотел исправить ground[k - 1][i - 1] на ground[k][i],
 	//но надо модуль map.c переписать
+	#ifdef EMPTY_MAP
 	if (j <= (ground[k - 1][i - 1] * JMAX * MAP_KOEF) / MAP_HEIGTH2 + 1)
 		return (TRUE);
+	#endif
 	return (FALSE);
 }
 
