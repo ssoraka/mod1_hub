@@ -10,15 +10,19 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-__kernel void test(__global int* message)
+typedef struct		s_cell
+{
+	int				obstacle;
+	int				index[27];
+}					t_cell;
+
+__kernel void test(__global t_cell *message)
 {
 	// получаем текущий id.
 	int gid = get_global_id(0);
 
-	printf("%d_%d_%d\n", get_local_id(0), message[gid], message[gid + 1]);
-
-	if (gid != 0)
-		message[gid] += gid;
-	printf("%d_%d_%d\n", get_local_id(0), message[gid], message[gid + 1]);
+	//if (gid != 0)
+	//	message[gid].obstacle += gid;
+	printf("%d_%d\n", get_local_id(0), message[gid].obstacle);
 
 }

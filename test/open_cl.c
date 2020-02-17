@@ -93,7 +93,7 @@ int		ft_read_and_build_programs(t_open_cl *cl)
 	i = 0;
 	while (i < PROGRAMS_COUNT)
 	{
-		if (!is_read_programm((char *)buffer, g_names[i]))
+		if (!is_read_programm((char *)buffer, g_compile[i].file))
 			return (FALSE);
 		lengths[0] = ft_strlen(buffer);
 		arr[0] = (char *)&buffer;
@@ -102,7 +102,7 @@ int		ft_read_and_build_programs(t_open_cl *cl)
 			return (FALSE);
 		if (clBuildProgram(cl->program[i], cl->num_devices, &cl->device, NULL, NULL, NULL) != CL_SUCCESS)
 			return (FALSE);
-		cl->kernel[i] = clCreateKernel(cl->program[i], g_kernel[i], &cl->errcode_ret);
+		cl->kernel[i] = clCreateKernel(cl->program[i], g_compile[i].kernel, &cl->errcode_ret);
 		if (cl->errcode_ret != CL_SUCCESS)
 			return (FALSE);
 		i++;
@@ -113,7 +113,7 @@ int		ft_read_and_build_programs(t_open_cl *cl)
 
 int		ft_read_buffers(t_open_cl *cl, int num, void *dest, size_t size)
 {
-	if (clEnqueueReadBuffer(cl->queue, cl->buffer[num], CL_FALSE, 0, size, dest
+	if (clEnqueueReadBuffer(cl->queue, cl->buffer[num], CL_TRUE, 0, size, dest
 	, 0, NULL, NULL) != CL_SUCCESS)
 		return (FALSE);
 	return (TRUE);
@@ -134,10 +134,22 @@ int		ft_create_buffers(t_open_cl *cl, int num, void *src, size_t size)
 
 int		ft_set_kernel_arg(t_open_cl *cl)
 {
-	if (clSetKernelArg(cl->kernel[0], 0, sizeof(cl_mem), (void *)&(cl->buffer[PARTS])) != CL_SUCCESS)
-		return (FALSE);
-	if (clSetKernelArg(cl->kernel[1], 0, sizeof(cl_mem), (void *)&(cl->buffer[CELLS])) != CL_SUCCESS)
-		return (FALSE);
+	int i;
+
+	i = 0;
+	while (i < PROGRAMS_COUNT)
+	{
+		if (g_compile[i].arg_count > 0)
+			if (clSetKernelArg(cl->kernel[i], 0, sizeof(cl_mem), (void *)&(cl->buffer[g_compile[i].arg_1])) != CL_SUCCESS)
+				return (FALSE);
+		if (g_compile[i].arg_count > 1)
+			if (clSetKernelArg(cl->kernel[i], 0, sizeof(cl_mem), (void *)&(cl->buffer[g_compile[i].arg_2])) != CL_SUCCESS)
+				return (FALSE);
+		if (g_compile[i].arg_count > 2)
+			if (clSetKernelArg(cl->kernel[i], 0, sizeof(cl_mem), (void *)&(cl->buffer[g_compile[i].arg_3])) != CL_SUCCESS)
+				return (FALSE);
+		i++;
+	}
 	return (TRUE);
 }
 
@@ -147,14 +159,10 @@ int		ft_run_kernels(t_open_cl *cl)
 	int i;
 	size_t global_work_size[1];
 
-	global_work_size[0] = 0;
 	i = 0;
 	while (i < PROGRAMS_COUNT)
 	{
-		if (i == CELLS)
-			global_work_size[0] = CELL_COUNT;
-		if (i == PARTS)
-			global_work_size[0] = PART_COUNT;
+		global_work_size[0] = g_compile[i].global_work_size;
 		if (clEnqueueNDRangeKernel(cl->queue, cl->kernel[i], 1, NULL,
 		global_work_size, NULL, 0, NULL, NULL) != CL_SUCCESS)
 			return (FALSE);
@@ -188,5 +196,5 @@ void	ft_free_open_cl(t_open_cl **open_cl)
 		clReleaseKernel(cl->kernel[i++]);
 	if (cl->context)
 		clRetainContext(cl->context);
-	ft_memdel((void **)&cl);
+	ft_memdel((void **)open_cl);
 }

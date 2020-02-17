@@ -10,15 +10,27 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-__kernel void test(__global int* message)
+
+
+__kernel void up_part_in_cell(__global t_cell* cell)
 {
-	// получаем текущий id.
-	int gid = get_global_id(0);
+	int cell_gid;
+	int i;
+	int last;
 
-	printf("%d_%d_%d\n", get_local_id(0), message[gid], message[gid + 1]);
-
-	if (gid != 0)
-		message[gid] += gid;
-	printf("%d_%d_%d\n", get_local_id(0), message[gid], message[gid + 1]);
-
+	cell_gid = get_global_id(0);
+	if (cell[cell_id].obstacle)
+		return;
+	last = 0;
+	i = 0;
+	while (i < 27)
+	{
+		if (cell[cell_gid].arr[i] != -1)
+		{
+			cell[cell_gid].arr[last] = cell[cell_gid].arr[i];
+			last++;
+			cell[cell_gid].arr[i] = -1;
+		}
+		i++;
+	}
 }

@@ -127,5 +127,15 @@ typedef struct		s_vis
 	struct s_line	*lines;
 }					t_vis;
 
+typedef struct		s_prog
+{
+  char				file[50];
+  char				kernel[50];
+  unsigned int		arg_count;
+  unsigned int		arg_1;
+  unsigned int		arg_2;
+  unsigned int		arg_3;
+  unsigned int		global_work_size;
+}					t_prog;
 
 #endif

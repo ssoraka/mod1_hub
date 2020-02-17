@@ -17,7 +17,7 @@
 #define EMPTY_MAP
 #define CHANGE_FLUIDS1
 
-#define PROGRAMS_COUNT 2
+#define PROGRAMS_COUNT 1
 #define PART_COUNT 10
 
 #include "libft.h"
@@ -211,9 +211,11 @@ typedef enum	e_column
 
 
 
-char *g_names[PROGRAMS_COUNT];
+char *g_names[PROGRAMS_COUNT + 10];
 
-char *g_kernel[PROGRAMS_COUNT];
+char *g_kernel[PROGRAMS_COUNT + 10];
+
+t_prog    g_compile[PROGRAMS_COUNT + 10];
 
 #define PROGRAMM_SIZE 5000
 
