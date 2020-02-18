@@ -17,8 +17,9 @@
 
 typedef enum	e_buff
 {
-	PARTS,
-	CELLS,
+	PARTS, //буффер для частиц
+	CELLS, //буффер для клеток пространства
+	INTERFACE, //буфер для ответа с положением частиц
 	BUFFER_COUNT
 }				t_buff;
 

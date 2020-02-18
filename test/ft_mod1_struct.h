@@ -16,22 +16,7 @@
 # define MAX_POINT 50
 # define MAX_NEIGHBORS1 50
 
-typedef double REAL;
-
-
-typedef struct		s_point
-{
-	int y;
-	int x;
-	int z;
-}					t_point;
-
-typedef struct		s_dpoint
-{
-	REAL y;
-	REAL x;
-	REAL z;
-}					t_dpoint;
+#include "ft_mod1.h"
 
 typedef struct		s_map
 {
@@ -93,18 +78,6 @@ typedef struct		s_oxyz
 }					t_oxyz;
 
 
-typedef struct		s_arr
-{
-	void			*elems;
-	void			*current;
-	int				next;
-	int				elems_count;
-	int				elems_used;
-	int				elem_size;
-	void			(*func_del)(void *);
-}					t_arr;
-
-
 typedef struct		s_vis
 {
 	int				cam_x;
@@ -129,13 +102,13 @@ typedef struct		s_vis
 
 typedef struct		s_prog
 {
-  char				file[50];
-  char				kernel[50];
-  unsigned int		arg_count;
-  unsigned int		arg_1;
-  unsigned int		arg_2;
-  unsigned int		arg_3;
-  unsigned int		global_work_size;
+	char				file[50];
+	char				kernel[50];
+	unsigned int		arg_count;
+	unsigned int		arg_1;
+	unsigned int		arg_2;
+	unsigned int		arg_3;
+	unsigned int		global_work_size;
 }					t_prog;
 
 #endif

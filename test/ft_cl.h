@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_mod1_struct.h                                   :+:      :+:    :+:   */
+/*   ft_cl.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ssoraka <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,14 +10,32 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FT_PARTICLE_STRUCT_H
-# define FT_PARTICLE_STRUCT_H
+#ifndef FT_CL_H
+# define FT_CL_H
 
-# define MAX_NEIGHBORS 32
-
-#include "ft_mod1.h"
+#define IMAX 40
+#define JMAX 40
+#define KMAX 40
+#define I0 1
+#define J0 1
+#define K0 1
+#define CELL_COUNT (KMAX + 2) * (JMAX + 2) * (IMAX + 2)
 
 typedef double REAL;
+
+typedef struct		s_point
+{
+	int y;
+	int x;
+	int z;
+}					t_point;
+
+typedef struct		s_dpoint
+{
+	REAL y;
+	REAL x;
+	REAL z;
+}					t_dpoint;
 
 typedef struct		s_neigh
 {
@@ -33,10 +51,9 @@ typedef struct		s_neigh
 
 typedef struct		s_neighs
 {
-	struct s_neigh	j[MAX_NEIGHBORS];
+	struct s_neigh	j[32];
 	int				count;
 }					t_neighs;
-
 
 typedef struct		s_part
 {
@@ -63,6 +80,5 @@ typedef struct		s_ipart
 	int				type;
 	struct s_dpoint	pos;
 }					t_ipart;
-
 
 #endif

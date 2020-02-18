@@ -17,7 +17,7 @@
 #define EMPTY_MAP
 #define CHANGE_FLUIDS1
 
-#define PROGRAMS_COUNT 1
+#define PROGRAMS_COUNT 3
 #define PART_COUNT 10
 
 #include "libft.h"
@@ -31,9 +31,10 @@
 #include <sys/uio.h>
 #include <OpenCL/opencl.h>
 #include "mlx.h"
-#include "ft_mod1_struct.h"
+#include "ft_cl.h"
 #include "ft_cl_struct.h"
-#include "ft_particle_struct.h"
+#include "ft_mod1_struct.h"
+
 
 
 #include <time.h>
@@ -67,13 +68,8 @@
 #define COLOR_UP 0xFFFFFF
 #define COLOR_DOWN 0x704214
 //#define MAX_POINT 50
-#define IMAX 40
-#define JMAX 40
-#define KMAX 40
-#define I0 1
-#define J0 1
-#define K0 1
-#define CELL_COUNT (KMAX + 2) * (JMAX + 2) * (IMAX + 2)
+
+
 
 #define DELTA 1.0
 #define DELTA_X DELTA
@@ -155,7 +151,6 @@
 int		**ground;
 
 t_cell	*g_cell;
-t_arr	*g_parts;
 
 t_dpoint g;
 

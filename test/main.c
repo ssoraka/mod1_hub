@@ -17,7 +17,8 @@
 t_prog    g_compile[PROGRAMS_COUNT + 10] =
 {
 	{"kernel.cl", "test", 1, CELLS, -1, -1, PART_COUNT},
-	{"clear_cell.cl", "clear_cell", 1, PARTS, -1, -1, PART_COUNT},
+	{"clear_cell.cl", "clear_cell", 1, CELLS, -1, -1, PART_COUNT},
+	{"add_part_in_cell.cl", "add_part_in_cell", 2, PARTS, CELLS, -1, PART_COUNT},
 	{"", "", 0, 0, 0, 0, 0}
 };
 
@@ -37,11 +38,11 @@ void ft_init_parts(void *src)
 	int i = 0;
 	while (i < PART_COUNT)
 	{
-		parts[i].pos.x = i * 0.87 + 10;
 		parts[i].pos.y = 10;
+		parts[i].pos.x = i * 0.87 + 10;
 		parts[i].pos.z = 10;
-		parts[i].jik.x = parts[i].pos.x;
 		parts[i].jik.y = parts[i].pos.y;
+		parts[i].jik.x = parts[i].pos.x;
 		parts[i].jik.z = parts[i].pos.z;
 		i++;
 	}
@@ -55,7 +56,7 @@ void ft_init_cells(void *src)
 	int i = 0;
 	while (i < CELL_COUNT)
 	{
-		cell[i].obstacle = 100 + i;
+		//cell[i].obstacle = 100 + i;
 		i++;
 	}
 }
@@ -75,6 +76,7 @@ int main(int argc, char **argv)
 	ft_init_parts(src1);
 	char *src2 = ft_memalloc(CELL_COUNT * sizeof(t_cell));
 	ft_init_cells(src2);
+	char *src3 = ft_memalloc(PART_COUNT * sizeof(t_ipart));
 
 	printf("%d\n", (*((t_cell *)src2)).obstacle);
 
@@ -82,6 +84,8 @@ int main(int argc, char **argv)
 	if (!ft_create_buffers(cl, PARTS, (void *)src1, PART_COUNT * sizeof(t_part)))
 		ft_error_and_exit(cl, "buffer error\n");
 	if (!ft_create_buffers(cl, CELLS, (void *)src2, CELL_COUNT * sizeof(t_cell)))
+		ft_error_and_exit(cl, "buffer error\n");
+	if (!ft_create_buffers(cl, INTERFACE, (void *)src3, PART_COUNT * sizeof(t_ipart)))
 		ft_error_and_exit(cl, "buffer error\n");
 
 
@@ -100,12 +104,15 @@ int main(int argc, char **argv)
 		ft_error_and_exit(cl, "read error\n");
 	if (!ft_read_buffers(cl, CELLS, (void *)src2, CELL_COUNT * sizeof(t_cell)))
 		ft_error_and_exit(cl, "read error\n");
+	if (!ft_read_buffers(cl, INTERFACE, (void *)src3, PART_COUNT * sizeof(t_ipart)))
+		ft_error_and_exit(cl, "read error\n");
 
 
 	ft_free_open_cl(&cl);
 
 	free((void *)src1);
 	free((void *)src2);
+	free((void *)src3);
 
 	return (0);
 }

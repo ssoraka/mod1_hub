@@ -12,19 +12,40 @@
 
 #include "ft_cl.h"
 
-__kernel void clear_cell(__global t_cell *cell)
-{
-	// получаем текущий id.
-	int c_gid;
-	int i;
+int		ft_get_cell_index(int j, int i, int k);
+int		ft_get_arr_index(t_dpoint pos);
 
-	c_gid = get_global_id(0);
-	if (cell[c_gid].obstacle)
-		return;
-	i = 0;
-	while (i < 27)
-	{
-		cell[c_gid].index[i] = -1;
-		i++;
-	}
+
+int		ft_get_cell_index(int j, int i, int k)
+{
+	if (i < I0 || i > IMAX || j < J0 || j > JMAX || k < K0 || k > KMAX)
+		return (0);
+	return (j * (IMAX + 2) * (KMAX + 2) + i * (KMAX + 2) + k);
+}
+
+int		ft_get_arr_index(t_dpoint pos)
+{
+	int j;
+	int i;
+	int k;
+
+	j = (int)((pos.y - (int)pos.y) / 0.35);
+	i = (int)((pos.x - (int)pos.x) / 0.35);
+	k = (int)((pos.z - (int)pos.z) / 0.35);
+
+	return (j * (3 * 3) + i * (3) + k);
+}
+
+
+__kernel void add_part_in_cell(__global t_part *part, __global t_cell *cell)
+{
+	int gid;
+	int c_gid;
+	t_dpoint pos;
+
+	gid = get_global_id(0);
+	pos = part[gid].pos;
+
+	c_gid = ft_get_cell_index(part[gid].jik.y, part[gid].jik.x, part[gid].jik.z);
+	cell[c_gid].index[ft_get_arr_index(pos)] = gid;
 }

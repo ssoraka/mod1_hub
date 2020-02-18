@@ -113,7 +113,7 @@ int		ft_read_and_build_programs(t_open_cl *cl)
 
 int		ft_read_buffers(t_open_cl *cl, int num, void *dest, size_t size)
 {
-	if (clEnqueueReadBuffer(cl->queue, cl->buffer[num], CL_TRUE, 0, size, dest
+	if (clEnqueueReadBuffer(cl->queue, cl->buffer[num], CL_FALSE, 0, size, dest
 	, 0, NULL, NULL) != CL_SUCCESS)
 		return (FALSE);
 	return (TRUE);
@@ -143,10 +143,10 @@ int		ft_set_kernel_arg(t_open_cl *cl)
 			if (clSetKernelArg(cl->kernel[i], 0, sizeof(cl_mem), (void *)&(cl->buffer[g_compile[i].arg_1])) != CL_SUCCESS)
 				return (FALSE);
 		if (g_compile[i].arg_count > 1)
-			if (clSetKernelArg(cl->kernel[i], 0, sizeof(cl_mem), (void *)&(cl->buffer[g_compile[i].arg_2])) != CL_SUCCESS)
+			if (clSetKernelArg(cl->kernel[i], 1, sizeof(cl_mem), (void *)&(cl->buffer[g_compile[i].arg_2])) != CL_SUCCESS)
 				return (FALSE);
 		if (g_compile[i].arg_count > 2)
-			if (clSetKernelArg(cl->kernel[i], 0, sizeof(cl_mem), (void *)&(cl->buffer[g_compile[i].arg_3])) != CL_SUCCESS)
+			if (clSetKernelArg(cl->kernel[i], 2, sizeof(cl_mem), (void *)&(cl->buffer[g_compile[i].arg_3])) != CL_SUCCESS)
 				return (FALSE);
 		i++;
 	}
