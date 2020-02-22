@@ -17,9 +17,6 @@
 #define EMPTY_MAP
 #define CHANGE_FLUIDS1
 
-#define PROGRAMS_COUNT 3
-#define PART_COUNT 10
-
 #include "libft.h"
 #include <math.h>
 #include <stdlib.h>
@@ -49,10 +46,6 @@
 #define W_CONST 1.7
 //#define CONST_RE 0.105
 #define CONST_RE 100.011
-#define CONST_GY -10.0
-#define CONST_GX 0.0
-#define CONST_GZ 0.0
-#define T_DELTA 0.01
 #define T_END 5.0
 #define TAU 0.2
 #define MAX_ITERATIONS 50
@@ -70,8 +63,6 @@
 //#define MAX_POINT 50
 
 
-
-#define DELTA 1.0
 #define DELTA_X DELTA
 #define DELTA_Y DELTA
 #define DELTA_Z DELTA
@@ -97,41 +88,20 @@
 #define DIR_Z 4
 #define SCALAR (DIR_X + DIR_Y + DIR_Z)
 
-//начальная плотность жидкости
-#define DENSITY_0 1000.0
+
 //ускорение свободного падения
 #define FG CONST_GY
-//характеристика адиабаты
-#define GAMMA 7
-//радиус сферы у одной частицы
-#define PART_H 0.5 * DELTA
 
-#define PI 3.141592
+
 //масса сферы одной частицы
 //#define PART_MASS_0 (DENSITY_0 * DELTA * DELTA * DELTA *0.99 / PARTS_COUNT / PARTS_COUNT / PARTS_COUNT)
-#define PART_MASS_0 (DENSITY_0 * DELTA * DELTA * DELTA * 0.990)
-//высоту столба воды можно как-то иначе определить, тут ее на шару поставил...
-#define PRESS_0 (200 * DENSITY_0 * FG * 3.0 * DELTA / GAMMA)
-//#define PRESS_0 (2200000000)
-//скорость звука в среде
-#define SPEED_OF_SOUND_C 120.0
+
 //Постоянна Куранта для расчета времени 0-1 для расчета промежутка времени
 #define CONST_CUR 0.5
 //для итерирования по окружению
 #define COUNT_NEAR_CELL_IN_ONE_DIMENSION 3
 #define COUNT_NEAR_CELL 9
 
-//для расчета искусственной вязкости
-//коэффициент квадратичной искусственной вязкости (0.02 - 0.03)
-#define CONST_B 0.00
-//коэффициент линнейной искусственной вязкости (0.02 - 0.03)
-#define CONST_A 0.00
-//соотношение максимальной скорости частицы со скоростью звука ~ 10 раз
-#define CONST_E 0.1
-//коэффициент влияния
-#define CONST_EP 0.3
-
-#define VISCOSITY 0000.0
 //#define SIGMA 5000000.0000000
 #define SIGMA 0000000.0000000
 /*
@@ -233,17 +203,17 @@ int		is_read_programm(char *buffer, char *filename);
 
 
 /*
-** initialization.c
+** open_cl.c
 */
 void	pfn_notify2(cl_program program, void *user_data);
 void	pfn_notify(const char *errinfo, const void *private_info, size_t cb, void *user_data);
 void	ft_context_error(cl_int errcode_ret);
 void	ft_queue_error(cl_int errcode_ret);
 t_open_cl	*ft_init_open_cl(void);
-int		ft_read_and_build_programs(t_open_cl *cl);
+int		ft_read_and_build_programs(t_open_cl *cl, t_prog *g_compile);
 void	ft_free_open_cl(t_open_cl **open_cl);
 int		ft_create_buffers(t_open_cl *cl, int num, void *src, size_t size);
 int		ft_read_buffers(t_open_cl *cl, int num, void *dest, size_t size);
 int		ft_run_kernels(t_open_cl *cl);
-int		ft_set_kernel_arg(t_open_cl *cl);
+int		ft_set_kernel_arg(t_open_cl *cl, t_prog *compile);
 #endif

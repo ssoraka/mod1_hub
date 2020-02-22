@@ -99,7 +99,6 @@ REAL	ft_derivative2_kernel_function2(REAL h, REAL r)
 }
 
 
-
 void	ft_try_add_part_as_neighbor(void *part_j, void *part_i)
 {
 	t_part		*p_i;
@@ -112,7 +111,7 @@ void	ft_try_add_part_as_neighbor(void *part_j, void *part_i)
 	if (p_j->type == EMPTY)
 		return ;
 	tmp.h_ij = (g_param[p_i->type][F_H] + g_param[p_j->type][F_H]) / 2.0;
-	ft_vekt_difference(&(p_i->pos.abs), &(p_j->pos.abs), &tmp.r_ij);
+	ft_vekt_difference(&(p_i->pos), &(p_j->pos), &tmp.r_ij);
 	len = ft_vekt_norm(&tmp.r_ij);
 	tmp.w_ij = ft_kernel_function5(tmp.h_ij, len);
 	if (tmp.w_ij > 0.0)
@@ -329,34 +328,34 @@ void	ft_calk_delta_coord_if_needs(void *neigh_j, void *part_i)
 
 void	ft_cheek_new_pos(t_part *part)
 {
-	if (part->pos.abs.x < DELTA)
+	if (part->pos.x < DELTA)
 	{
-		part->pos.abs.x += DELTA - part->pos.abs.x;
+		part->pos.x += DELTA - part->pos.x;
 		part->speed.x = -part->speed.x * COEFF_SPEED;
 	}
-	if (part->pos.abs.y < DELTA)
+	if (part->pos.y < DELTA)
 	{
-		part->pos.abs.y += DELTA - part->pos.abs.y;
+		part->pos.y += DELTA - part->pos.y;
 		part->speed.y = -part->speed.y * COEFF_SPEED;
 	}
-	if (part->pos.abs.z < DELTA)
+	if (part->pos.z < DELTA)
 	{
-		part->pos.abs.z += DELTA - part->pos.abs.z;
+		part->pos.z += DELTA - part->pos.z;
 		part->speed.z = -part->speed.z * COEFF_SPEED;
 	}
-	if (part->pos.abs.x >= (IMAX - 1) * DELTA)
+	if (part->pos.x >= (IMAX - 1) * DELTA)
 	{
-		part->pos.abs.x += (IMAX - 1) * DELTA - part->pos.abs.x;
+		part->pos.x += (IMAX - 1) * DELTA - part->pos.x;
 		part->speed.x = -part->speed.x * COEFF_SPEED;
 	}
-	if (part->pos.abs.y >= (JMAX - 1) * DELTA)
+	if (part->pos.y >= (JMAX - 1) * DELTA)
 	{
-		part->pos.abs.y += (JMAX - 1) * DELTA - part->pos.abs.y;
+		part->pos.y += (JMAX - 1) * DELTA - part->pos.y;
 		part->speed.y = -part->speed.y * COEFF_SPEED;
 	}
-	if (part->pos.abs.z >= (KMAX - 1) * DELTA)
+	if (part->pos.z >= (KMAX - 1) * DELTA)
 	{
-		part->pos.abs.z += (KMAX - 1) * DELTA - part->pos.abs.z;
+		part->pos.z += (KMAX - 1) * DELTA - part->pos.z;
 		part->speed.z = -part->speed.z * COEFF_SPEED;
 	}
 }
@@ -366,9 +365,9 @@ void	ft_change_coordinates2(t_part *part, void *param)
 {
 	//if (part->type == WATER)
 	//{
-		part->pos.abs.x += (part->speed.x + CONST_EP * part->delta_pos.x) * deltat;
-		part->pos.abs.y += (part->speed.y + CONST_EP * part->delta_pos.y) * deltat;
-		part->pos.abs.z += (part->speed.z + CONST_EP * part->delta_pos.z) * deltat;
+		part->pos.x += (part->speed.x + CONST_EP * part->delta_pos.x) * deltat;
+		part->pos.y += (part->speed.y + CONST_EP * part->delta_pos.y) * deltat;
+		part->pos.z += (part->speed.z + CONST_EP * part->delta_pos.z) * deltat;
 		ft_cheek_new_pos(part);
 	//}
 
@@ -506,9 +505,9 @@ void	ft_new_coordinates(void *p_i, void *param)
 	//if (((t_part *)p_i)->type != WATER)
 	//	return ;
 	part = p_i;
-	part->pos.abs.x += (part->speed.x + CONST_EP * part->delta_pos.x) * deltat;
-	part->pos.abs.y += (part->speed.y + CONST_EP * part->delta_pos.y) * deltat;
-	part->pos.abs.z += (part->speed.z + CONST_EP * part->delta_pos.z) * deltat;
+	part->pos.x += (part->speed.x + CONST_EP * part->delta_pos.x) * deltat;
+	part->pos.y += (part->speed.y + CONST_EP * part->delta_pos.y) * deltat;
+	part->pos.z += (part->speed.z + CONST_EP * part->delta_pos.z) * deltat;
 	//ft_cheek_new_pos(part);
 	ft_fill_dpoint(&(part->delta_pos), 0.0, 0.0, 0.0);
 }
@@ -557,14 +556,12 @@ void	ft_solve_and_move_parts(void)
 	//////
 	//ft_for_each_ptr2(g_parts, &ft_new_neighbors2,(void *)parts);
 	//////
-
 	ft_clear_cells(g_cell);
 	ft_del_elems_if(g_parts, &ft_cant_add_part_in_cell, (void *)g_cell);
 	ft_for_each_ptr2(g_parts, &ft_new_neighbors3, NULL);
 	//printf("таймер %ld\n", clock() - g_clock2);
 
-	//printf("___%lf\n", max_c);
-	deltat = 10 * ft_time_control(SPEED_OF_SOUND_C, norm_speed, PART_H);
+	deltat = ft_time_control(g_param[WATER][F_C], norm_speed, PART_H);
 
 	//считаем изменение плотности
 	ft_for_each_ptr(g_parts, &ft_init_density2, NULL);
@@ -605,26 +602,6 @@ void	ft_solve_and_move_parts(void)
 
 //сделать правильную инициализацию!!!
 
-
-
-void	ft_fill_param_of_part(t_part *part, void *param)
-{
-
-	//PART_H
-	//ft_putstr("1\n");
-	//part->h = PART_H * 1.010000;//1.2 * pow(PART_MASS_0 / DENSITY_0, 1.0 / 3.0);
-	//part->mass = PART_MASS_0 * 1.0;
-	//part->h = 1.3 * pow(part->mass / DENSITY_0, 1.0 / 3.0);
-	//part->c = g_param[part->type][F_C];
-
-	//part->density = part->mass;
-	part->speed.y = g_param[part->type][F_Y_SPEED];
-	//if (part->type == BLOB)
-	//	part->h = PART_H * 0.90000;
-	/*
-	else
-		part->density = DENSITY_0 * 1.00;*/
-}
 
 
 

@@ -23,9 +23,9 @@ t_cell	*ft_get_cell_by_part(t_part *part, t_cell *cell)
 
 	if (part->type == EMPTY)
 		return (NULL);
-	j = (int)(part->pos.abs.y / delta.y) + 0;
-	i = (int)(part->pos.abs.x / delta.x) + 0;
-	k = (int)(part->pos.abs.z / delta.z) + 0;
+	j = (int)(part->pos.y) + 0;
+	i = (int)(part->pos.x) + 0;
+	k = (int)(part->pos.z) + 0;
 	return (&cell[ft_get_index(j, i, k)]);
 }
 
@@ -35,9 +35,9 @@ void	ft_set_part_to_cell(t_part *part, t_cell *cell)
 	int i;
 	int k;
 
-	j = (int)(part->pos.abs.y / delta.y) + 0;
-	i = (int)(part->pos.abs.x / delta.x) + 0;
-	k = (int)(part->pos.abs.z / delta.z) + 0;
+	j = (int)(part->pos.y) + 0;
+	i = (int)(part->pos.x) + 0;
+	k = (int)(part->pos.z) + 0;
 	ft_fill_point(&(part->jik), j, i, k);
 }
 
@@ -49,33 +49,33 @@ void	ft_come_back_part3(t_part *part, t_cell *cell)
 	int i;
 	int k;
 
-	j = (int)(part->pos.abs.y / delta.y) + 0;
-	i = (int)(part->pos.abs.x / delta.x) + 0;
-	k = (int)(part->pos.abs.z / delta.z) + 0;
-	if (cell[ft_get_index(part->jik.y, i, part->jik.z)].obstacle)
+	j = (int)(part->pos.y) + 0;
+	i = (int)(part->pos.x) + 0;
+	k = (int)(part->pos.z) + 0;
+	if (cell[ft_get_index(j, i, k)].obstacle && cell[ft_get_index(part->jik.y, i, part->jik.z)].obstacle)
 	{
 		if (part->jik.x < i)
-			part->pos.abs.x = i - 0.001;
+			part->pos.x = i - 0.001;
 		else
-			part->pos.abs.x = part->jik.x;
+			part->pos.x = part->jik.x;
 		part->speed.x = -part->speed.x * COEFF_SPEED2;
 		i = part->jik.x;
 	}
-	if (cell[ft_get_index(j, part->jik.x, part->jik.z)].obstacle)
+	if (cell[ft_get_index(j, i, k)].obstacle && cell[ft_get_index(j, part->jik.x, part->jik.z)].obstacle)
 	{
 		if (part->jik.y < j)
-			part->pos.abs.y = j - 0.001;
+			part->pos.y = j - 0.001;
 		else
-			part->pos.abs.y = part->jik.y;
+			part->pos.y = part->jik.y;
 		part->speed.y = -part->speed.y * COEFF_SPEED2;
 		j = part->jik.y;
 	}
-	if (cell[ft_get_index(part->jik.y, part->jik.x, k)].obstacle)
+	if (cell[ft_get_index(j, i, k)].obstacle && cell[ft_get_index(part->jik.y, part->jik.x, k)].obstacle)
 	{
 		if (part->jik.z < k)
-			part->pos.abs.z = k - 0.001;
+			part->pos.z = k - 0.001;
 		else
-			part->pos.abs.z = part->jik.z;
+			part->pos.z = part->jik.z;
 		part->speed.z = -part->speed.z * COEFF_SPEED2;
 		k = part->jik.z;
 	}

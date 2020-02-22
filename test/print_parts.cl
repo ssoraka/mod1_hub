@@ -10,25 +10,22 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-typedef struct		s_cell
-{
-	int				obstacle;
-	int				index[27];
-}					t_cell;
+#include "ft_cl.h"
 
-__kernel void clear_cell(__global t_cell *cell)
-{
-	// получаем текущий id.
-	int cell_gid;
-	int i;
 
-	cell_gid = get_global_id(0);
-	if (cell[cell_gid].obstacle)
-		return;
-	i = 0;
-	while (i < 27)
+__kernel	void print_parts(__global t_part *part, __global t_ipart *ipart)
+{
+	int gid;
+
+
+	gid = get_global_id(0);
+	printf("%d_%lf_%lf_%lf\n", gid, part[gid].density, part[gid].press, part[gid].pos.x);
+	int n;
+	n = 0;
+	while (n < part[gid].n.count)
 	{
-		cell[cell_gid].arr[i] = -1;
-		i++;
+		//printf("__%d_%lf\n", gid, part[gid].speed.x);
+		n++;
 	}
+
 }

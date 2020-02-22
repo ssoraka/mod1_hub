@@ -92,7 +92,7 @@ void	*ft_arr_add(t_arr **arr, void *elem)
 	if ((*arr)->elems_used == (*arr)->elems_count)
 		if (!ft_realloc_arr(arr))
 		{
-			ft_del_all_print_error("need more memory");
+			ft_del_all("need more memory");
 			return (NULL);
 		}
 	tmp = (*arr)->elems + (*arr)->elems_used * (*arr)->elem_size;

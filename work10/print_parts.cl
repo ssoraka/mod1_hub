@@ -12,20 +12,20 @@
 
 #include "ft_cl.h"
 
-__kernel void clear_cell(__global t_cell *cell)
-{
-	// получаем текущий id.
-	int c_gid;
-	int i;
 
-	c_gid = get_global_id(0);
-	if (cell[c_gid].obstacle == 1)
-		return;
-	i = 0;
-	cell[c_gid].full = 0;
-	while (i < 27)
+__kernel	void print_parts(__global t_part *part, __global t_ipart *ipart)
+{
+	int gid;
+
+
+	gid = get_global_id(0);
+	printf("%d_%lf_%lf_%lf\n", gid, part[gid].density, part[gid].press, part[gid].pos.x);
+	int n;
+	n = 0;
+	while (n < part[gid].n.count)
 	{
-		cell[c_gid].index[i] = -1;
-		i++;
+		//printf("__%d_%lf\n", gid, part[gid].speed.x);
+		n++;
 	}
+
 }

@@ -16,23 +16,7 @@
 # define MAX_POINT 50
 # define MAX_NEIGHBORS1 50
 
-typedef double REAL;
-typedef double mytype;
-
-
-typedef struct		s_point
-{
-	int y;
-	int x;
-	int z;
-}					t_point;
-
-typedef struct		s_dpoint
-{
-	REAL y;
-	REAL x;
-	REAL z;
-}					t_dpoint;
+#include "ft_mod1.h"
 
 typedef struct		s_map
 {
@@ -93,107 +77,13 @@ typedef struct		s_oxyz
 	struct s_dpoint	oz;
 }					t_oxyz;
 
-typedef struct		s_neigh
-{
-	REAL			h_ij;
-	REAL			w_ij;
-	REAL			mu_ij;//коэффициент динамической вязкости
-	struct s_dpoint	r_ij;
-	struct s_dpoint	u_ij;
-	struct s_dpoint	nabla_w_ij;
-	struct s_part	*part_j;
-}					t_neigh;
-
-typedef struct		s_neighs
-{
-	int				neigh_count;
-	struct s_neigh	neigh[MAX_NEIGHBORS1];
-}					t_neighs;
-
-
-typedef struct		s_tens
-{
-	int				is_surface;
-	REAL			color;
-	REAL			smoothed_color;
-	struct s_dpoint	normal;
-	struct s_dpoint	unit_n;
-	struct s_dpoint	k;
-}					t_tens;
-
-
-typedef struct		s_arr
-{
-	void			*elems;
-	void			*current;
-	int				next;
-	int				elems_count;
-	int				elems_used;
-	int				elem_size;
-	void			(*func_del)(void *);
-}					t_arr;
-
-typedef struct		s_lnode
-{
-	void			*elem;
-	struct s_lnode	*next;
-	struct s_lnode	*prev;
-	int				info;
-}					t_lnode;
-
-typedef struct		s_llist
-{
-	struct s_lnode	start;
-	struct s_lnode	end;
-	struct s_lnode	*current;
-	int				count;
-	int				next;
-	void			(*func_del)(void *, int);
-}					t_llist;
-
-
-typedef struct		s_part
-{
-	int				type;
-	REAL			density;
-	REAL			delta_density;
-	REAL			press;
-	struct s_point	jik;
-	struct s_dpoint	a;
-	struct s_dpoint	speed;
-	struct s_dpoint	delta_pos;
-	struct s_dpoint	pos;
-	//struct s_neighs	neighs;
-	struct s_tens	tension;
-	struct s_arr	*neigh;
-	//struct s_part	*next;
-	struct s_part	*prev;
-}					t_part;
-
-typedef struct		s_cell
-{
-	int				obstacle;
-	int				index[27];
-	struct s_arr	*parts;
-}					t_cell;
-
-/*
-typedef struct		s_param
-{
-	REAL			h;
-	REAL			c;
-	REAL			mass;
-	REAL			press_0;
-	REAL			density_0;
-	REAL			viskosity;
-}					t_param;
-*/
 
 typedef struct		s_vis
 {
 	int				cam_x;
 	int				cam_y;
 	int				pause;
+	int				exit;
 	int				rain;
 	int				is_shift;
 	int				is_rotate_or_csale;
@@ -210,6 +100,28 @@ typedef struct		s_vis
 	struct s_vektr	*points;
 	struct s_line	*lines;
 }					t_vis;
+
+typedef struct		s_arr
+{
+	void			*elems;
+	void			*current;
+	int				next;
+	int				elems_count;
+	int				elems_used;
+	int				elem_size;
+	void			(*func_del)(void *);
+}					t_arr;
+
+typedef struct		s_prog
+{
+	char				file[50];
+	char				kernel[50];
+	unsigned int		arg_count;
+	unsigned int		arg_1;
+	unsigned int		arg_2;
+	unsigned int		arg_3;
+	unsigned int		global_work_size;
+}					t_prog;
 
 
 #endif

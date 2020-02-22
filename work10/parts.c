@@ -16,26 +16,14 @@
 # define DELTA_H 0.78
 
 
-void ft_del_parts(void *ptr)
-{
-	t_part *part;
-
-	part = (t_part *)(*((void **)ptr));
-	if (part)
-	{
-		ft_del_arr(&(part->neigh));
-		free(part);
-	}
-}
-
 
 t_arr	*ft_init_all_clear_parts(void)
 {
 	t_arr *parts;
 
-	parts = ft_create_arr(sizeof(t_part *), 16, &ft_del_parts);
+	parts = ft_create_arr(sizeof(t_part), 16, NULL);
 	if (!parts)
-		ft_del_all_print_error("need more memory");
+		ft_del_all("need more memory");
 	return (parts);
 }
 
@@ -54,7 +42,7 @@ void	ft_create_new_water_in_area(t_arr **p_arr, t_dpoint *start, t_point *end, i
 {
 	REAL i;
 	REAL k;
-	t_part *part;
+	t_part part;
 	t_dpoint pos;
 
 	i = start->x;
@@ -64,11 +52,10 @@ void	ft_create_new_water_in_area(t_arr **p_arr, t_dpoint *start, t_point *end, i
 		while (k < end->z + 1 && k < KMAX + 1)
 		{
 			if (!g_cell[ft_get_index((int)(start->y), (int)i, (int)k)].obstacle)
-			//if (cell_type == WATER || cell_type == BLOB)
 			{
 				ft_fill_dpoint(&pos, start->y, i, k);
-				part = ft_new_part(&pos, type);
-				ft_arr_add(p_arr, (void *)(&part));
+				ft_fill_part(&part, &pos, type);
+				ft_arr_add(p_arr, (void *)&part);
 			}
 			k++;
 		}
@@ -96,18 +83,17 @@ void	ft_create_new_area_of_water(t_arr **parts, t_point *start, t_point *end, in
 	}
 }
 
-t_part	*ft_new_part(t_dpoint *p, int type)
+void	ft_fill_interface(t_arr *parts, t_arr *iparts)
 {
-	t_part *tmp;
+	t_part *p;
+	t_ipart ip;
+	int i;
 
-	if ((tmp = (t_part *)ft_memalloc(sizeof(t_part))))
+	i = 0;
+	while ((p = (t_part *)ft_arr_get_next(parts)))
 	{
-		ft_fill_part(tmp, p, type);
-		tmp->neigh = ft_create_arr(sizeof(t_neigh), MAX_NEIGHBORS, NULL);
-		if (!tmp->neigh)
-			ft_memdel((void **)(&tmp));
+		ip.pos = p->pos;
+		ip.type = p->type;
+		ft_arr_add(&iparts, (void *)&ip);
 	}
-	if (!tmp)
-		ft_del_all_print_error("need more memory2");
-	return (tmp);
 }

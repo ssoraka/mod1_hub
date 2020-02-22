@@ -10,22 +10,19 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_cl.h"
+typedef struct		s_cell
+{
+	int				obstacle;
+	int				index[27];
+}					t_cell;
 
-__kernel void clear_cell(__global t_cell *cell)
+__kernel void test(__global t_cell *message)
 {
 	// получаем текущий id.
-	int c_gid;
-	int i;
+	int gid = get_global_id(0);
 
-	c_gid = get_global_id(0);
-	if (cell[c_gid].obstacle == 1)
-		return;
-	i = 0;
-	cell[c_gid].full = 0;
-	while (i < 27)
-	{
-		cell[c_gid].index[i] = -1;
-		i++;
-	}
+	//if (gid != 0)
+	//	message[gid].obstacle += gid;
+	printf("%d_%d\n", get_local_id(0), message[gid].obstacle);
+
 }

@@ -13,14 +13,14 @@
 #ifndef FT_CL_H
 # define FT_CL_H
 
-#define PROGRAMS_COUNT 10
+#define PROGRAMS_COUNT 8
 #define PART_COUNT 10
 
 #define PI 3.141592
 
-#define IMAX 40
-#define JMAX 40
-#define KMAX 40
+#define IMAX 100
+#define JMAX 100
+#define KMAX 100
 #define I0 1
 #define J0 1
 #define K0 1

@@ -111,4 +111,5 @@ typedef struct		s_prog
 	unsigned int		global_work_size;
 }					t_prog;
 
+
 #endif

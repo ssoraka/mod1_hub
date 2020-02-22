@@ -12,20 +12,26 @@
 
 #include "ft_cl.h"
 
-__kernel void clear_cell(__global t_cell *cell)
+__kernel void up_part_in_cell(__global t_cell *cell)
 {
-	// получаем текущий id.
 	int c_gid;
 	int i;
+	int last;
 
 	c_gid = get_global_id(0);
-	if (cell[c_gid].obstacle == 1)
+	if (cell[c_gid].obstacle == 1 || cell[c_gid].full == 0)
 		return;
+	last = 0;
 	i = 0;
-	cell[c_gid].full = 0;
 	while (i < 27)
 	{
-		cell[c_gid].index[i] = -1;
+		if (cell[c_gid].index[i] != -1)
+		{
+			cell[c_gid].index[last] = cell[c_gid].index[i];
+			if (i != last)
+				cell[c_gid].index[i] = -1;
+			last++;
+		}
 		i++;
 	}
 }
