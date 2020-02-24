@@ -52,9 +52,11 @@
 /*
 **	добавляем по 2 вершины между вершинами расчетной модели для сплайна
 */
-#define ADD_POINT 1
+#define ADD_POINT 0
 
 #define MAP_KOEF 0.7
+#define HEIGTH_KOEF 0.7
+//перевести на даблы и избавиться
 #define MAP_HEIGTH2 1000
 #define COLOR_UP 0xFFFFFF
 #define COLOR_DOWN 0x704214
@@ -126,10 +128,6 @@ t_open_cl	*g_cl;
 t_dpoint g;
 
 int g_count;
-
-int imax;
-int jmax;
-int kmax;
 
 long g_clock;
 long g_clock2;
@@ -307,6 +305,7 @@ void	ft_fill_interface(t_arr *parts, t_arr *iparts);
 /*
 **	map.c
 */
+REAL	ft_return_heigth(REAL value);
 int		**ft_read_ground_from_file3(char *name);
 char	*ft_read_string_from_file(char *name);
 int		ft_find_points(t_map *map, char **arr);

@@ -18,9 +18,9 @@
 
 #define PI 3.141592
 
-#define IMAX 100
-#define JMAX 100
-#define KMAX 100
+#define IMAX 30
+#define JMAX 30
+#define KMAX 30
 #define I0 1
 #define J0 1
 #define K0 1

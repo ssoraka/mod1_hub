@@ -145,12 +145,21 @@ void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad)
 void	ft_print_poligons(t_vis *vis, t_plgn *plgn)
 {
 	if (vis->is_rotate_or_csale || vis->is_shift)
-		ft_change_points5(vis, vis->points);
-	vis->is_rotate_or_csale = FALSE;
-	vis->is_shift = FALSE;
-	while (plgn)
 	{
-		ft_print_plgn(plgn, &(vis->pic), vis->grad);
-		plgn = plgn->next;
+		ft_change_points5(vis, vis->points);
+		vis->is_rotate_or_csale = FALSE;
+		vis->is_shift = FALSE;
+		while (plgn)
+		{
+			ft_print_plgn(plgn, &(vis->pic), vis->grad);
+			plgn = plgn->next;
+		}
+		ft_memcpy((void *)(vis->pic.addr_copy), (void *)(vis->pic.addr), CONST_WIDTH * CONST_HEINTH * 4);
+		ft_memcpy((void *)(vis->pic.z_buffer_copy), (void *)(vis->pic.z_buffer), CONST_WIDTH * CONST_HEINTH * 4);
+	}
+	else
+	{
+		ft_memcpy((void *)(vis->pic.addr), (void *)(vis->pic.addr_copy), CONST_WIDTH * CONST_HEINTH * 4);
+		ft_memcpy((void *)(vis->pic.z_buffer), (void *)(vis->pic.z_buffer_copy), CONST_WIDTH * CONST_HEINTH * 4);
 	}
 }

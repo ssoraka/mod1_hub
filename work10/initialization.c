@@ -22,10 +22,6 @@ void	ft_init_variable(void)
 
 void	ft_init_delta_xyz(void)
 {
-	imax = IMAX;
-	jmax = JMAX;
-	kmax = KMAX;
-
 	g.x = CONST_GX;
 	g.y = CONST_GY;
 	g.z = CONST_GZ;
@@ -62,11 +58,13 @@ void	ft_init_parts_arr_and_cell(void)
 	if (!(g_cell = ft_memalloc(sizeof(t_cell) * (CELL_COUNT + 1))))
 		ft_del_all(NULL);
 
+
 	//инициализируем сл и компилим программы
 	if (!(g_cl = ft_init_open_cl()))
 		ft_del_all("init error\n");
 	if (!ft_read_and_build_programs(g_cl, g_compile))
 		ft_del_all("some error\n");
+
 }
 
 

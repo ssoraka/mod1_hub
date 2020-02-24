@@ -21,12 +21,6 @@
 
 */
 
-REAL	ft_return_heigth(REAL value)
-{
-	value = value * (JMAX - J0) * HEIGTH_KOEF / (MAP_HEIGTH2 + 0) + 1;
-	return (value);
-}
-
 
 char	*ft_read_string_from_file(char *name)
 {
@@ -49,14 +43,14 @@ int		ft_find_point(t_map *map, char **args)
 	if (args[0][0] != '(' || args[2][ft_strlen(args[2]) - 1] != ')')
 		return (FALSE);
 	i = map->count;
-	map->p[i].y = ft_atoi(args[2]);//высота
 	map->p[i].x = ft_atoi(args[0] + 1);
-	map->p[i].z = ft_atoi(args[1]);
-	map->p_max.y = ft_max(map->p_max.y, map->p[i].y);
+	map->p[i].y = ft_atoi(args[1]);
+	map->p[i].z = ft_atoi(args[2]);
 	map->p_max.x = ft_max(map->p_max.x, map->p[i].x);
+	map->p_max.y = ft_max(map->p_max.y, map->p[i].y);
 	map->p_max.z = ft_max(map->p_max.z, map->p[i].z);
-	map->p_min.y = ft_min(map->p_min.y, map->p[i].y);
 	map->p_min.x = ft_min(map->p_min.x, map->p[i].x);
+	map->p_min.y = ft_min(map->p_min.y, map->p[i].y);
 	map->p_min.z = ft_min(map->p_min.z, map->p[i].z);
 	return (TRUE);
 }
@@ -87,6 +81,9 @@ int		ft_find_points(t_map *map, char **arr)
 
 
 
+
+
+
 void	ft_create_first_and_last_points(t_map *map)
 {
 	int delta_y;
@@ -94,17 +91,17 @@ void	ft_create_first_and_last_points(t_map *map)
 	int delta_z;
 	int delta;
 
-	delta_y = (map->p_max.y - map->p_min.y) / ((JMAX + J0) * MAP_KOEF);
-	delta_x = (map->p_max.x - map->p_min.x) / ((IMAX + I0) * MAP_KOEF);
-	delta_z = (map->p_max.z - map->p_min.z) / ((KMAX + K0) * MAP_KOEF);
+	delta_y = (map->p_max.y - map->p_min.y) / (JMAX * MAP_KOEF);
+	delta_x = (map->p_max.x - map->p_min.x) / (IMAX * MAP_KOEF);
+	delta_z = (map->p_max.z - map->p_min.z) / (KMAX * MAP_KOEF);
 	delta = ft_max(delta_x, delta_y);
 	delta = ft_max(delta, delta_z);
 	delta = ft_max(delta, 1);
-	map->delta = delta;
+	map->delta = delta * 2;
 	ft_fill_point(&(map->first),
-	((map->p_min.y + map->p_max.y) - delta * (JMAX + J0)) / 2,
-	((map->p_min.x + map->p_max.x) - delta * (IMAX + I0)) / 2,
-	((map->p_min.z + map->p_max.z) - delta * (KMAX + K0)) / 2);
+	(map->p_min.y + map->p_max.y) / 2 - delta * JMAX,
+	(map->p_min.x + map->p_max.x) / 2 - delta * IMAX,
+	(map->p_min.z + map->p_max.z) / 2 - delta * KMAX);
 }
 
 
@@ -114,68 +111,70 @@ REAL	ft_sigmoida(int i, int k)
 	REAL answer;
 	int x;
 
-	x = ft_min(i - I0, IMAX - i);
-	x = ft_min(x, KMAX - k);
-	x = ft_min(x, k - K0);
+	x = ft_min(i, IMAX - 1 - i);
+	x = ft_min(x, KMAX - 1 - k);
+	x = ft_min(x, k);
 	x = -x * x;
 	answer = 1 - exp2((REAL)x);
 	return (answer);
 }
 
-void	ft_superposition2(t_map *map, int i, int k)
+
+
+void	ft_superposition(void *param, int j, int i, int k)
 {
+	t_map *map;
 	double e;
 	double dist;
 	double all_dist;
 	double sigma;
 	int num;
 
+	map = (t_map *)param;
 	e = 0;
 	all_dist = 0;
 	num = 0;
 	//2.0 - отвечает за пологость, 0,8 - защита от касания гор потолка
-	sigma = map->delta * map->delta * ft_max(IMAX, KMAX);
 	while (num < map->count)
 	{
-		dist = ft_power(map->p[num].x - (map->first.x + map->delta * i), 2)
-		+ ft_power(map->p[num].z - (map->first.z + map->delta * k), 2);
+		dist = ft_power(map->p[num].x - map->first.x - map->delta * i, 2)
+		+ ft_power(map->p[num].y - map->first.y - map->delta * k, 2);
+		sigma = map->delta * map->delta * (IMAX);
 		all_dist += 1.0 / (1.0 + dist);
-		e += exp2(-dist / (sigma * 2.0)) * map->p[num].y / (1.0 + dist) ;
+		e += exp2(-dist / (sigma * 2.0)) * map->p[num].z / (1.0 + dist);
 		num++;
 	}
-	map->arr[k][i] += (int)((e * ft_sigmoida(i, k)) * MAP_HEIGTH2
-	/ all_dist / (map->p_max.y - map->p_min.y));
+	//map->arr[k][i] = (int)(e * ft_sigmoida(i, k) / all_dist / map->p_max.z * KMAX * MAP_KOEF) + 0;// / all_dist); // / map->delta
+	map->arr[k][i] = (int)(e * ft_sigmoida(i, k) / all_dist / map->p_max.z * MAP_HEIGTH2) + 0;
 }
 
 
 void	ft_fill_map_arr(t_map *map)
 {
-	int i;
-	int k;
+	t_point start;
+	t_point end;
 
-	k = 0;
-	while (k <= KMAX + 1)
-	{
-		i = 0;
-		while (i <= IMAX + 1)
-		{
-			map->arr[k][i] = -map->p_min.y * MAP_HEIGTH2 / (map->p_max.y - map->p_min.y);
-			if (k > K0 && k < KMAX && i > I0 && i < IMAX)
-				ft_superposition2(map, i, k);
-			i++;
-		}
-		k++;
-	}
+	ft_fill_point(&start, 0, I0, K0);
+	ft_fill_point(&end, 0, IMAX, KMAX);
+	ft_cycle_cube((void *)map, &ft_superposition, &start, &end);
 }
-
 
 int		**ft_create_map(t_map *map)
 {
 	map->arr = NULL;
 	ft_create_first_and_last_points(map);
-	if (!(map->arr = (int **)ft_mem_arr_new(KMAX + 2, IMAX + 2, sizeof(int))))
+	/*printf("%d\n", map->delta);
+	printf("%d\n", map->first.x);
+	printf("%d\n", map->first.y);
+	printf("%d\n", map->first.x + map->delta * 100);
+	printf("%d\n", map->first.y + map->delta * 100);
+	exit(0);*/
+	if (!(map->arr = (int **)ft_mem_arr_new(IMAX + 2, KMAX + 2, sizeof(int))))
 		return (NULL);
 	ft_fill_map_arr(map);
+	//потом надо будет сетку сделать для поверхности
+	//с интерполяцией и всеми фичами...
+
 	return (map->arr);
 }
 
@@ -191,12 +190,17 @@ int		**ft_read_ground_from_file3(char *name)
 	str = NULL;
 	arr = NULL;
 	ft_bzero((void *)&map, sizeof(t_map));
-	ft_fill_point(&(map.p_min), 0, 0x7FFFFFFF, 0x7FFFFFFF);
+	ft_fill_point(&(map.p_min), 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF);
 	if ((str = ft_read_string_from_file(name))
 	&& (arr = ft_strsplit(str, ' '))
 	&& ft_find_points(&map, arr))
 		ground = ft_create_map(&map);
 	free(str);
 	ft_str_arr_free(&arr);
+
+	//imax = ft_strlen(ground[1]);
+	//jmax = MAP_HEIGTH;
+	//kmax = k;
+
 	return (ground);
 }

@@ -92,6 +92,7 @@ typedef struct		s_vis
 	double			len;
 	struct s_dpoint	ang;
 	struct s_pict	pic;
+	struct s_pict	pict;
 	struct s_oxyz	oxyz;
 	void			*img;
 	void			*mlx;

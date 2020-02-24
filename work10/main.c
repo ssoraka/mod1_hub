@@ -12,8 +12,6 @@
 
 #include "ft_mod1.h"
 
-
-
 t_prog    g_compile[PROGRAMS_COUNT + 10] =
 {
 	{"clear_cell.cl", "clear_cell", 1, CELLS, -1, -1, CELL_COUNT},
@@ -33,7 +31,7 @@ REAL	g_param[FLUIDS][COLUMN_COUNT] =
 	{FLUID, F_H, F_C, F_MASS, F_PRESS, F_DENS, F_VIS, F_Y_SPEED},
 	{WATER, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0000.0, 00.0},
 	{WATER2, PART_H, 120.0, PART_MASS_0 * 0.50, 22000.0, 500.0, 0000.0, 00.0},
-	{MAGMA, PART_H, 120.0, PART_MASS_0 * 1.0, 220000000.0, 1000.0, 00.0, 0.0},
+	{MAGMA, PART_H, 120.0, PART_MASS_0 * 1.0, 220000000.0, 1000.0, 00.0, -10.0},
 	{MAGMA2, PART_H, 120.0, PART_MASS_0 * 10.0, 2200000000.0, 10000.0, 2000.0, 0.0},
 	{BLOB, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0.0, -20.0},
 	{OBSTCL, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0000.0, 00.0},
@@ -207,6 +205,81 @@ void	ft_create_points_in_cells(t_vis *vis)
 
 
 
+void	ft_fill_picture(t_pict *pict, int color)
+{
+	int radius;
+	int x;
+	int y;
+	REAL len;
+
+	radius = pict->size_line / 2;
+	if (!radius)
+		radius++;
+	y = 0;
+	while (y < pict->size_line)
+	{
+		x = 0;
+		while (x < pict->size_line)
+		{
+			len = sqrt((radius - x) * (radius - x) + (radius - y) * (radius - y));
+			if (len <= radius)
+				pict->addr[y * pict->size_line + x] = ft_grad_color(radius - len, radius, color, 0);
+			x++;
+		}
+		y++;
+	}
+}
+
+void ft_init_picture(t_pict *pict, int diameter, int color)
+{
+	ft_bzero((void *)pict, sizeof(t_pict));
+
+	if (!(diameter % 2))
+		diameter++;
+	pict->size_line = diameter;
+	pict->addr = ft_memalloc(4 * diameter * (diameter + 1));
+	ft_fill_picture(pict, color);
+}
+
+
+void print_img_to_img(void *ptr, void *param)
+{
+	t_ipart *ipart;
+	t_vis *vis;
+	t_pict *pict;
+	t_vektr vektr;
+	t_point p;
+	int shift;
+	int x;
+	int y;
+
+	vis = (t_vis *)param;
+	ipart = (t_ipart *)ptr;
+	pict = &(vis->pict);
+	ft_bzero((void *)&vektr, sizeof(t_vektr));
+	ft_fill_dpoint(&vektr.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
+	ft_change_points4(vis, &vektr, TRUE);
+	if (vektr.zoom.x < 0 || vektr.zoom.y < 0 || vektr.zoom.x >= CONST_WIDTH || vektr.zoom.y >= CONST_HEINTH)
+		return ;
+	//printf("_%d_\n",pict->size_line);
+	shift = pict->size_line / 2;
+	y = 0;
+	while (y < pict->size_line)
+	{
+		x = 0;
+		while (x < pict->size_line)
+		{
+			if (pict->addr[y * pict->size_line + x])
+			{
+				ft_fill_point(&p, vektr.zoom.y  - shift + y, vektr.zoom.x - shift + x, vektr.zoom.z);
+				ft_put_pixel_to_img2(&(vis->pic), &p, pict->addr[y * pict->size_line + x]);
+			}
+			x++;
+		}
+		y++;
+	}
+
+}
 
 
 void	ft_print_all_water2(void *ptr, void *param)
@@ -226,6 +299,7 @@ void	ft_print_all_water2(void *ptr, void *param)
 
 
 
+
 void	ft_refresh_picture(t_vis *vis)
 {
 	mlx_clear_window(vis->mlx, vis->win);
@@ -237,6 +311,12 @@ void	ft_refresh_picture(t_vis *vis)
 		ft_print_poligons(vis, vis->plgn);
 	//ft_print_all_water(vis);
 	//vis->is_rotate_or_csale = TRUE;
+
+
+
+	//ft_init_picture(&(vis->pict), vis->len, WATER_COLOR);
+	//ft_for_each_elem(g_iparts, print_img_to_img, (void *)vis);
+	//free((void *)vis->pict.addr);
 
 	ft_for_each_elem(g_iparts, ft_print_all_water2, (void *)vis);
 	//vis->is_rotate_or_csale = FALSE;
@@ -268,95 +348,6 @@ int loop_hook(void *param)
 
 
 
-void	ft_print_int(void *param, int j, int i, int k)
-{
-	int ***arr;
-
-	arr = (int ***)param;
-	printf(" %2d", arr[j][i][k]);
-	if (i == imax + 1)
-		printf("\n");
-}
-
-void	ft_print_int2(void *param, int j, int i, int k)
-{
-	int **arr;
-
-	arr = (int **)param;
-	printf(" %2d", (int)(arr[i][k] * KMAX * MAP_KOEF / MAP_HEIGTH2));
-	if (k == kmax - 1 )
-		printf("\n");
-}
-
-void	ft_print_char(void *param, int j, int i, int k)
-{
-	char ***arr;
-
-	arr = (char ***)param;
-	printf(" %c", arr[j][i][k]);
-	if (i == imax + 1)
-		printf("\n");
-}
-
-void	ft_print_char2(void *param, int j, int i, int k)
-{
-	t_cell *arr;
-
-	arr = (t_cell *)param;
-	arr += ft_get_index(j, i, k);
-
-	if (j == 0 && i == imax + 1)
-	{
-		printf("\n  1  2  3  4  5  6  7  8\n");
-		return ;
-	}
-
-	if (arr->obstacle)
-		printf("  %c",'X');
-	else
-		printf("  %c",' ');
-	if (i == imax)
-		printf("\n");
-}
-
-void	ft_print_real(void *param, int j, int i, int k)
-{
-	REAL ***arr;
-	char *str;
-
-	if (sizeof(REAL) == sizeof(double))
-		str = " %6.2lf";
-	else if (sizeof(REAL) == sizeof(float))
-		str = " %6.2f";
-	else
-		return ;
-	arr = (REAL ***)param;
-	printf(str, arr[j][i][k]);
-	if (i == imax + 1)
-		printf("\n");
-}
-
-void	ft_print_arr(void *arr, void (*f)(void *, int, int, int), int k)
-{
-	t_point start;
-	t_point end;
-
-	ft_fill_point(&start, jmax, 1, k);
-	ft_fill_point(&end, 0, imax, k);
-	ft_cycle_cube(arr, f, &start, &end);
-}
-
-void	ft_print_ground(void *arr, void (*f)(void *, int, int, int), int k)
-{
-	t_point start;
-	t_point end;
-
-	ft_fill_point(&start, 0, 0, 0);
-	ft_fill_point(&end, 0, imax -1 , kmax -1);
-	ft_cycle_cube(arr, f, &start, &end);
-}
-
-
 void	*ft_solver(void *param)
 {
 	while (TRUE)
@@ -378,11 +369,51 @@ void	*ft_solver(void *param)
 
 int main(int ac, char **av)
 {
-	ft_initialization_of_global_variable();
-
 
 	if (!(ground = ft_read_ground_from_file3("demo.txt")))
 		return(0);
+
+	int i2 = 0;
+	int k = 0;
+	while (k < KMAX + 2)
+	{
+		printf("%2d ", k);
+		i2 = 0;
+		while (i2 < IMAX + 2)
+		{
+			printf("%4d ", ground[k][i2]);
+
+			i2++;
+		}
+		printf("\n");
+		k++;
+	}
+
+	printf("\n");
+
+	int **comlex_ground = ft_create_complex_ground_from_simple(ground);
+
+	i2 = 0;
+	k = 0;
+	while (k < (KMAX + 2) * (ADD_POINT + 1))
+	{
+		i2 = 0;
+		printf("%2d ", k);
+		while (i2 < (IMAX + 2) * (ADD_POINT + 1))
+		{
+			printf("%4d ", comlex_ground[k][i2]);
+
+			i2++;
+		}
+		printf("\n");
+		k++;
+	}
+
+
+	//return (0);
+
+	ft_initialization_of_global_variable();
+
 
 	//создаем все массивы, проставляем начальные значения скоростей и давления
 	//инициализируем все глобальные переменные
@@ -392,11 +423,19 @@ int main(int ac, char **av)
 	ft_fill_cells_from_ground(g_cell, ground);
 
 	//создаем модель для 3д карты
-	ft_create_points_in_cells(vis);
-	//ft_create_relief(vis, comlex_ground);
+	//ft_create_points_in_cells(vis);
 
-	ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 50, 11, KMAX - 1}), WATER);
-	ft_create_new_area_of_water(&g_parts, &((t_point){2, IMAX - 11, 2}), &((t_point){JMAX - 50, IMAX - 1, KMAX - 1}), WATER);
+
+	ft_create_relief(vis, comlex_ground);
+	ft_create_points_in_cells(vis);
+
+	//ft_create_new_area_of_water(&g_parts, &((t_point){30, 30, 2}), &((t_point){30, 30, 3}), WATER);
+	ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 2, 11, KMAX - 1}), WATER);
+	//ft_create_new_area_of_water(&g_parts, &((t_point){2, IMAX - 11, 2}), &((t_point){JMAX - 50, IMAX - 1, KMAX - 1}), MAGMA);
+
+
+	//ft_create_new_area_of_water(&g_parts, &((t_point){JMAX - 12, IMAX / 2 - 7, KMAX / 2 - 7}), &((t_point){JMAX - 1, IMAX / 2 + 7, KMAX / 2 + 7}), MAGMA);
+	//ft_create_new_area_of_water(&g_parts, &((t_point){1, 2, 2}), &((t_point){7, IMAX - 1, KMAX - 1}), WATER);
 
 	g_count = g_parts->elems_used;
 
@@ -408,7 +447,6 @@ int main(int ac, char **av)
 			g_compile[i].global_work_size = g_count;
 		i++;
 	}
-
 
 	ft_fill_interface(g_parts, g_iparts);
 
@@ -424,10 +462,12 @@ int main(int ac, char **av)
 	if (!ft_set_kernel_arg(g_cl, g_compile))
 		ft_del_all("set error\n");
 
-	pthread_t tid; /* идентификатор потока */
-	pthread_attr_t attr; /* атрибуты потока */
+	pthread_t tid;
+	pthread_attr_t attr;
 	pthread_attr_init(&attr);
 	pthread_create(&tid, &attr, ft_solver, NULL);
+
+
 
 	//g_clock = clock();
 

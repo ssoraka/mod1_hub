@@ -12,31 +12,29 @@
 
 #include "ft_mod1.h"
 
-int		ft_interpolation(int percent, int color1, int color2, int byte)
-{
-	int deltared;
-
-	color1 = color1 >> (8 * byte);
-	color2 = color2 >> (8 * byte);
-	color1 = color1 & 0xFF;
-	color2 = color2 & 0xFF;
-	deltared = ((color2 - color1) * percent) / 100 + color1;
-	deltared = (deltared & 0xFF) << (8 * byte);
-	return (deltared);
-}
-
 int		ft_grad_color(int delta1, int delta2, int color1, int color2)
 {
 	int color;
 	int grad;
+	int tmp;
+	unsigned char *ptr[3];
+	int i;
 
-	grad = 100 - (delta1 * 100) / delta2;
-	color = ft_interpolation(grad, color1, color2, 0);
-	color |= ft_interpolation(grad, color1, color2, 1);
-	color |= ft_interpolation(grad, color1, color2, 2);
+	ptr[0] = (unsigned char *)&color;
+	ptr[1] = (unsigned char *)&color1;
+	ptr[2] = (unsigned char *)&color2;
+	grad = 1024 - (delta1 << 10) / delta2;
+	i = 0;
+	while (i < 4)
+	{
+		tmp = ((((ptr[2][i] - ptr[1][i]) * grad) >> 10) + ptr[1][i]);
+		if (tmp > 0xFF)
+			tmp = 0xFF;
+		ptr[0][i] = tmp;
+		i++;
+	}
 	return (color);
 }
-
 
 int		ft_set_color_to_point(t_line *line, t_point *p, int lower_45)
 {
