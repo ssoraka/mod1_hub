@@ -28,8 +28,6 @@ int		ft_cube_interpolate (int *arr, REAL x)
 	value = arr[1] + (-arr[0] + arr[2]) * (x / 2)
 	+ (2 * arr[0] - 5 * arr[1] + 4 * arr[2] - arr[3]) * x * (x / 2)
 	+ (-arr[0] + 3 * arr[1] - 3 * arr[2] + arr[3]) * x * x * (x / 2);
-	if (value < 0.0)
-		value = 0.0;
 	return (value);
 }
 
@@ -155,7 +153,7 @@ int		ft_create_points_from_string(t_vektr **begin, int *ground, int k)
 	{
 		color = ft_grad_color(ground[i], MAP_HEIGTH2, COLOR_UP, COLOR_DOWN);
 		//MAP_HEIGTH2 перевести на даблы и избавиться
-		ft_fill_dpoint(&p, ft_return_heigth(ground[i]) + 0.70,
+		ft_fill_dpoint(&p, ft_return_heigth(ground[i]) + 0.00,
 		(REAL)i / (1 + ADD_POINT) + 0.5,
 		(REAL)k / (1 + ADD_POINT) + 0.5);
 		if (!(v = ft_new_vektor2(p.x, p.y, p.z, color)))

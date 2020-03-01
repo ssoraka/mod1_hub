@@ -180,6 +180,14 @@ int		ft_run_kernels(t_open_cl *cl)
 	return (TRUE);
 }
 
+
+void	ft_stop_cl(t_open_cl *cl)
+{
+	clFlush(cl->queue);
+	clFinish(cl->queue);
+}
+
+
 void	ft_free_open_cl(t_open_cl **open_cl)
 {
 	t_open_cl *cl;

@@ -55,7 +55,7 @@ void	ft_create_new_water_in_area(t_arr **p_arr, t_dpoint *start, t_point *end, i
 			{
 				ft_fill_dpoint(&pos, start->y, i, k);
 				ft_fill_part(&part, &pos, type);
-				ft_arr_add(p_arr, (void *)&part);
+				ft_arr_add(*p_arr, (void *)&part);
 			}
 			k++;
 		}
@@ -94,6 +94,6 @@ void	ft_fill_interface(t_arr *parts, t_arr *iparts)
 	{
 		ip.pos = p->pos;
 		ip.type = p->type;
-		ft_arr_add(&iparts, (void *)&ip);
+		ft_arr_add(iparts, (void *)&ip);
 	}
 }

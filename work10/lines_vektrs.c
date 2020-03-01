@@ -19,7 +19,6 @@ t_vektr	*ft_new_vektor2(REAL x, REAL y, REAL z, int color)
 	tmp = (t_vektr *)ft_memalloc(sizeof(t_vektr));
 	if (!tmp)
 		return (NULL);
-	ft_fill_point(&(tmp->otn), (int)y, (int)x, (int)z);
 	ft_fill_dpoint(&(tmp->abs), y, x, z);
 	tmp->color = color;
 	tmp->next = NULL;

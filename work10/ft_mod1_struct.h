@@ -33,7 +33,6 @@ typedef struct		s_vektr
 {
 	int color;
 	struct s_dpoint	abs;
-	struct s_point	otn;
 	struct s_point	zoom;
 	struct s_vektr	*next;
 }					t_vektr;
@@ -60,13 +59,16 @@ typedef struct		s_plgn
 
 typedef struct		s_pict
 {
-	int 			bits_per_pixel;
-	int				size_line;
-	int				endian;
+	void			*img;
 	int				*addr;
 	int				*z_buffer;
 	int				*addr_copy;
 	int				*z_buffer_copy;
+	int 			bits_per_pixel;
+	int				size_line;
+	int				count_line;
+	int				count_byte;
+	int				endian;
 }					t_pict;
 
 
@@ -78,23 +80,27 @@ typedef struct		s_oxyz
 }					t_oxyz;
 
 
-typedef struct		s_vis
+typedef struct		s_param
 {
 	int				cam_x;
 	int				cam_y;
 	int				pause;
 	int				exit;
 	int				rain;
-	int				is_shift;
-	int				is_rotate_or_csale;
+	int				is_obstacles_change;
 	int				is_need_print_obstacles;
 	int				grad;
 	double			len;
 	struct s_dpoint	ang;
+	struct s_oxyz	oxyz;
+}					t_param;
+
+
+typedef struct		s_vis
+{
+	struct s_param	param;
 	struct s_pict	pic;
 	struct s_pict	pict;
-	struct s_oxyz	oxyz;
-	void			*img;
 	void			*mlx;
 	void			*win;
 	struct s_plgn	*plgn;
@@ -112,6 +118,22 @@ typedef struct		s_arr
 	int				elem_size;
 	void			(*func_del)(void *);
 }					t_arr;
+
+typedef struct		s_solver
+{
+	pthread_t		tid;
+	pthread_attr_t	attr;
+	t_open_cl		*cl;
+	t_param			*param;
+}					t_solver;
+
+typedef struct		s_earth
+{
+	t_arr			*points;
+	t_arr			*poligons;
+	int				rows;
+	int				columns;
+}					t_earth;
 
 typedef struct		s_prog
 {

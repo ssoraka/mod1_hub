@@ -69,7 +69,7 @@ void ft_print_lines(t_vis *vis, t_line *line)
 {
 	while (line)
 	{
-		draw_line_img2(line, &(vis->pic), vis->grad);
+		draw_line_img2(line, &(vis->pic), vis->param.grad);
 		line = line->next;
 	}
 }
@@ -155,9 +155,6 @@ void	ft_create_obstacles(void *ptr, int j, int i, int k)
 
 
 
-
-
-
 void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start, t_point *end)
 {
 	int k;
@@ -165,13 +162,9 @@ void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start
 	int i;
 	t_point delta;
 
-	ft_fill_point(&delta, 1, 1, 1);
-	if (end->y < start->y)
-		delta.y = -1;
-	if (end->x < start->x)
-		delta.x = -1;
-	if (end->z < start->z)
-		delta.z = -1;
+	delta.y = (end->y < start->y) ? -1 : 1;
+	delta.x = (end->x < start->x) ? -1 : 1;
+	delta.z = (end->z < start->z) ? -1 : 1;
 	j = start->y;
 	while (j != end->y + delta.y)
 	{
@@ -258,11 +251,12 @@ void print_img_to_img(void *ptr, void *param)
 	pict = &(vis->pict);
 	ft_bzero((void *)&vektr, sizeof(t_vektr));
 	ft_fill_dpoint(&vektr.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
-	ft_change_points4(vis, &vektr, TRUE);
-	if (vektr.zoom.x < 0 || vektr.zoom.y < 0 || vektr.zoom.x >= CONST_WIDTH || vektr.zoom.y >= CONST_HEINTH)
+	ft_change_points4(&(vis->param), &vektr);
+
+	shift = pict->size_line / 2;
+	if (!ft_put_pixel_to_img2(&(vis->pic), &vektr.zoom, pict->addr[shift * pict->size_line + shift]))
 		return ;
 	//printf("_%d_\n",pict->size_line);
-	shift = pict->size_line / 2;
 	y = 0;
 	while (y < pict->size_line)
 	{
@@ -292,7 +286,7 @@ void	ft_print_all_water2(void *ptr, void *param)
 	ipart = (t_ipart *)ptr;
 	ft_bzero((void *)&vektr, sizeof(t_vektr));
 	ft_fill_dpoint(&vektr.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
-	ft_change_points4(vis, &vektr, TRUE);
+	ft_change_points4(&(vis->param), &vektr);
 	ft_print_rect2(&(vis->pic), &(vektr.zoom), g_color[ipart->type][RADIUS2], g_color[ipart->type][COLOR]);
 }
 
@@ -303,18 +297,18 @@ void	ft_print_all_water2(void *ptr, void *param)
 void	ft_refresh_picture(t_vis *vis)
 {
 	mlx_clear_window(vis->mlx, vis->win);
-	ft_bzero((void *)vis->pic.addr, CONST_WIDTH * CONST_HEINTH * 4);
-	ft_memset((void *)vis->pic.z_buffer, 0x80, CONST_WIDTH * CONST_HEINTH * 4);
+	ft_clear_image(&(vis->pic));
 
 	//ft_change_points5(vis);
-	if (!vis->is_need_print_obstacles)
-		ft_print_poligons(vis, vis->plgn);
+
+	//ft_print_poligons(vis->plgn, vis->points, &(vis->pic), &(vis->param));
+	ft_print_relief(g_earth, g_cell, &(vis->pic), &(vis->param));
 	//ft_print_all_water(vis);
 	//vis->is_rotate_or_csale = TRUE;
 
 
 
-	//ft_init_picture(&(vis->pict), vis->len, WATER_COLOR);
+	//ft_init_picture(&(vis->pict), vis->param.len, WATER_COLOR);
 	//ft_for_each_elem(g_iparts, print_img_to_img, (void *)vis);
 	//free((void *)vis->pict.addr);
 
@@ -322,7 +316,7 @@ void	ft_refresh_picture(t_vis *vis)
 	//vis->is_rotate_or_csale = FALSE;
 	//ft_print_lines(vis, vis->lines);
 
-	mlx_put_image_to_window(vis->mlx, vis->win, vis->img, 0, 0);
+	mlx_put_image_to_window(vis->mlx, vis->win, vis->pic.img, 0, 0);
 
 }
 
@@ -335,6 +329,8 @@ int loop_hook(void *param)
 
 	vis = (t_vis *)param;
 
+	if (vis->param.exit)
+		return (0);
 	if (!ft_read_buffers(g_cl, INTERFACE, (void *)g_iparts->elems, g_iparts->elems_used * sizeof(t_ipart)))
 		ft_del_all("read error\n");
 
@@ -348,19 +344,17 @@ int loop_hook(void *param)
 
 
 
-void	*ft_solver(void *param)
+void	ft_prepare_to_compile(t_prog *compile, t_arr *parts)
 {
-	while (TRUE)
+	int i;
+
+	i = 0;
+	while (i < PROGRAMS_COUNT)
 	{
-		//запускаем программы
-		if (vis->exit)
-			break ;
-		else if (!vis->pause)
-			if (!ft_run_kernels(g_cl))
-				ft_del_all("run error\n");
+		if (compile[i].arg_1 == PARTS)
+			compile[i].global_work_size = parts->elems_used;
+		i++;
 	}
-	pthread_exit(0);
-	return (NULL);
 }
 
 
@@ -373,6 +367,9 @@ int main(int ac, char **av)
 	if (!(ground = ft_read_ground_from_file3("demo.txt")))
 		return(0);
 
+	int **comlex_ground = ft_create_complex_ground_from_simple(ground);
+
+/*
 	int i2 = 0;
 	int k = 0;
 	while (k < KMAX + 2)
@@ -391,7 +388,7 @@ int main(int ac, char **av)
 
 	printf("\n");
 
-	int **comlex_ground = ft_create_complex_ground_from_simple(ground);
+
 
 	i2 = 0;
 	k = 0;
@@ -407,13 +404,12 @@ int main(int ac, char **av)
 		}
 		printf("\n");
 		k++;
-	}
+	}*/
 
 
 	//return (0);
 
 	ft_initialization_of_global_variable();
-
 
 	//создаем все массивы, проставляем начальные значения скоростей и давления
 	//инициализируем все глобальные переменные
@@ -426,52 +422,47 @@ int main(int ac, char **av)
 	//ft_create_points_in_cells(vis);
 
 
-	ft_create_relief(vis, comlex_ground);
-	ft_create_points_in_cells(vis);
 
+
+	//ft_create_relief(vis, comlex_ground);
+	ft_create_relief2(g_earth, comlex_ground);
+	//ft_create_points_in_cells(vis);
+	//ft_del_all("exit\n");
+
+	t_part part;
+	ft_arr_add(g_parts, (void *)&part);
 	//ft_create_new_area_of_water(&g_parts, &((t_point){30, 30, 2}), &((t_point){30, 30, 3}), WATER);
-	ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 2, 11, KMAX - 1}), WATER);
+
+	//ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 50, 11, KMAX - 1}), WATER);
 	//ft_create_new_area_of_water(&g_parts, &((t_point){2, IMAX - 11, 2}), &((t_point){JMAX - 50, IMAX - 1, KMAX - 1}), MAGMA);
 
 
 	//ft_create_new_area_of_water(&g_parts, &((t_point){JMAX - 12, IMAX / 2 - 7, KMAX / 2 - 7}), &((t_point){JMAX - 1, IMAX / 2 + 7, KMAX / 2 + 7}), MAGMA);
 	//ft_create_new_area_of_water(&g_parts, &((t_point){1, 2, 2}), &((t_point){7, IMAX - 1, KMAX - 1}), WATER);
 
-	g_count = g_parts->elems_used;
-
-
-	int i = 0;
-	while (i < PROGRAMS_COUNT)
-	{
-		if (g_compile[i].arg_1 == PARTS)
-			g_compile[i].global_work_size = g_count;
-		i++;
-	}
 
 	ft_fill_interface(g_parts, g_iparts);
 
 	//создаем буферы и копируем в них инфу
-	if (!ft_create_buffers(g_cl, PARTS, (void *)g_parts->elems, g_parts->elems_used * sizeof(t_part)))
+	if (!ft_create_buffers(g_cl, PARTS, (void *)g_parts->elems, g_parts->elems_count * sizeof(t_part)))
 		ft_del_all("buffer error\n");
 	if (!ft_create_buffers(g_cl, CELLS, (void *)g_cell, CELL_COUNT * sizeof(t_cell)))
 		ft_del_all("buffer error\n");
-	if (!ft_create_buffers(g_cl, INTERFACE, (void *)g_iparts->elems, g_parts->elems_used * sizeof(t_ipart)))
+	if (!ft_create_buffers(g_cl, INTERFACE, (void *)g_iparts->elems, g_parts->elems_count * sizeof(t_ipart)))
 		ft_del_all("buffer error\n");
 
 	//привязываем аргументы к программам
+	ft_prepare_to_compile(g_compile, g_parts);
 	if (!ft_set_kernel_arg(g_cl, g_compile))
 		ft_del_all("set error\n");
 
-	pthread_t tid;
-	pthread_attr_t attr;
-	pthread_attr_init(&attr);
-	pthread_create(&tid, &attr, ft_solver, NULL);
 
+	ft_create_thread_for_solver(&solver, g_cl, &(vis->param));
 
 
 	//g_clock = clock();
 
-	mlx_hook(vis->win, 2, 0, deal_key, (void *)vis);
+	mlx_hook(vis->win, 2, 0, deal_key, (void *)&(vis->param));
 	mlx_loop_hook(vis->mlx, loop_hook, (void *)vis);
 	mlx_loop(vis->mlx);
 

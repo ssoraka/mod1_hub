@@ -14,6 +14,7 @@
 
 void	ft_init_variable(void)
 {
+	g_earth = NULL;
 	g_cell = NULL;
 	g_parts = NULL;
 	g_iparts = NULL;
@@ -27,29 +28,10 @@ void	ft_init_delta_xyz(void)
 	g.z = CONST_GZ;
 }
 
-void ***ft_cube_arr(int jmax, int imax, int kmax, int size)
-{
-	void ***arr;
-	int j;
-
-	if (!(arr = (void ***)ft_memalloc(sizeof(void **) * (jmax + 1))))
-		return (NULL);
-	j = 0;
-	while (j < jmax)
-	{
-		if (!(arr[j] = (void **)ft_mem_arr_new(imax, kmax, size)))
-		{
-			ft_del_cube_arr(&arr);
-			break ;
-		}
-		j++;
-	}
-	return (arr);
-}
-
 void	ft_init_parts_arr_and_cell(void)
 {
-	if (!(vis = ft_create_img()))
+	ft_bzero((void *)&solver, sizeof(t_solver));
+	if (!(vis = ft_create_mlx(CONST_WIDTH, CONST_HEINTH, "mod1")))
 		ft_del_all(NULL);
 	if (!(g_parts = ft_init_all_clear_parts()))
 		ft_del_all(NULL);
@@ -57,7 +39,8 @@ void	ft_init_parts_arr_and_cell(void)
 		ft_del_all(NULL);
 	if (!(g_cell = ft_memalloc(sizeof(t_cell) * (CELL_COUNT + 1))))
 		ft_del_all(NULL);
-
+	if (!(g_earth = ft_create_earth()))
+		ft_del_all(NULL);
 
 	//инициализируем сл и компилим программы
 	if (!(g_cl = ft_init_open_cl()))
@@ -75,33 +58,21 @@ void	ft_initialization_of_global_variable(void)
 	ft_init_parts_arr_and_cell();
 }
 
-void	ft_del_cube_arr(void ****arr)
-{
-	void	***tmp;
-	int		i;
-
-	i = 0;
-	tmp = *arr;
-	while (tmp[i])
-	{
-		ft_str_arr_free((char ***)(tmp + i));
-		i++;
-	}
-	ft_memdel((void *)arr);
-}
-
-
 
 
 void	ft_del_all(char *message)
 {
+	if (vis)
+		vis->param.exit = TRUE;
+	pthread_join(solver.tid, NULL);
 	if (message)
 		ft_putstr_fd(message, 2);
 	ft_del_arr(&g_parts);
 	ft_del_arr(&g_iparts);
+	ft_del_earth(&g_earth);
 	ft_str_arr_free((char ***)(&ground));
 	ft_memdel((void **)&g_cell);
 	ft_free_open_cl(&g_cl);
-	ft_img_destroy(&vis);
+	ft_destroy_mlx(&vis);
 	exit(0);
 }

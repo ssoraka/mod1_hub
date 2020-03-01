@@ -30,9 +30,9 @@ void	ft_fill_dpoint(t_dpoint *p, REAL y, REAL x, REAL z)
 	p->z = z;
 }
 
-void	ft_create_xyz(t_vis *vis)
+void	ft_create_xyz(t_oxyz *oxyz)
 {
-	ft_fill_dpoint(&(vis->oxyz.ox), 0.0, 1.0, 0.0);
-	ft_fill_dpoint(&(vis->oxyz.oy), 1.0, 0.0, 0.0);
-	ft_fill_dpoint(&(vis->oxyz.oz), 0.0, 0.0, 1.0);
+	ft_fill_dpoint(&(oxyz->ox), 0.0, 1.0, 0.0);
+	ft_fill_dpoint(&(oxyz->oy), 1.0, 0.0, 0.0);
+	ft_fill_dpoint(&(oxyz->oz), 0.0, 0.0, 1.0);
 }

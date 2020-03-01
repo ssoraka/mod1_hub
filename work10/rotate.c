@@ -54,15 +54,6 @@ void	ft_rotate_vek_around_vek_by_ang(t_dpoint *ox, t_dpoint *oy, double ang)
 	ft_norm_vektor(ox);
 }
 
-void	ft_ret_zoom_xyz(t_vektr *ox, t_vis *vis)
-{
-	ox->otn.x = (int)(ox->abs.x * vis->len);
-	ox->zoom.x = ox->otn.x + vis->cam_x;
-	ox->otn.y = (int)(ox->abs.y * vis->len);
-	ox->zoom.y = ox->otn.y + vis->cam_y;
-	ox->otn.z = (int)(ox->abs.z * vis->len);
-	ox->zoom.z = ox->otn.z;
-}
 
 void	ft_rotate_xyz(t_oxyz *oxyz, t_dpoint *ang)
 {
@@ -84,7 +75,7 @@ void	ft_rotate_xyz(t_oxyz *oxyz, t_dpoint *ang)
 	ft_fill_dpoint(ang, 0.0, 0.0, 0.0);
 }
 
-void	ft_change_points4(t_vis *vis, t_vektr *p, int rotate)
+void	ft_change_points4(t_param *vis, t_vektr *p)
 {
 	t_dpoint *ox;
 	t_dpoint *oy;
@@ -93,22 +84,17 @@ void	ft_change_points4(t_vis *vis, t_vektr *p, int rotate)
 	ox = &(vis->oxyz.ox);
 	oy = &(vis->oxyz.oy);
 	oz = &(vis->oxyz.oz);
-	if (rotate)
-	{
-		p->otn.z = (int)((ox->z * p->abs.x + oy->z * p->abs.y + oz->z * p->abs.z) * vis->len);
-		p->otn.x = (int)((ox->x * p->abs.x + oy->x * p->abs.y + oz->x * p->abs.z) * vis->len);
-		p->otn.y = (int)((ox->y * p->abs.x + oy->y * p->abs.y + oz->y * p->abs.z) * vis->len);
-	}
-	p->zoom.x = p->otn.x + vis->cam_x;
-	p->zoom.y = p->otn.y + vis->cam_y;
-	p->zoom.z = p->otn.z;
+
+	p->zoom.x = (int)((ox->x * p->abs.x + oy->x * p->abs.y + oz->x * p->abs.z) * vis->len) + vis->cam_x;
+	p->zoom.y = (int)((ox->y * p->abs.x + oy->y * p->abs.y + oz->y * p->abs.z) * vis->len) + vis->cam_y;
+	p->zoom.z = (int)((ox->z * p->abs.x + oy->z * p->abs.y + oz->z * p->abs.z) * vis->len);
 }
 
-void	ft_change_points5(t_vis *vis, t_vektr *p)
+void	ft_change_points5(t_param *param, t_vektr *p)
 {
 	while (p)
 	{
-		ft_change_points4(vis, p, vis->is_rotate_or_csale);
+		ft_change_points4(param, p);
 		p = p->next;
 	}
 }

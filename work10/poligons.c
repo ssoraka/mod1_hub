@@ -139,27 +139,23 @@ void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad)
 	ft_swap_points(&(plgn->p[3]), &(plgn->p[0]));
 	ft_draw_traing(pic, plgn->p, grad, plgn->color);
 	ft_swap_points(&(plgn->p[2]), &(plgn->p[3]));
-
 }
 
-void	ft_print_poligons(t_vis *vis, t_plgn *plgn)
+void	ft_print_poligons(t_plgn *plgn, t_vektr *points, t_pict *pic, t_param *param)
 {
-	if (vis->is_rotate_or_csale || vis->is_shift)
+	if (!param->is_need_print_obstacles)
+		return ;
+	if (param->is_obstacles_change)
 	{
-		ft_change_points5(vis, vis->points);
-		vis->is_rotate_or_csale = FALSE;
-		vis->is_shift = FALSE;
+		ft_change_points5(param, points);
+		param->is_obstacles_change = FALSE;
 		while (plgn)
 		{
-			ft_print_plgn(plgn, &(vis->pic), vis->grad);
+			ft_print_plgn(plgn, pic, param->grad);
 			plgn = plgn->next;
 		}
-		ft_memcpy((void *)(vis->pic.addr_copy), (void *)(vis->pic.addr), CONST_WIDTH * CONST_HEINTH * 4);
-		ft_memcpy((void *)(vis->pic.z_buffer_copy), (void *)(vis->pic.z_buffer), CONST_WIDTH * CONST_HEINTH * 4);
+		ft_save_image(pic);
 	}
 	else
-	{
-		ft_memcpy((void *)(vis->pic.addr), (void *)(vis->pic.addr_copy), CONST_WIDTH * CONST_HEINTH * 4);
-		ft_memcpy((void *)(vis->pic.z_buffer), (void *)(vis->pic.z_buffer_copy), CONST_WIDTH * CONST_HEINTH * 4);
-	}
+		ft_return_image(pic);
 }

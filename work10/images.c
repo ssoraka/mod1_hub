@@ -17,38 +17,72 @@
 ** надо пачку защит маллока наставить ...
 */
 
-void	ft_init_image(t_vis *vis)
+void	ft_init_params(t_param *vis)
 {
 	vis->cam_x = CAM_X;
 	vis->cam_y = CAM_Y;
 	vis->len = CONST_LEN;
 	vis->ang.z = M_PI;
 	vis->pause = 1;
-	ft_create_xyz(vis);
+	vis->is_need_print_obstacles = TRUE;
+	ft_create_xyz(&(vis->oxyz));
 }
 
-t_vis	*ft_create_img(void)
+void	ft_clear_image(t_pict *pic)
+{
+	ft_bzero((void *)pic->addr, pic->count_byte);
+	ft_memset((void *)pic->z_buffer, 0x80, pic->count_byte);
+}
+
+void	ft_return_image(t_pict *pic)
+{
+	ft_memcpy((void *)pic->addr, (void *)pic->addr_copy, pic->count_byte);
+	ft_memcpy((void *)pic->z_buffer, (void *)pic->z_buffer_copy, pic->count_byte);
+}
+
+void	ft_save_image(t_pict *pic)
+{
+	ft_memcpy((void *)pic->addr_copy, (void *)pic->addr, pic->count_byte);
+	ft_memcpy((void *)pic->z_buffer_copy, (void *)pic->z_buffer, pic->count_byte);
+}
+
+int		ft_create_img(t_pict *pic, void *mlx, int width, int heigth)
+{
+	if (!(pic->img = mlx_new_image(mlx, width, heigth)))
+		return (FALSE);
+	if (!(pic->addr = (int *)mlx_get_data_addr(pic->img, &(pic->bits_per_pixel), &(pic->size_line), &(pic->endian))))
+		return (FALSE);
+	pic->count_line = heigth;
+	pic->count_byte = width * heigth * sizeof(int);
+	if (!(pic->z_buffer = (int *)ft_memalloc(pic->count_byte)))
+		return (FALSE);
+	if (!(pic->addr_copy = (int *)ft_memalloc(pic->count_byte)))
+		return (FALSE);
+	if (!(pic->z_buffer_copy = (int *)ft_memalloc(pic->count_byte)))
+		return (FALSE);
+	return (TRUE);
+}
+
+void	ft_destroy_img(t_pict *pic)
+{
+	ft_memdel((void **)&(pic->z_buffer));
+	ft_memdel((void **)&(pic->addr_copy));
+	ft_memdel((void **)&(pic->z_buffer_copy));
+}
+
+t_vis	*ft_create_mlx(int width, int heigth, char *name)
 {
 	t_vis *vis;
 
 	if (!(vis = ft_memalloc(sizeof(t_vis))))
 		return (NULL);
 	if (!(vis->mlx = mlx_init()))
-		return (ft_img_destroy(&vis));
-	if (!(vis->win = mlx_new_window(vis->mlx, CONST_WIDTH, CONST_HEINTH, "mlx 42")))
-		return (ft_img_destroy(&vis));
-	if (!(vis->img = mlx_new_image(vis->mlx, CONST_WIDTH, CONST_HEINTH)))
-		return (ft_img_destroy(&vis));
-	ft_init_image(vis);
-	if (!(vis->pic.addr = (int *)mlx_get_data_addr(vis->img, &(vis->pic.bits_per_pixel), &(vis->pic.size_line), &(vis->pic.endian))))
-		return (ft_img_destroy(&vis));
-	if (!(vis->pic.z_buffer = (int *)ft_memalloc(CONST_WIDTH * CONST_HEINTH * 4)))
-		return (ft_img_destroy(&vis));
-	if (!(vis->pic.addr_copy = (int *)ft_memalloc(CONST_WIDTH * CONST_HEINTH * 4)))
-		return (ft_img_destroy(&vis));
-	if (!(vis->pic.z_buffer_copy = (int *)ft_memalloc(CONST_WIDTH * CONST_HEINTH * 4)))
-		return (ft_img_destroy(&vis));
-
+		return (ft_destroy_mlx(&vis));
+	if (!(vis->win = mlx_new_window(vis->mlx, width, heigth, name)))
+		return (ft_destroy_mlx(&vis));
+	if (!(ft_create_img(&(vis->pic), vis->mlx, width, heigth)))
+		return (ft_destroy_mlx(&vis));
+	ft_init_params(&(vis->param));
 	return (vis);
 }
 
@@ -75,24 +109,39 @@ int		ft_not_need_print(t_line *line, t_pict *pic)
 	return (FALSE);
 }
 
-void	ft_put_pixel_to_img2(t_pict *pic, t_point *p, int color)
+
+int		ft_put_pixel_to_img(t_pict *pic, t_point *p, int color)
 {
 	if (p->x < 0 || p->y < 0 || p->x >= CONST_WIDTH || p->y >= CONST_HEINTH)
-		return ;
-	if (pic->z_buffer[p->y * CONST_WIDTH + p->x] > p->z)
-		return ;
+		return (FALSE);
 	pic->addr[p->y * CONST_WIDTH + p->x] = color;
-	pic->z_buffer[p->y * CONST_WIDTH + p->x] = p->z;
+	return (TRUE);
 }
 
-t_vis	*ft_img_destroy(t_vis **vis)
+
+int		ft_put_pixel_to_img2(t_pict *pic, t_point *p, int color)
+{
+	if (p->x < 0 || p->y < 0 || p->x >= CONST_WIDTH || p->y >= CONST_HEINTH)
+		return (FALSE);
+	if (pic->z_buffer[p->y * CONST_WIDTH + p->x] > p->z)
+		return (FALSE);
+	pic->addr[p->y * CONST_WIDTH + p->x] = color;
+	pic->z_buffer[p->y * CONST_WIDTH + p->x] = p->z;
+	return (TRUE);
+}
+
+
+
+
+t_vis	*ft_destroy_mlx(t_vis **vis)
 {
 	if (*vis)
 	{
-		free((*vis)->pic.addr);
-		free((*vis)->pic.z_buffer);
+		ft_destroy_img(&((*vis)->pic));
+		mlx_destroy_image((*vis)->mlx, (*vis)->pic.img);
 		ft_del_vektor(&((*vis)->points));
 		ft_del_lines(&((*vis)->lines));
+		mlx_destroy_window((*vis)->mlx, (*vis)->win);
 		ft_memdel((void **)vis);
 	}
 	return (NULL);

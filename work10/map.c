@@ -23,7 +23,7 @@
 
 REAL	ft_return_heigth(REAL value)
 {
-	value = value * (JMAX - J0) * HEIGTH_KOEF / (MAP_HEIGTH2 + 0) + 1;
+	value = value * (JMAX - J0) * HEIGTH_KOEF / (MAP_HEIGTH2) + 1;
 	return (value);
 }
 
