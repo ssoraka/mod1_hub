@@ -12,6 +12,11 @@
 
 #include "ft_mod1.h"
 
+#define OBSTACLE 1
+#define DYNAMIC_OBSTACLE 2
+
+#define RIGHT_MOUSE 2
+#define LEFT_MOUSE 1
 
 int		ft_get_index(int j, int i, int k)
 {
@@ -42,17 +47,17 @@ int		ft_is_cell_obstacle(int **ground, int cell_number)
 	i = cell.x;
 	k = cell.z;
 	if (j == J0 || i == IMAX || i == I0 || k == K0 || k == KMAX)
-		return (TRUE);
+		return (OBSTACLE);
 	if (j < J0 || j > JMAX || i > IMAX || i < I0 || k < K0 || k > KMAX)
 		return (FALSE);
-	if (i == 25 && j < 7)
-		return (TRUE);
 	//хотел исправить ground[k - 1][i - 1] на ground[k][i],
 	//но надо модуль map.c переписать
 	#ifdef EMPTY_MAP
 	if (j <= (int)ft_return_heigth(ground[k][i]))
-		return (TRUE);
+		return (OBSTACLE);
 	#endif
+	if (i == 25 && j < 7)
+		return (DYNAMIC_OBSTACLE);
 	return (FALSE);
 }
 
@@ -74,7 +79,7 @@ int		ft_is_need_print_cell(t_cell *cell, int j, int i, int k)
 {
 	if (j <= J0 || j >= JMAX || i <= I0 || i >= IMAX || k <= K0 || k >= KMAX)
 		return (FALSE);
-	if (j == J0 + 1 || j == JMAX - 1 || i == I0 + 1 || i == IMAX - 1 || k == KMAX - 1)
+	if (j == JMAX - 1 || i == I0 + 1 || i == IMAX - 1 || k == K0 + 1 || k == KMAX - 1)
 		return (TRUE);
 	if (g_cell[ft_get_index(j + 1, i, k)].obstacle
 	&& g_cell[ft_get_index(j - 1, i, k)].obstacle
@@ -87,56 +92,88 @@ int		ft_is_need_print_cell(t_cell *cell, int j, int i, int k)
 }
 
 
-void	ft_print_one_edge(t_vektr *p, t_pict *pic, t_param *param, int color)
+void	ft_print_one_edge(t_vektr **p, t_pict *pic, t_param *param, int color)
 {
 	t_plgn plgn;
 
 	plgn.color = color;
-	plgn.p[0] = &(p[0]);
-	plgn.p[1] = &(p[1]);
-	plgn.p[2] = &(p[2]);
-	plgn.p[3] = &(p[3]);
+	plgn.p[0] = p[0];
+	plgn.p[1] = p[1];
+	plgn.p[2] = p[2];
+	plgn.p[3] = p[3];
 	if (!ft_need_print_traing(plgn.p, pic))
 		return ;
 	ft_print_plgn(&plgn, pic, param->grad);
-	plgn.p[0] = &(p[3]);
-	plgn.p[1] = &(p[2]);
-	plgn.p[2] = &(p[0]);
+	plgn.p[0] = p[3];
+	plgn.p[1] = p[2];
+	plgn.p[2] = p[0];
 	ft_print_plgn(&plgn, pic, param->grad);
 }
 
 
-void	ft_fill_points_cell(t_point cell, t_vektr *p)
+
+void	ft_fill_points_cell3(t_vektr *p8, t_vektr **p)
+{
+	p[0] = &p8[0];
+	p[1] = &p8[1];
+	p[2] = &p8[2];
+	p[3] = &p8[3];
+
+	p[4] = &p8[0];
+	p[5] = &p8[4];
+	p[6] = &p8[7];
+	p[7] = &p8[3];
+
+	p[8] = &p8[0];
+	p[9] = &p8[4];
+	p[10] = &p8[5];
+	p[11] = &p8[1];
+
+	p[12] = &p8[4];
+	p[13] = &p8[5];
+	p[14] = &p8[6];
+	p[15] = &p8[7];
+
+
+	p[16] = &p8[1];
+	p[17] = &p8[5];
+	p[18] = &p8[6];
+	p[19] = &p8[2];
+
+	p[20] = &p8[3];
+	p[21] = &p8[7];
+	p[22] = &p8[6];
+	p[23] = &p8[2];
+}
+
+void	ft_fill_points_cell2(t_point cell, t_vektr *p, t_param *param)
 {
 	ft_fill_dpoint(&p[0].abs, cell.y, cell.x, cell.z);
 	ft_fill_dpoint(&p[1].abs, cell.y, cell.x + 1, cell.z);
 	ft_fill_dpoint(&p[2].abs, cell.y + 1, cell.x + 1, cell.z);
 	ft_fill_dpoint(&p[3].abs, cell.y + 1, cell.x, cell.z);
+	ft_fill_dpoint(&p[4].abs, cell.y, cell.x, cell.z + 1);
+	ft_fill_dpoint(&p[5].abs, cell.y, cell.x + 1, cell.z + 1);
+	ft_fill_dpoint(&p[6].abs, cell.y + 1, cell.x + 1, cell.z + 1);
+	ft_fill_dpoint(&p[7].abs, cell.y + 1, cell.x, cell.z + 1);
 
-	ft_fill_dpoint(&p[4].abs, cell.y, cell.x, cell.z);
-	ft_fill_dpoint(&p[5].abs, cell.y, cell.x, cell.z + 1);
-	ft_fill_dpoint(&p[6].abs, cell.y + 1, cell.x, cell.z + 1);
-	ft_fill_dpoint(&p[7].abs, cell.y + 1, cell.x, cell.z);
+	p[0].color = ft_grad_color(p[0].abs.y, JMAX - J0, COLOR_UP, COLOR_DOWN);
+	p[1].color = p[0].color;
+	p[2].color = ft_grad_color(p[2].abs.y, JMAX - J0, COLOR_UP, COLOR_DOWN);
+	p[3].color = p[2].color;
+	p[4].color = p[0].color;
+	p[5].color = p[0].color;
+	p[6].color = p[2].color;
+	p[7].color = p[2].color;
 
-	ft_fill_dpoint(&p[8].abs, cell.y, cell.x, cell.z);
-	ft_fill_dpoint(&p[9].abs, cell.y, cell.x, cell.z + 1);
-	ft_fill_dpoint(&p[10].abs, cell.y, cell.x + 1, cell.z + 1);
-	ft_fill_dpoint(&p[11].abs, cell.y, cell.x + 1, cell.z);
-
-	ft_fill_dpoint(&p[12].abs, cell.y, cell.x, cell.z + 1);
-	ft_fill_dpoint(&p[13].abs, cell.y, cell.x + 1, cell.z + 1);
-	ft_fill_dpoint(&p[14].abs, cell.y + 1, cell.x + 1, cell.z + 1);
-	ft_fill_dpoint(&p[15].abs, cell.y + 1, cell.x, cell.z + 1);
-
-	ft_fill_dpoint(&p[16].abs, cell.y, cell.x + 1, cell.z);
-	ft_fill_dpoint(&p[17].abs, cell.y, cell.x + 1, cell.z + 1);
-	ft_fill_dpoint(&p[18].abs, cell.y + 1, cell.x + 1, cell.z + 1);
-	ft_fill_dpoint(&p[19].abs, cell.y + 1, cell.x + 1, cell.z);
-
-	ft_fill_dpoint(&p[20].abs, cell.y + 1, cell.x, cell.z);
-	ft_fill_dpoint(&p[21].abs, cell.y + 1, cell.x, cell.z + 1);
-	ft_fill_dpoint(&p[22].abs, cell.y + 1, cell.x + 1, cell.z + 1);
-	ft_fill_dpoint(&p[23].abs, cell.y + 1, cell.x + 1, cell.z);
+	ft_change_points4(param, &p[0]);
+	ft_change_points4(param, &p[1]);
+	ft_change_points4(param, &p[2]);
+	ft_change_points4(param, &p[3]);
+	ft_change_points4(param, &p[4]);
+	ft_change_points4(param, &p[5]);
+	ft_change_points4(param, &p[6]);
+	ft_change_points4(param, &p[7]);
 }
 
 #define EDGE 4
@@ -144,17 +181,12 @@ void	ft_fill_points_cell(t_point cell, t_vektr *p)
 
 void	ft_print_one_cell(t_point cell, t_pict *pic, t_param *param)
 {
-	t_vektr p[EDGE * EDGE_COUNT];
+	t_vektr *p[EDGE * EDGE_COUNT];
+	t_vektr p8[8];
 	int i;
 
-	ft_fill_points_cell(cell, p);
-	i = 0;
-	while (i < EDGE * EDGE_COUNT)
-	{
-		p[i].color = ft_grad_color(p[i].abs.y, JMAX - J0, COLOR_UP, COLOR_DOWN);
-		ft_change_points4(param, &p[i]);
-		i++;
-	}
+	ft_fill_points_cell2(cell, p8, param);
+	ft_fill_points_cell3(p8, p);
 	i = 0;
 	while (i < 2)
 	{
@@ -172,13 +204,61 @@ void	ft_print_all_cell(t_cell *cell, t_pict *pic, t_param *param)
 	t_point jik;
 	int i;
 
+	ft_memset((void *)pic->index, 0, pic->count_byte);
 	i = 0;
 	while (i < CELL_COUNT)
 	{
+		pic->cell = i;
 		jik = ft_get_index_d3(i);
-		if (cell[i].obstacle
+		if (((cell[i].obstacle == 1 && !param->is_smooth_relief)
+		|| cell[i].obstacle == DYNAMIC_OBSTACLE)
 		&& ft_is_need_print_cell(cell, jik.y, jik.x, jik.z))
 			ft_print_one_cell(jik, pic, param);
 		i++;
 	}
+	pic->cell = 0;
+}
+
+void	ft_del_cell(void *ptr, int j, int i, int k)
+{
+	int cell_number;
+	t_cell *cell;
+
+	if (i == I0 || i == IMAX || j == J0 || j == JMAX || k == K0 || k == KMAX)
+		return ;
+	cell_number = ft_get_index(j, i, k);
+	if (!cell_number)
+		return ;
+	cell = (t_cell *)ptr;
+	cell[cell_number].obstacle = FALSE;
+}
+
+void	ft_add_cell(void *ptr, int j, int i, int k)
+{
+	int cell_number;
+	t_cell *cell;
+
+	cell_number = ft_get_index(j, i, k);
+	if (!cell_number)
+		return ;
+	cell = (t_cell *)ptr;
+	cell[cell_number].obstacle = DYNAMIC_OBSTACLE;
+}
+
+int		ft_change_obstacles(t_cell *cell, int cell_number, int button, t_param *param)
+{
+	t_point p;
+	t_point start;
+	t_point end;
+
+	p = ft_get_index_d3(cell_number);
+	ft_fill_point(&start, p.y - param->brush, p.x - param->brush, p.z - param->brush);
+	ft_fill_point(&end, p.y + param->brush, p.x + param->brush, p.z + param->brush);
+	if (button == RIGHT_MOUSE)
+		ft_cycle_cube((void *)cell, ft_del_cell, &start, &end);
+	else if (button == LEFT_MOUSE)
+		ft_cycle_cube((void *)cell, ft_add_cell, &start, &end);
+	else
+		return (FALSE);
+	return (TRUE);
 }

@@ -61,10 +61,12 @@ typedef struct		s_pict
 {
 	void			*img;
 	int				*addr;
+	int				*index;
 	int				*z_buffer;
 	int				*addr_copy;
 	int				*z_buffer_copy;
-	int 			bits_per_pixel;
+	int				cell;
+	int				bits_per_pixel;
 	int				size_line;
 	int				count_line;
 	int				count_byte;
@@ -87,8 +89,11 @@ typedef struct		s_param
 	int				pause;
 	int				exit;
 	int				rain;
+	int				brush;
 	int				is_obstacles_change;
+	int				is_smooth_relief;
 	int				is_need_print_obstacles;
+	int				is_relief_changed;
 	int				grad;
 	double			len;
 	struct s_dpoint	ang;
@@ -103,9 +108,6 @@ typedef struct		s_vis
 	struct s_pict	pict;
 	void			*mlx;
 	void			*win;
-	struct s_plgn	*plgn;
-	struct s_vektr	*points;
-	struct s_line	*lines;
 }					t_vis;
 
 typedef struct		s_arr
@@ -124,7 +126,9 @@ typedef struct		s_solver
 	pthread_t		tid;
 	pthread_attr_t	attr;
 	t_open_cl		*cl;
+	t_cell			*cell;
 	t_param			*param;
+	struct s_buff	*buff;
 }					t_solver;
 
 typedef struct		s_earth
@@ -137,14 +141,21 @@ typedef struct		s_earth
 
 typedef struct		s_prog
 {
-	char				file[50];
-	char				kernel[50];
-	unsigned int		arg_count;
-	unsigned int		arg_1;
-	unsigned int		arg_2;
-	unsigned int		arg_3;
-	unsigned int		global_work_size;
+	char			file[50];
+	char			kernel[50];
+	unsigned int	arg_count;
+	unsigned int	arg_1;
+	unsigned int	arg_2;
+	unsigned int	arg_3;
+	unsigned int	global_work_size;
 }					t_prog;
 
+typedef struct		s_buff
+{
+	void			*ptr;
+	size_t			buff_size;
+	size_t			elem_size;
+	size_t			global_work_size;
+}					t_buff;
 
 #endif

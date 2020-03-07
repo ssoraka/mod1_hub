@@ -19,7 +19,7 @@ __kernel void up_part_in_cell(__global t_cell *cell)
 	int last;
 
 	c_gid = get_global_id(0);
-	if (cell[c_gid].obstacle == 1 || cell[c_gid].full == 0)
+	if (cell[c_gid].obstacle != 0 || cell[c_gid].full == 0)
 		return;
 	last = 0;
 	i = 0;

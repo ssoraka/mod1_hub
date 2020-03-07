@@ -27,6 +27,8 @@
 #define KEY_S 1
 #define KEY_E 14
 #define KEY_D 2
+#define KEY_K 40
+#define KEY_L 37
 
 #define KEY_LEFT 123
 #define KEY_RIGHT 124
@@ -35,9 +37,12 @@
 
 #define KEY_ESC 53
 #define KEY_P 35
+#define KEY_O 31
 #define KEY_R 15
 #define KEY_G 5
 #define KEY_I 34
+
+#define MAX_BRUSH (IMAX / 2)
 
 
 int		ft_rotate_and_csale(t_param *vis, int key)
@@ -80,21 +85,25 @@ int		ft_shift(t_param *vis, int key)
 	return (TRUE);
 }
 
-
-
 int		deal_key(int key, void *param)
 {
 	t_param *vis;
 
 	vis = (t_param *)param;
-	vis->is_obstacles_change += ft_rotate_and_csale(vis, key);
-	vis->is_obstacles_change += ft_shift(vis, key);
+	if (ft_rotate_and_csale(vis, key) || ft_shift(vis, key) || key == KEY_O)
+		vis->is_obstacles_change = TRUE;
 	if (key == KEY_ESC)
 		ft_del_all(NULL);
 	if (key == KEY_P)
 		vis->pause = !vis->pause;
 	if (key == KEY_R)
 		vis->rain = !vis->rain;
+	if (key == KEY_O)
+		vis->is_smooth_relief = !vis->is_smooth_relief;
+	if (key == KEY_K && vis->brush < MAX_BRUSH)
+		vis->brush++;
+	if (key == KEY_L && vis->brush > 1)
+		vis->brush--;
 	if (key == KEY_I)
 	{
 		vis->is_need_print_obstacles = !vis->is_need_print_obstacles;

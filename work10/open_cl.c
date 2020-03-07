@@ -139,6 +139,18 @@ int		ft_create_buffers(t_open_cl *cl, int num, void *src, size_t size)
 	return (TRUE);
 }
 
+void	ft_create_all_buffers(t_open_cl *cl, t_buff *buff)
+{
+	int i;
+
+	i = 0;
+	while (i < BUFFER_COUNT)
+	{
+		if (!ft_create_buffers(cl, i, buff[i].ptr, buff[i].buff_size))
+			ft_del_all("buffer error\n");
+		i++;
+	}
+}
 
 int		ft_set_kernel_arg(t_open_cl *cl, t_prog *compile)
 {
@@ -164,17 +176,14 @@ int		ft_set_kernel_arg(t_open_cl *cl, t_prog *compile)
 int		ft_run_kernels(t_open_cl *cl)
 {
 	int i;
-	size_t global_work_size[1];
 
 	i = 0;
 	while (i < PROGRAMS_COUNT)
 	{
-		global_work_size[0] = g_compile[i].global_work_size;
 		if (clEnqueueNDRangeKernel(cl->queue, cl->kernel[i], 1, NULL,
-		global_work_size, NULL, 0, NULL, NULL) != CL_SUCCESS)
+		cl->global_work_size[i], NULL, 0, NULL, NULL) != CL_SUCCESS)
 			return (FALSE);
 		clFinish(cl->queue);
-		//ft_putendl("-------------");
 		i++;
 	}
 	return (TRUE);

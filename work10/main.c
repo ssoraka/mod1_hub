@@ -64,97 +64,6 @@ int ft_znak(int num)
 
 
 
-
-void ft_print_lines(t_vis *vis, t_line *line)
-{
-	while (line)
-	{
-		draw_line_img2(line, &(vis->pic), vis->param.grad);
-		line = line->next;
-	}
-}
-
-
-
-
-
-
-
-
-void	ft_create_cube_poligons(t_plgn **plgn, t_vektr **p, int color)
-{
-	t_vektr *tmp[4];
-
-	ft_create_rectang_poligon2(plgn, p, OBSTACLES_FRONT_COLOR);
-	ft_create_rectang_poligon2(plgn, p + 4, OBSTACLES_FRONT_COLOR);
-	tmp[0] = p[1];
-	tmp[1] = p[5];
-	tmp[2] = p[4];
-	tmp[3] = p[0];
-	ft_create_rectang_poligon2(plgn, tmp, OBSTACLES_TOP_COLOR);
-	tmp[0] = p[3];
-	tmp[1] = p[7];
-	ft_create_rectang_poligon2(plgn, tmp, OBSTACLES_TOP_COLOR);
-	tmp[2] = p[6];
-	tmp[3] = p[2];
-	ft_create_rectang_poligon2(plgn, tmp, OBSTACLES_RIGHT_COLOR);
-	tmp[0] = p[1];
-	tmp[1] = p[5];
-	ft_create_rectang_poligon2(plgn, tmp, OBSTACLES_RIGHT_COLOR);
-}
-
-
-
-
-
-
-
-void	ft_create_obstacles(void *ptr, int j, int i, int k)
-{
-	t_vis *vis;
-	t_vektr *p[8];
-	void *points;
-	t_point xyz;
-
-	if (!g_cell[ft_get_index(j, i, k)].obstacle)
-		return ;
-
-	if (g_cell[ft_get_index(j + 1, i, k)].obstacle
-	&& g_cell[ft_get_index(j - 1, i, k)].obstacle
-	&& g_cell[ft_get_index(j, i + 1, k)].obstacle
-	&& g_cell[ft_get_index(j, i - 1, k)].obstacle
-	&& g_cell[ft_get_index(j, i, k + 1)].obstacle
-	&& g_cell[ft_get_index(j, i, k - 1)].obstacle)
-		return ;
-	vis = (t_vis *)ptr;
-	points = (void *)(&(vis->points));
-	ft_fill_point(&xyz, j, i, k);
-	p[0] = ft_add_vektor2(points, &xyz, 0xFF0000);
-	ft_fill_point(&xyz, j, (i + 1), k);
-	p[1] = ft_add_vektor2(points, &xyz, 0x00FF00);
-	ft_fill_point(&xyz, (j + 1), (i + 1), k);
-	p[2] = ft_add_vektor2(points, &xyz, 0xFFFFFF);
-	ft_fill_point(&xyz, (j + 1), i, k);
-	p[3] = ft_add_vektor2(points, &xyz, 0xFFFFFF);
-
-	ft_fill_point(&xyz, j, i, (k + 1));
-	p[4] = ft_add_vektor2(points, &xyz, 0xFFFFFF);
-	ft_fill_point(&xyz, j, (i + 1), (k + 1));
-	p[5] = ft_add_vektor2(points, &xyz, 0x0000FF);
-	ft_fill_point(&xyz, (j + 1), (i + 1), (k + 1));
-	p[6] = ft_add_vektor2(points, &xyz, 0xFFFFFF);
-	ft_fill_point(&xyz, (j + 1), i, (k + 1));
-	p[7] = ft_add_vektor2(points, &xyz, 0xFF0000);
-
-	ft_create_cube_poligons(&(vis->plgn), p, 0xFFFF00);
-}
-
-
-
-
-
-
-
 void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start, t_point *end)
 {
 	int k;
@@ -182,20 +91,6 @@ void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start
 		j += delta.y;
 	}
 }
-
-
-
-
-void	ft_create_points_in_cells(t_vis *vis)
-{
-	t_point start;
-	t_point end;
-
-	ft_fill_point(&start, J0 + 1, I0 + 1, K0 + 1);
-	ft_fill_point(&end, JMAX - 1, IMAX - 1, KMAX - 1);
-	ft_cycle_cube((void *)vis, &ft_create_obstacles, &start, &end);
-}
-
 
 
 void	ft_fill_picture(t_pict *pict, int color)
@@ -254,8 +149,8 @@ void print_img_to_img(void *ptr, void *param)
 	ft_change_points4(&(vis->param), &vektr);
 
 	shift = pict->size_line / 2;
-	if (!ft_put_pixel_to_img2(&(vis->pic), &vektr.zoom, pict->addr[shift * pict->size_line + shift]))
-		return ;
+	//if (!ft_put_pixel_to_img2(&(vis->pic), &vektr.zoom, pict->addr[shift * pict->size_line + shift]))
+	//	return ;
 	//printf("_%d_\n",pict->size_line);
 	y = 0;
 	while (y < pict->size_line)
@@ -299,12 +194,7 @@ void	ft_refresh_picture(t_vis *vis)
 	mlx_clear_window(vis->mlx, vis->win);
 	ft_clear_image(&(vis->pic));
 
-	//ft_change_points5(vis);
-
-	//ft_print_poligons(vis->plgn, vis->points, &(vis->pic), &(vis->param));
 	ft_print_relief(g_earth, g_cell, &(vis->pic), &(vis->param));
-	//ft_print_all_water(vis);
-	//vis->is_rotate_or_csale = TRUE;
 
 
 
@@ -313,8 +203,8 @@ void	ft_refresh_picture(t_vis *vis)
 	//free((void *)vis->pict.addr);
 
 	ft_for_each_elem(g_iparts, ft_print_all_water2, (void *)vis);
-	//vis->is_rotate_or_csale = FALSE;
-	//ft_print_lines(vis, vis->lines);
+
+	//ft_memcpy((void *)vis->pic.addr, (void *)vis->pic.index, vis->pic.count_byte);
 
 	mlx_put_image_to_window(vis->mlx, vis->win, vis->pic.img, 0, 0);
 
@@ -344,21 +234,57 @@ int loop_hook(void *param)
 
 
 
-void	ft_prepare_to_compile(t_prog *compile, t_arr *parts)
+
+int		mouse_hook(int button, int x,int y, void *param)
+{
+	t_vis *vis;
+	int cell_number;
+
+	vis = (t_vis *)param;
+
+	if (vis->param.exit || !vis->param.pause)
+		return (0);
+	cell_number = vis->pic.index[y * CONST_WIDTH + x];
+	if (!cell_number)
+		return (0);
+	if (ft_change_obstacles(g_cell, cell_number, button, &vis->param))
+	{
+		vis->param.is_obstacles_change = TRUE;
+		vis->param.is_relief_changed = TRUE;
+	}
+	return (0);
+}
+
+
+
+void	ft_prepare_to_compile(t_open_cl *cl, t_prog *compile, t_buff *buff)
 {
 	int i;
 
 	i = 0;
 	while (i < PROGRAMS_COUNT)
 	{
-		if (compile[i].arg_1 == PARTS)
-			compile[i].global_work_size = parts->elems_used;
+		cl->global_work_size[i] = &buff[compile[i].arg_1].global_work_size;
 		i++;
 	}
 }
 
 
-
+void	ft_prepare_to_buffers(t_buff *buff, t_arr *parts, t_arr *iparts, t_cell *cell)
+{
+	buff[PARTS].ptr = (void *)parts->elems;
+	buff[PARTS].elem_size = sizeof(t_part);
+	buff[PARTS].buff_size = parts->elems_count * sizeof(t_part);
+	buff[PARTS].global_work_size = parts->elems_used;
+	buff[CELLS].ptr = (void *)cell;
+	buff[CELLS].elem_size = sizeof(t_cell);
+	buff[CELLS].buff_size = CELL_COUNT * sizeof(t_cell);
+	buff[CELLS].global_work_size = CELL_COUNT;
+	buff[INTERFACE].ptr = (void *)iparts->elems;
+	buff[INTERFACE].elem_size = sizeof(t_ipart);
+	buff[INTERFACE].buff_size = parts->elems_count * sizeof(t_ipart);
+	buff[INTERFACE].global_work_size = parts->elems_used;
+}
 
 
 int main(int ac, char **av)
@@ -369,45 +295,6 @@ int main(int ac, char **av)
 
 	int **comlex_ground = ft_create_complex_ground_from_simple(ground);
 
-/*
-	int i2 = 0;
-	int k = 0;
-	while (k < KMAX + 2)
-	{
-		printf("%2d ", k);
-		i2 = 0;
-		while (i2 < IMAX + 2)
-		{
-			printf("%4d ", ground[k][i2]);
-
-			i2++;
-		}
-		printf("\n");
-		k++;
-	}
-
-	printf("\n");
-
-
-
-	i2 = 0;
-	k = 0;
-	while (k < (KMAX + 2) * (ADD_POINT + 1))
-	{
-		i2 = 0;
-		printf("%2d ", k);
-		while (i2 < (IMAX + 2) * (ADD_POINT + 1))
-		{
-			printf("%4d ", comlex_ground[k][i2]);
-
-			i2++;
-		}
-		printf("\n");
-		k++;
-	}*/
-
-
-	//return (0);
 
 	ft_initialization_of_global_variable();
 
@@ -429,12 +316,12 @@ int main(int ac, char **av)
 	//ft_create_points_in_cells(vis);
 	//ft_del_all("exit\n");
 
-	t_part part;
-	ft_arr_add(g_parts, (void *)&part);
+	//t_part part;
+	//ft_arr_add(g_parts, (void *)&part);
 	//ft_create_new_area_of_water(&g_parts, &((t_point){30, 30, 2}), &((t_point){30, 30, 3}), WATER);
 
-	//ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 50, 11, KMAX - 1}), WATER);
-	//ft_create_new_area_of_water(&g_parts, &((t_point){2, IMAX - 11, 2}), &((t_point){JMAX - 50, IMAX - 1, KMAX - 1}), MAGMA);
+	ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 50, 11, KMAX - 1}), WATER);
+	ft_create_new_area_of_water(&g_parts, &((t_point){2, IMAX - 11, 2}), &((t_point){JMAX - 50, IMAX - 1, KMAX - 1}), MAGMA);
 
 
 	//ft_create_new_area_of_water(&g_parts, &((t_point){JMAX - 12, IMAX / 2 - 7, KMAX / 2 - 7}), &((t_point){JMAX - 1, IMAX / 2 + 7, KMAX / 2 + 7}), MAGMA);
@@ -444,26 +331,23 @@ int main(int ac, char **av)
 	ft_fill_interface(g_parts, g_iparts);
 
 	//создаем буферы и копируем в них инфу
-	if (!ft_create_buffers(g_cl, PARTS, (void *)g_parts->elems, g_parts->elems_count * sizeof(t_part)))
-		ft_del_all("buffer error\n");
-	if (!ft_create_buffers(g_cl, CELLS, (void *)g_cell, CELL_COUNT * sizeof(t_cell)))
-		ft_del_all("buffer error\n");
-	if (!ft_create_buffers(g_cl, INTERFACE, (void *)g_iparts->elems, g_parts->elems_count * sizeof(t_ipart)))
-		ft_del_all("buffer error\n");
+
+	ft_prepare_to_buffers(g_buff, g_parts, g_iparts, g_cell);
+	ft_create_all_buffers(g_cl, g_buff);
 
 	//привязываем аргументы к программам
-	ft_prepare_to_compile(g_compile, g_parts);
+	ft_prepare_to_compile(g_cl, g_compile, g_buff);
 	if (!ft_set_kernel_arg(g_cl, g_compile))
 		ft_del_all("set error\n");
 
 
-	ft_create_thread_for_solver(&solver, g_cl, &(vis->param));
-
+	ft_create_thread_for_solver(&solver, g_cl, &(vis->param), g_buff);
 
 	//g_clock = clock();
 
 	mlx_hook(vis->win, 2, 0, deal_key, (void *)&(vis->param));
 	mlx_loop_hook(vis->mlx, loop_hook, (void *)vis);
+	mlx_mouse_hook(vis->win, mouse_hook, (void *)vis);
 	mlx_loop(vis->mlx);
 
 	return (0);

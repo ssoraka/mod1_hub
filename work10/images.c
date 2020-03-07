@@ -28,22 +28,61 @@ void	ft_init_params(t_param *vis)
 	ft_create_xyz(&(vis->oxyz));
 }
 
+
+void	ft_memcpy8(void *dst, void *src, size_t size)
+{
+	long *dst8;
+	long *src8;
+	size_t i;
+	size_t size8;
+
+	dst8 = (long *)dst;
+	src8 = (long *)src;
+	size8 = size >> 3;
+	i = -1;
+	while (++i < size8)
+		dst8[i] = src8[i];
+	size8 = size8 << 3;
+	size = size & 0x7;
+	if (size)
+		ft_memcpy(dst + size8, src + size8, size);
+}
+
+
+void	ft_memset8(void *dst, size_t chr, int size)
+{
+	long *dst8;
+	int i;
+	int size8;
+
+	dst8 = (long *)dst;
+	size8 = size >> 3;
+	i = -1;
+	while (++i < size8)
+		dst8[i] = chr;
+	size8 = size8 << 3;
+	size = size & 0x7;
+	if (size)
+		ft_memset(dst + size8, chr, size);
+}
+
+
 void	ft_clear_image(t_pict *pic)
 {
-	ft_bzero((void *)pic->addr, pic->count_byte);
-	ft_memset((void *)pic->z_buffer, 0x80, pic->count_byte);
+	ft_memset8((void *)pic->addr, 0xC0FFFFFFC0FFFFFF, pic->count_byte);
+	ft_memset8((void *)pic->z_buffer, 0x8FFFFFFF8FFFFFFF, pic->count_byte);
 }
 
 void	ft_return_image(t_pict *pic)
 {
-	ft_memcpy((void *)pic->addr, (void *)pic->addr_copy, pic->count_byte);
-	ft_memcpy((void *)pic->z_buffer, (void *)pic->z_buffer_copy, pic->count_byte);
+	ft_memcpy8((void *)pic->addr, (void *)pic->addr_copy, pic->count_byte);
+	ft_memcpy8((void *)pic->z_buffer, (void *)pic->z_buffer_copy, pic->count_byte);
 }
 
 void	ft_save_image(t_pict *pic)
 {
-	ft_memcpy((void *)pic->addr_copy, (void *)pic->addr, pic->count_byte);
-	ft_memcpy((void *)pic->z_buffer_copy, (void *)pic->z_buffer, pic->count_byte);
+	ft_memcpy8((void *)pic->addr_copy, (void *)pic->addr, pic->count_byte);
+	ft_memcpy8((void *)pic->z_buffer_copy, (void *)pic->z_buffer, pic->count_byte);
 }
 
 int		ft_create_img(t_pict *pic, void *mlx, int width, int heigth)
@@ -60,6 +99,8 @@ int		ft_create_img(t_pict *pic, void *mlx, int width, int heigth)
 		return (FALSE);
 	if (!(pic->z_buffer_copy = (int *)ft_memalloc(pic->count_byte)))
 		return (FALSE);
+	if (!(pic->index = (int *)ft_memalloc(pic->count_byte)))
+		return (FALSE);
 	return (TRUE);
 }
 
@@ -68,6 +109,7 @@ void	ft_destroy_img(t_pict *pic)
 	ft_memdel((void **)&(pic->z_buffer));
 	ft_memdel((void **)&(pic->addr_copy));
 	ft_memdel((void **)&(pic->z_buffer_copy));
+	ft_memdel((void **)&(pic->index));
 }
 
 t_vis	*ft_create_mlx(int width, int heigth, char *name)
@@ -127,6 +169,8 @@ int		ft_put_pixel_to_img2(t_pict *pic, t_point *p, int color)
 		return (FALSE);
 	pic->addr[p->y * CONST_WIDTH + p->x] = color;
 	pic->z_buffer[p->y * CONST_WIDTH + p->x] = p->z;
+	if (pic->cell)
+		pic->index[p->y * CONST_WIDTH + p->x] = pic->cell;
 	return (TRUE);
 }
 
@@ -139,8 +183,6 @@ t_vis	*ft_destroy_mlx(t_vis **vis)
 	{
 		ft_destroy_img(&((*vis)->pic));
 		mlx_destroy_image((*vis)->mlx, (*vis)->pic.img);
-		ft_del_vektor(&((*vis)->points));
-		ft_del_lines(&((*vis)->lines));
 		mlx_destroy_window((*vis)->mlx, (*vis)->win);
 		ft_memdel((void **)vis);
 	}

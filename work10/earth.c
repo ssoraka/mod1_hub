@@ -134,22 +134,28 @@ int		ft_create_relief2(t_earth *earth, int  **ground)
 }
 
 
-
-void	ft_print_relief(t_earth *earth, t_cell *cell, t_pict *pic, t_param *param)
+void	ft_print_smooth_relief(t_earth *earth, t_pict *pic, t_param *param)
 {
 	t_vektr **v;
 	t_plgn **plgn;
 
+	while ((v = ft_arr_get_next(earth->points)))
+		ft_change_points4(param, *v);
+	while ((plgn = ft_arr_get_next(earth->poligons)))
+		ft_print_plgn(*plgn, pic, param->grad);
+}
+
+
+void	ft_print_relief(t_earth *earth, t_cell *cell, t_pict *pic, t_param *param)
+{
 	if (!param->is_need_print_obstacles)
 		return ;
 	if (param->is_obstacles_change)
 	{
-		while ((v = ft_arr_get_next(earth->points)))
-			ft_change_points4(param, *v);
 		param->is_obstacles_change = FALSE;
-		while ((plgn = ft_arr_get_next(earth->poligons)))
-			ft_print_plgn(*plgn, pic, param->grad);
-		//ft_print_all_cell(cell, pic, param);
+		if (param->is_smooth_relief)
+			ft_print_smooth_relief(earth, pic, param);
+		ft_print_all_cell(cell, pic, param);
 		ft_save_image(pic);
 	}
 	else

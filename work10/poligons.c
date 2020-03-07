@@ -26,20 +26,6 @@ t_plgn	*ft_create_poligon(t_vektr *p1, t_vektr *p2, t_vektr *p3, int color)
 	return (tmp);
 }
 
-void	ft_del_poligines(t_plgn **begin)
-{
-	t_plgn *tmp;
-
-	tmp = *begin;
-	while (tmp)
-	{
-		*begin = tmp->next;
-		free(tmp);
-		tmp = *begin;
-	}
-	*begin = NULL;
-}
-
 void	ft_swap_points(t_vektr **p1, t_vektr **p2)
 {
 	t_vektr *tmp;
@@ -139,23 +125,4 @@ void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad)
 	ft_swap_points(&(plgn->p[3]), &(plgn->p[0]));
 	ft_draw_traing(pic, plgn->p, grad, plgn->color);
 	ft_swap_points(&(plgn->p[2]), &(plgn->p[3]));
-}
-
-void	ft_print_poligons(t_plgn *plgn, t_vektr *points, t_pict *pic, t_param *param)
-{
-	if (!param->is_need_print_obstacles)
-		return ;
-	if (param->is_obstacles_change)
-	{
-		ft_change_points5(param, points);
-		param->is_obstacles_change = FALSE;
-		while (plgn)
-		{
-			ft_print_plgn(plgn, pic, param->grad);
-			plgn = plgn->next;
-		}
-		ft_save_image(pic);
-	}
-	else
-		ft_return_image(pic);
 }

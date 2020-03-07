@@ -42,12 +42,12 @@ __kernel void change_cell(__global t_part *part, __global t_cell *cell, __global
 	i = (int)pos.x;
 	k = (int)pos.z;
 
-	if (cell[ft_get_cell_index(j, i, k)].obstacle == 1)
+	if (cell[ft_get_cell_index(j, i, k)].obstacle != 0)
 	{
 		old_c = part[gid].jik;
 
-		if (cell[ft_get_cell_index(j, i, k)].obstacle == 1
-		&& cell[ft_get_cell_index(old_c.y, i, old_c.z)].obstacle == 1)
+		if (cell[ft_get_cell_index(j, i, k)].obstacle != 0
+		&& cell[ft_get_cell_index(old_c.y, i, old_c.z)].obstacle != 0)
 		{
 			if (old_c.x < i)
 				pos.x = i - 0.001;
@@ -56,8 +56,8 @@ __kernel void change_cell(__global t_part *part, __global t_cell *cell, __global
 			speed.x = -speed.x * COEFF_SPEED2;
 			i = old_c.x;
 		}
-		if (cell[ft_get_cell_index(j, i, k)].obstacle == 1
-		&& cell[ft_get_cell_index(j, old_c.x, old_c.z)].obstacle == 1)
+		if (cell[ft_get_cell_index(j, i, k)].obstacle != 0
+		&& cell[ft_get_cell_index(j, old_c.x, old_c.z)].obstacle != 0)
 		{
 			if (old_c.y < j)
 				pos.y = j - 0.001;
@@ -66,8 +66,8 @@ __kernel void change_cell(__global t_part *part, __global t_cell *cell, __global
 			speed.y = -speed.y * COEFF_SPEED2;
 			j = old_c.y;
 		}
-		if (cell[ft_get_cell_index(j, i, k)].obstacle == 1
-		&& cell[ft_get_cell_index(old_c.y, old_c.x, k)].obstacle == 1)
+		if (cell[ft_get_cell_index(j, i, k)].obstacle != 0
+		&& cell[ft_get_cell_index(old_c.y, old_c.x, k)].obstacle != 0)
 		{
 			if (old_c.z < k)
 				pos.z = k - 0.001;

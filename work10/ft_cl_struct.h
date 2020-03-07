@@ -15,13 +15,13 @@
 
 #include "ft_mod1.h"
 
-typedef enum	e_buff
+typedef enum	e_buf
 {
-	PARTS, //буффер для частиц
+	PARTS = 0, //буффер для частиц
 	CELLS, //буффер для клеток пространства
 	INTERFACE, //буфер для ответа с положением частиц
 	BUFFER_COUNT
-}				t_buff;
+}				t_buf;
 
 typedef struct			s_open_cl
 {
@@ -35,6 +35,7 @@ typedef struct			s_open_cl
 	cl_mem				buffer[BUFFER_COUNT + 1];
 	cl_program			program[PROGRAMS_COUNT + 1];
 	cl_kernel			kernel[PROGRAMS_COUNT + 1];
+	size_t				*global_work_size[PROGRAMS_COUNT + 1];
 	cl_int				errcode_ret;
 }						t_open_cl;
 

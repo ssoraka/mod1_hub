@@ -25,17 +25,6 @@ t_vektr	*ft_new_vektor2(REAL x, REAL y, REAL z, int color)
 	return (tmp);
 }
 
-t_vektr	*ft_add_vektor2(void *ptr, t_point *p, int color)
-{
-	t_vektr *tmp;
-	t_vektr **begin;
-
-	begin = (t_vektr **)ptr;
-	tmp = ft_new_vektor2(p->x, p->y, p->z, color);
-	tmp->next = *begin;
-	*begin = tmp;
-	return (tmp);
-}
 
 t_line	*ft_new_line(t_vektr *p1, t_vektr *p2, int color)
 {
@@ -52,47 +41,6 @@ t_line	*ft_new_line(t_vektr *p1, t_vektr *p2, int color)
 	return (line);
 }
 
-void	ft_add_line(t_line **begin, t_vektr *p1, t_vektr *p2, int color)
-{
-	t_line *line;
-	t_line *tmp;
-
-	line = ft_new_line(p1, p2, color);
-
-	if (!line)
-		return ;
-	tmp = *begin;
-	*begin = line;
-	line->next = tmp;
-}
-
-void	ft_del_vektor(t_vektr **begin)
-{
-	t_vektr *tmp;
-
-	tmp = *begin;
-	while (tmp)
-	{
-		*begin = tmp->next;
-		free(tmp);
-		tmp = *begin;
-	}
-	*begin = NULL;
-}
-
-void	ft_del_lines(t_line **begin)
-{
-	t_line *tmp;
-
-	tmp = *begin;
-	while (tmp)
-	{
-		*begin = tmp->next;
-		free(tmp);
-		tmp = *begin;
-	}
-	*begin = NULL;
-}
 
 void	draw_line_img_lower_452(t_line *line, t_point *p, t_pict *pic, int grad)
 {

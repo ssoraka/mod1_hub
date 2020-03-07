@@ -19,7 +19,7 @@ __kernel void clear_cell(__global t_cell *cell)
 	int i;
 
 	c_gid = get_global_id(0);
-	if (cell[c_gid].obstacle == 1)
+	if (cell[c_gid].obstacle != 0)
 		return;
 	i = 0;
 	cell[c_gid].full = 0;

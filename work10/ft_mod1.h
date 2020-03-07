@@ -108,12 +108,12 @@
 **	images
 */
 #define CONST_WIDTH 2000
-#define CONST_HEINTH 1500
+#define CONST_HEINTH 1360
 #define CAM_X 1700
 #define CAM_Y 1300
 //#define RADIUS (DELTA * CONST_LEN * 0.7)
 #define RADIUS 3
-#define CONST_LEN (JMAX * 1.5)
+#define CONST_LEN (JMAX * 0.15)
 #define KOEFF (1.0 / (DELTA_XY))
 #define SLEEP1
 
@@ -179,6 +179,8 @@ char *g_names[PROGRAMS_COUNT + 10];
 char *g_kernel[PROGRAMS_COUNT + 10];
 
 t_prog    g_compile[PROGRAMS_COUNT + 10];
+
+t_buff    g_buff[BUFFER_COUNT + 1];
 
 #define PROGRAMM_SIZE 5000
 
@@ -362,6 +364,7 @@ void	ft_for_each_ptr2(t_arr *arr, void (*func)(void *, void *), void *param);
 /*
 **	cells.c
 */
+int		ft_change_obstacles(t_cell *cell, int cell_number, int button, t_param *param);
 int		ft_get_index(int j, int i, int k);
 int		ft_is_cell_obstacle(int **ground, int cell_number);
 void	ft_fill_cells_from_ground(t_cell *cells, int **ground);
@@ -388,6 +391,7 @@ int		ft_read_and_build_programs(t_open_cl *cl, t_prog *g_compile);
 void	ft_free_open_cl(t_open_cl **open_cl);
 int		ft_create_buffers(t_open_cl *cl, int num, void *src, size_t size);
 int		ft_read_buffers(t_open_cl *cl, int num, void *dest, size_t size);
+void	ft_create_all_buffers(t_open_cl *cl, t_buff *buff);
 int		ft_run_kernels(t_open_cl *cl);
 int		ft_set_kernel_arg(t_open_cl *cl, t_prog *compile);
 void	ft_stop_cl(t_open_cl *cl);
@@ -395,7 +399,7 @@ void	ft_stop_cl(t_open_cl *cl);
 /*
 **	thread_solver.c
 */
-void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param);
+void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param, t_buff *buff);
 void	*ft_solver(void *param);
 
 /*
