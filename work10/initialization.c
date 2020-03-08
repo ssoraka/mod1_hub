@@ -47,7 +47,7 @@ void	ft_init_parts_arr_and_cell(void)
 		ft_del_all("init error\n");
 	if (!ft_read_and_build_programs(g_cl, g_compile))
 		ft_del_all("some error\n");
-
+	ft_prepare_to_compile(g_cl, g_compile, g_buff);
 }
 
 

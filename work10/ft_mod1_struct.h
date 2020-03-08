@@ -94,6 +94,7 @@ typedef struct		s_param
 	int				is_smooth_relief;
 	int				is_need_print_obstacles;
 	int				is_relief_changed;
+	int				solver_pause;
 	int				grad;
 	double			len;
 	struct s_dpoint	ang;
@@ -147,13 +148,13 @@ typedef struct		s_prog
 	unsigned int	arg_1;
 	unsigned int	arg_2;
 	unsigned int	arg_3;
-	unsigned int	global_work_size;
 }					t_prog;
 
 typedef struct		s_buff
 {
 	void			*ptr;
 	size_t			buff_size;
+	size_t			buff_used;
 	size_t			elem_size;
 	size_t			global_work_size;
 }					t_buff;

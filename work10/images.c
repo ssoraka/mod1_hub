@@ -25,6 +25,7 @@ void	ft_init_params(t_param *vis)
 	vis->ang.z = M_PI;
 	vis->pause = 1;
 	vis->is_need_print_obstacles = TRUE;
+	vis->brush = 1;
 	ft_create_xyz(&(vis->oxyz));
 }
 

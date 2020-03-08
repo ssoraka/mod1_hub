@@ -21,15 +21,33 @@ void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param
 	pthread_create(&(solver->tid), &(solver->attr), ft_solver, (void *)solver);
 }
 
-void	ft_after_pause(t_buff *buff, t_param *param, t_open_cl *cl)
+void	ft_after_change_relief(t_buff *buff, t_param *param, t_open_cl *cl)
 {
 	if (!param->is_relief_changed)
 		return ;
 	if (clEnqueueWriteBuffer(cl->queue, cl->buffer[CELLS], CL_TRUE, 0,
-	buff[CELLS].global_work_size, buff[CELLS].ptr , 0, NULL, NULL) != CL_SUCCESS)
+	buff[CELLS].buff_size, buff[CELLS].ptr , 0, NULL, NULL) != CL_SUCCESS)
 		ft_del_all("write in buffer error\n");
 	param->is_relief_changed = FALSE;
 }
+
+/*
+void	ft_after_add_water(t_buff *buff, t_param *param, t_open_cl *cl)
+{
+	if (!param->add_new_water)
+		return ;
+	if (clEnqueueReadBuffer(cl->queue, cl->buffer[PARTS], CL_TRUE, 0,
+	buff[PARTS].buff_size, buff[PARTS].ptr, 0, NULL, NULL) != CL_SUCCESS)
+		ft_del_all("read in buffer error\n");
+
+
+	if (clEnqueueWriteBuffer(cl->queue, cl->buffer[PARTS], CL_TRUE, 0,
+	buff[PARTS].buff_size, buff[PARTS].ptr , 0, NULL, NULL) != CL_SUCCESS)
+
+	if (!ft_create_buffers(cl, PARTS, buff[PARTS].ptr, buff[PARTS].buff_size))
+		ft_del_all("create buffer error\n");
+	param->add_new_water = FALSE;
+}*/
 
 void	*ft_solver(void *param)
 {
@@ -38,12 +56,13 @@ void	*ft_solver(void *param)
 	s = (t_solver *)param;
 	while (!s->param->exit)
 	{
-		if (!s->param->pause)
+		if (!s->param->solver_pause)
 		{
-			ft_after_pause(s->buff, s->param, s->cl);
+			ft_after_change_relief(s->buff, s->param, s->cl);
 			if (!ft_run_kernels(s->cl))
 				ft_del_all("run error\n");
 		}
+		s->param->solver_pause = s->param->pause;
 	}
 	ft_stop_cl(s->cl);
 	pthread_exit(0);

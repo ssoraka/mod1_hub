@@ -118,11 +118,31 @@ int		ft_read_and_build_programs(t_open_cl *cl, t_prog *compile)
 	return (TRUE);
 }
 
+void	ft_prepare_to_compile(t_open_cl *cl, t_prog *compile, t_buff *buff)
+{
+	int i;
 
-int		ft_read_buffers(t_open_cl *cl, int num, void *dest, size_t size)
+	i = 0;
+	while (i < PROGRAMS_COUNT)
+	{
+		cl->global_work_size[i] = &(buff[compile[i].arg_1].global_work_size);
+		i++;
+	}
+}
+
+
+int		ft_read_buffers2(t_open_cl *cl, int num, void *dest, size_t size)
 {
 	if (clEnqueueReadBuffer(cl->queue, cl->buffer[num], CL_FALSE, 0, size, dest
 	, 0, NULL, NULL) != CL_SUCCESS)
+		return (FALSE);
+	return (TRUE);
+}
+
+int		ft_read_buffers(t_open_cl *cl, int num, t_buff *buff, int need_wait)
+{
+	if (clEnqueueReadBuffer(cl->queue, cl->buffer[num], need_wait, 0
+	, buff[num].buff_used, buff[num].ptr, 0, NULL, NULL) != CL_SUCCESS)
 		return (FALSE);
 	return (TRUE);
 }

@@ -350,7 +350,7 @@ int		ft_create_rectang_poligon2(t_plgn **plgn, t_vektr **p, int color);
 */
 void	ft_del_arr(t_arr **arr);
 t_arr	*ft_create_arr(int elem_size, int elems_count, void (*func_del)(void *));
-t_arr	*ft_realloc_arr(t_arr *arr);
+int		ft_realloc_arr(t_arr *arr, int new_count);
 void	*ft_arr_add(t_arr *arr, void *elem);
 void	*ft_arr_get(t_arr *arr, int num);
 void	ft_del_elem(t_arr *arr, int num);
@@ -387,10 +387,12 @@ void	pfn_notify(const char *errinfo, const void *private_info, size_t cb, void *
 void	ft_context_error(cl_int errcode_ret);
 void	ft_queue_error(cl_int errcode_ret);
 t_open_cl	*ft_init_open_cl(void);
-int		ft_read_and_build_programs(t_open_cl *cl, t_prog *g_compile);
+int		ft_read_and_build_programs(t_open_cl *cl, t_prog *compile);
+void	ft_prepare_to_compile(t_open_cl *cl, t_prog *compile, t_buff *buff);
 void	ft_free_open_cl(t_open_cl **open_cl);
 int		ft_create_buffers(t_open_cl *cl, int num, void *src, size_t size);
-int		ft_read_buffers(t_open_cl *cl, int num, void *dest, size_t size);
+int		ft_read_buffers2(t_open_cl *cl, int num, void *dest, size_t size);
+int		ft_read_buffers(t_open_cl *cl, int num, t_buff *buff, int need_wait);
 void	ft_create_all_buffers(t_open_cl *cl, t_buff *buff);
 int		ft_run_kernels(t_open_cl *cl);
 int		ft_set_kernel_arg(t_open_cl *cl, t_prog *compile);

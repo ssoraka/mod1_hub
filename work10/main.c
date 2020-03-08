@@ -14,16 +14,16 @@
 
 t_prog    g_compile[PROGRAMS_COUNT + 10] =
 {
-	{"clear_cell.cl", "clear_cell", 1, CELLS, -1, -1, CELL_COUNT},
-	{"add_part_in_cell.cl", "add_part_in_cell", 2, PARTS, CELLS, -1, PART_COUNT},
-	{"up_part_in_cell.cl", "up_part_in_cell", 1, CELLS, -1, -1, CELL_COUNT},
-	{"find_neighbors.cl", "find_neighbors", 2, PARTS, CELLS, -1, PART_COUNT},
-	{"density_press.cl", "density_press", 1, PARTS, -1, -1, PART_COUNT},
-	{"delta_speed.cl", "delta_speed", 1, PARTS, -1, -1, PART_COUNT},
-	{"delta_coord.cl", "delta_coord", 1, PARTS, -1, -1, PART_COUNT},
-	{"change_cell.cl", "change_cell", 3, PARTS, CELLS, INTERFACE, PART_COUNT},
-	{"print_parts.cl", "print_parts", 2, PARTS, -1, -1, PART_COUNT}, //надо бы это в сунуть в другую функцию...
-	{"", "", 0, 0, 0, 0, 0}
+	{"clear_cell.cl", "clear_cell", 1, CELLS, -1, -1},
+	{"add_part_in_cell.cl", "add_part_in_cell", 2, PARTS, CELLS, -1},
+	{"up_part_in_cell.cl", "up_part_in_cell", 1, CELLS, -1, -1},
+	{"find_neighbors.cl", "find_neighbors", 2, PARTS, CELLS, -1},
+	{"density_press.cl", "density_press", 1, PARTS, -1, -1},
+	{"delta_speed.cl", "delta_speed", 1, PARTS, -1, -1},
+	{"delta_coord.cl", "delta_coord", 1, PARTS, -1, -1},
+	{"change_cell.cl", "change_cell", 3, PARTS, CELLS, INTERFACE},
+	{"print_parts.cl", "print_parts", 2, PARTS, -1, -1}, //надо бы это в сунуть в другую функцию...
+	{"", "", 0, 0, 0, 0}
 };
 
 REAL	g_param[FLUIDS][COLUMN_COUNT] =
@@ -210,6 +210,78 @@ void	ft_refresh_picture(t_vis *vis)
 
 }
 
+t_buff	ft_prepare_one_buffer(void *ptr, size_t elem_size, size_t elem_used, size_t elem_count)
+{
+	t_buff buff;
+
+	buff.ptr = ptr;
+	buff.elem_size = elem_size;
+	buff.global_work_size = elem_used;
+	buff.buff_used = elem_size * elem_used;
+	buff.buff_size = elem_size * elem_count;
+	return (buff);
+}
+
+void	ft_prepare_to_buffers(t_buff *buff, t_arr *parts, t_arr *iparts, t_cell *cell)
+{
+	if (!ft_realloc_arr(iparts, parts->elems_count))
+		ft_del_all("realloc error\n");
+	iparts->elems_used = parts->elems_used;
+
+	buff[PARTS] = ft_prepare_one_buffer((void *)parts->elems,
+		sizeof(t_part), parts->elems_used, parts->elems_count);
+	buff[INTERFACE] = ft_prepare_one_buffer((void *)iparts->elems,
+		sizeof(t_ipart), parts->elems_used, parts->elems_count);
+	if (cell)
+		buff[CELLS] = ft_prepare_one_buffer((void *)cell,
+			sizeof(t_cell), CELL_COUNT, CELL_COUNT);
+}
+
+
+
+void	ft_add_new_water(t_arr *parts, t_arr *iparts, t_buff *buff, t_open_cl *cl)
+{
+	ft_putstr("-1\n");
+	ft_create_new_area_of_water(&parts, &((t_point){JMAX/2 - 10, IMAX/2 - 10, KMAX/2 - 10})
+	, &((t_point){JMAX/2 + 10, IMAX/2 + 10, KMAX/2 + 10}), MAGMA);
+	ft_putstr("0\n");
+	//скопировать содержимое буфера в структуру
+
+	buff[PARTS].ptr = parts->elems;
+	clFinish(cl->queue);
+	if (!ft_read_buffers(cl, PARTS, buff, CL_TRUE))
+		ft_del_all("read error\n");
+	if (buff[PARTS].buff_size / buff[PARTS].elem_size != parts->elems_count)
+	{
+		//уничтожить буфер
+		ft_putstr("1\n");
+		ft_stop_cl(cl);
+		if (clReleaseMemObject(cl->buffer[PARTS]) != CL_SUCCESS)
+			ft_del_all("del buffer error\n");
+		if (clReleaseMemObject(cl->buffer[INTERFACE]) != CL_SUCCESS)
+			ft_del_all("del buffer error\n");
+		ft_putstr("2\n");
+		ft_prepare_to_buffers(buff, parts, iparts, NULL);
+		//создать новый
+		if (!ft_create_buffers(cl, PARTS, buff[PARTS].ptr, buff[PARTS].buff_size))
+			ft_del_all("buffer error\n");
+		if (!ft_create_buffers(cl, INTERFACE, buff[INTERFACE].ptr, buff[INTERFACE].buff_size))
+			ft_del_all("buffer error\n");
+		ft_putstr("3\n");
+		if (!ft_set_kernel_arg(cl, g_compile))
+			ft_del_all("set error\n");
+		ft_putstr("4\n");
+	}
+	else
+		ft_prepare_to_buffers(buff, parts, iparts, NULL);
+
+	if (clEnqueueWriteBuffer(cl->queue, cl->buffer[PARTS], CL_TRUE, 0, buff[PARTS].buff_used, buff[PARTS].ptr
+	, 0, NULL, NULL) != CL_SUCCESS)
+		ft_del_all("realloc error\n");
+	ft_putstr("5\n");
+}
+
+
 
 
 
@@ -221,8 +293,14 @@ int loop_hook(void *param)
 
 	if (vis->param.exit)
 		return (0);
-	if (!ft_read_buffers(g_cl, INTERFACE, (void *)g_iparts->elems, g_iparts->elems_used * sizeof(t_ipart)))
+	if (!vis->param.rain && !ft_read_buffers(g_cl, INTERFACE, g_buff, CL_TRUE))
 		ft_del_all("read error\n");
+	if (vis->param.rain && vis->param.solver_pause)
+	{
+		ft_add_new_water(g_parts, g_iparts, g_buff, g_cl);
+		vis->param.rain = FALSE;
+	}
+
 
 	ft_refresh_picture(vis);
 
@@ -242,7 +320,7 @@ int		mouse_hook(int button, int x,int y, void *param)
 
 	vis = (t_vis *)param;
 
-	if (vis->param.exit || !vis->param.pause)
+	if (vis->param.exit)
 		return (0);
 	cell_number = vis->pic.index[y * CONST_WIDTH + x];
 	if (!cell_number)
@@ -257,34 +335,6 @@ int		mouse_hook(int button, int x,int y, void *param)
 
 
 
-void	ft_prepare_to_compile(t_open_cl *cl, t_prog *compile, t_buff *buff)
-{
-	int i;
-
-	i = 0;
-	while (i < PROGRAMS_COUNT)
-	{
-		cl->global_work_size[i] = &buff[compile[i].arg_1].global_work_size;
-		i++;
-	}
-}
-
-
-void	ft_prepare_to_buffers(t_buff *buff, t_arr *parts, t_arr *iparts, t_cell *cell)
-{
-	buff[PARTS].ptr = (void *)parts->elems;
-	buff[PARTS].elem_size = sizeof(t_part);
-	buff[PARTS].buff_size = parts->elems_count * sizeof(t_part);
-	buff[PARTS].global_work_size = parts->elems_used;
-	buff[CELLS].ptr = (void *)cell;
-	buff[CELLS].elem_size = sizeof(t_cell);
-	buff[CELLS].buff_size = CELL_COUNT * sizeof(t_cell);
-	buff[CELLS].global_work_size = CELL_COUNT;
-	buff[INTERFACE].ptr = (void *)iparts->elems;
-	buff[INTERFACE].elem_size = sizeof(t_ipart);
-	buff[INTERFACE].buff_size = parts->elems_count * sizeof(t_ipart);
-	buff[INTERFACE].global_work_size = parts->elems_used;
-}
 
 
 int main(int ac, char **av)
@@ -318,10 +368,10 @@ int main(int ac, char **av)
 
 	//t_part part;
 	//ft_arr_add(g_parts, (void *)&part);
-	//ft_create_new_area_of_water(&g_parts, &((t_point){30, 30, 2}), &((t_point){30, 30, 3}), WATER);
+	ft_create_new_area_of_water(&g_parts, &((t_point){99, 99, 98}), &((t_point){99, 99, 99}), WATER);
 
-	ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 50, 11, KMAX - 1}), WATER);
-	ft_create_new_area_of_water(&g_parts, &((t_point){2, IMAX - 11, 2}), &((t_point){JMAX - 50, IMAX - 1, KMAX - 1}), MAGMA);
+	//ft_create_new_area_of_water(&g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 50, 11, KMAX - 1}), WATER);
+	//ft_create_new_area_of_water(&g_parts, &((t_point){2, IMAX - 11, 2}), &((t_point){JMAX - 50, IMAX - 1, KMAX - 1}), MAGMA);
 
 
 	//ft_create_new_area_of_water(&g_parts, &((t_point){JMAX - 12, IMAX / 2 - 7, KMAX / 2 - 7}), &((t_point){JMAX - 1, IMAX / 2 + 7, KMAX / 2 + 7}), MAGMA);
@@ -336,7 +386,7 @@ int main(int ac, char **av)
 	ft_create_all_buffers(g_cl, g_buff);
 
 	//привязываем аргументы к программам
-	ft_prepare_to_compile(g_cl, g_compile, g_buff);
+	//ft_prepare_to_compile(g_cl, g_compile, g_buff);
 	if (!ft_set_kernel_arg(g_cl, g_compile))
 		ft_del_all("set error\n");
 
