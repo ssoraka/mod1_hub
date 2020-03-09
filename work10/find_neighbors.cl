@@ -16,7 +16,7 @@ t_dpoint	ft_len(t_dpoint pos1, t_dpoint pos2);
 int			ft_get_cell_index(int j, int i, int k);
 REAL		ft_kernel_function(REAL h, REAL r);
 REAL		ft_derivative_kernel_function(REAL h, REAL r);
-void		ft_find_neighbor_in_cell(__global t_part *p, int i, int j);
+void		ft_find_neighbor_in_cell(__global t_part *p, __global t_neighs *n, int i, int j);
 
 int			ft_get_cell_index(int j, int i, int k)
 {
@@ -57,7 +57,7 @@ REAL		ft_derivative_kernel_function(REAL h, REAL r)
 	return (answer);
 }
 
-void		ft_find_neighbor_in_cell(__global t_part *p, int i, int j)
+void		ft_find_neighbor_in_cell(__global t_part *p, __global t_neighs *n, int i, int j)
 {
 	t_neigh		tmp;
 	REAL		len;
@@ -87,8 +87,8 @@ void		ft_find_neighbor_in_cell(__global t_part *p, int i, int j)
 
 	tmp.j = j;
 
-	p[i].n.j[p[i].n.count] = tmp;
-	p[i].n.count++;
+	n[i].j[n[i].count] = tmp;
+	n[i].count++;
 }
 
 t_dpoint		ft_len(t_dpoint pos1, t_dpoint pos2)
@@ -99,7 +99,7 @@ t_dpoint		ft_len(t_dpoint pos1, t_dpoint pos2)
 	return (v);
 }
 
-__kernel	void find_neighbors(__global t_part *part, __global t_cell *cell)
+__kernel	void find_neighbors(__global t_part *part, __global t_cell_map *cell, __global t_neighs *neigh)
 {
 	// получаем текущий id.
 	int gid;
@@ -114,6 +114,8 @@ __kernel	void find_neighbors(__global t_part *part, __global t_cell *cell)
 
 	gid = get_global_id(0);
 	pos = part[gid].jik;
+
+	neigh[gid].count = 0;
 
 	if (ft_get_cell_index(pos.y, pos.x, pos.z) == 0)
 		return ;
@@ -133,7 +135,7 @@ __kernel	void find_neighbors(__global t_part *part, __global t_cell *cell)
 					n = 0;
 					while ((j_gid = cell[c_gid].index[n]) != -1)
 					{
-						ft_find_neighbor_in_cell(part, gid, j_gid);
+						ft_find_neighbor_in_cell(part, neigh, gid, j_gid);
 						n++;
 					}
 				}

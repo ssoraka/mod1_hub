@@ -12,7 +12,7 @@
 
 #include "ft_cl.h"
 
-__kernel	void delta_speed(__global t_part *p)
+__kernel	void delta_speed(__global t_part *p, __global t_neighs *n)
 {
 	int i;
 	int j;
@@ -35,13 +35,13 @@ __kernel	void delta_speed(__global t_part *p)
 
 	a = (t_dpoint){0.0, 0.0, 0.0};
 	num = 0;
-	while (num < p[i].n.count)
+	while (num < n[i].count)
 	{
-		j = p[i].n.j[num].j;
+		j = n[i].j[num].j;
 
-		r_ij = p[i].n.j[num].r_ij;
-		u_ij = p[i].n.j[num].u_ij;
-		h_ij = p[i].n.j[num].h_ij;
+		r_ij = n[i].j[num].r_ij;
+		u_ij = n[i].j[num].u_ij;
+		h_ij = n[i].j[num].h_ij;
 
 		mu_ij =
 			(r_ij.y * u_ij.y + r_ij.x * u_ij.x + r_ij.z * u_ij.z) /
@@ -64,9 +64,9 @@ __kernel	void delta_speed(__global t_part *p)
 
 		}
 
-		a.y += PART_MASS_0 * tmp * p[i].n.j[num].nabla_w_ij.y;
-		a.x += PART_MASS_0 * tmp * p[i].n.j[num].nabla_w_ij.x;
-		a.z += PART_MASS_0 * tmp * p[i].n.j[num].nabla_w_ij.z;
+		a.y += PART_MASS_0 * tmp * n[i].j[num].nabla_w_ij.y;
+		a.x += PART_MASS_0 * tmp * n[i].j[num].nabla_w_ij.x;
+		a.z += PART_MASS_0 * tmp * n[i].j[num].nabla_w_ij.z;
 
 		num++;
 	}

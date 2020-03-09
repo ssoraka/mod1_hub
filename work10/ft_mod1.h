@@ -120,9 +120,12 @@
 
 int		**ground;
 
-t_cell	*g_cell;
+t_arr	*g_cell;
 t_arr	*g_parts;
 t_arr	*g_iparts;
+t_arr	*g_cell_map;
+t_arr	*g_neighs;
+
 t_open_cl	*g_cl;
 t_earth *g_earth;
 
@@ -180,7 +183,6 @@ char *g_kernel[PROGRAMS_COUNT + 10];
 
 t_prog    g_compile[PROGRAMS_COUNT + 10];
 
-t_buff    g_buff[BUFFER_COUNT + 1];
 
 #define PROGRAMM_SIZE 5000
 
@@ -311,7 +313,7 @@ void	ft_del_part(t_part **begin);
 t_part	*ft_new_part(t_dpoint *p, int type);
 t_part	*ft_add_part(void *ptr, t_dpoint *p, int type);
 t_arr	*ft_init_all_clear_parts(void);
-void	ft_create_new_area_of_water(t_arr **parts, t_point *start, t_point *end, int type);
+void	ft_create_new_area_of_water(t_arr *parts, t_point *start, t_point *end, int type);
 void	ft_fill_interface(t_arr *parts, t_arr *iparts);
 
 /*
@@ -348,8 +350,11 @@ int		ft_create_rectang_poligon2(t_plgn **plgn, t_vektr **p, int color);
 /*
 ** arr.c
 */
+
+
 void	ft_del_arr(t_arr **arr);
 t_arr	*ft_create_arr(int elem_size, int elems_count, void (*func_del)(void *));
+t_arr	*ft_create_arr_of_ptr(int elems_count, void (*func_del)(void *));
 int		ft_realloc_arr(t_arr *arr, int new_count);
 void	*ft_arr_add(t_arr *arr, void *elem);
 void	*ft_arr_get(t_arr *arr, int num);
@@ -364,11 +369,11 @@ void	ft_for_each_ptr2(t_arr *arr, void (*func)(void *, void *), void *param);
 /*
 **	cells.c
 */
-int		ft_change_obstacles(t_cell *cell, int cell_number, int button, t_param *param);
+int		ft_change_obstacles(t_arr *cell, int cell_number, int button, t_param *param);
 int		ft_get_index(int j, int i, int k);
 int		ft_is_cell_obstacle(int **ground, int cell_number);
-void	ft_fill_cells_from_ground(t_cell *cells, int **ground);
-void	ft_print_all_cell(t_cell *cell, t_pict *pic, t_param *param);
+void	ft_fill_cells_from_ground(t_arr *cells, int **ground);
+void	ft_print_all_cell(t_arr *cells, t_pict *pic, t_param *param);
 
 
 /*
@@ -390,10 +395,10 @@ t_open_cl	*ft_init_open_cl(void);
 int		ft_read_and_build_programs(t_open_cl *cl, t_prog *compile);
 void	ft_prepare_to_compile(t_open_cl *cl, t_prog *compile, t_buff *buff);
 void	ft_free_open_cl(t_open_cl **open_cl);
-int		ft_create_buffers(t_open_cl *cl, int num, void *src, size_t size);
-int		ft_read_buffers2(t_open_cl *cl, int num, void *dest, size_t size);
-int		ft_read_buffers(t_open_cl *cl, int num, t_buff *buff, int need_wait);
-void	ft_create_all_buffers(t_open_cl *cl, t_buff *buff);
+int		ft_create_buffers(t_open_cl *cl, int num, int need_wait);
+int		ft_read_buffers(t_open_cl *cl, int num, int need_wait);
+int		ft_write_buffers(t_open_cl *cl, int num, int need_wait);
+void	ft_create_all_buffers(t_open_cl *cl);
 int		ft_run_kernels(t_open_cl *cl);
 int		ft_set_kernel_arg(t_open_cl *cl, t_prog *compile);
 void	ft_stop_cl(t_open_cl *cl);
@@ -401,7 +406,7 @@ void	ft_stop_cl(t_open_cl *cl);
 /*
 **	thread_solver.c
 */
-void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param, t_buff *buff);
+void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param);
 void	*ft_solver(void *param);
 
 /*
@@ -410,6 +415,6 @@ void	*ft_solver(void *param);
 t_earth	*ft_create_earth(void);
 void	ft_del_earth(t_earth **earth);
 int		ft_create_relief2(t_earth *earth, int  **ground);
-void	ft_print_relief(t_earth *earth, t_cell *cell, t_pict *pic, t_param *param);
+void	ft_print_relief(t_earth *earth, t_arr *cells, t_pict *pic, t_param *param);
 
 #endif

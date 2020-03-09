@@ -12,7 +12,7 @@
 
 #include "ft_cl.h"
 
-__kernel	void density_press(__global t_part *p)
+__kernel	void density_press(__global t_part *p, __global t_neighs *n)
 {
 	int i;
 	int j;
@@ -29,9 +29,9 @@ __kernel	void density_press(__global t_part *p)
 
 	density = PART_MASS_0;
 	num = 0;
-	while (num < p[i].n.count)
+	while (num < n[i].count)
 	{
-		density += PART_MASS_0 * p[i].n.j[num].w_ij;
+		density += PART_MASS_0 * n[i].j[num].w_ij;
 		num++;
 	}
 
@@ -39,20 +39,20 @@ __kernel	void density_press(__global t_part *p)
 
 	d_density = 0.0;
 	num = 0;
-	while (num < p[i].n.count)
+	while (num < n[i].count)
 	{
-		j = p[i].n.j[num].j;
+		j = n[i].j[num].j;
 		d_speed = (t_dpoint){
 			p[i].speed.y - p[j].speed.y,
 			p[i].speed.x - p[j].speed.x,
 			p[i].speed.z - p[j].speed.z};
 
 		tmp =
-			d_speed.y * p[i].n.j[num].nabla_w_ij.y +
-			d_speed.x * p[i].n.j[num].nabla_w_ij.x +
-			d_speed.z * p[i].n.j[num].nabla_w_ij.z;
+			d_speed.y * n[i].j[num].nabla_w_ij.y +
+			d_speed.x * n[i].j[num].nabla_w_ij.x +
+			d_speed.z * n[i].j[num].nabla_w_ij.z;
 
-		p[i].n.j[num].u_ij = d_speed;
+		n[i].j[num].u_ij = d_speed;
 		d_density += PART_MASS_0 * tmp;
 		num++;
 	}

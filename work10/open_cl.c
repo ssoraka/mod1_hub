@@ -118,56 +118,48 @@ int		ft_read_and_build_programs(t_open_cl *cl, t_prog *compile)
 	return (TRUE);
 }
 
-void	ft_prepare_to_compile(t_open_cl *cl, t_prog *compile, t_buff *buff)
+int		ft_read_buffers(t_open_cl *cl, int num, int need_wait)
 {
-	int i;
+	void *ptr;
 
-	i = 0;
-	while (i < PROGRAMS_COUNT)
-	{
-		cl->global_work_size[i] = &(buff[compile[i].arg_1].global_work_size);
-		i++;
-	}
-}
-
-
-int		ft_read_buffers2(t_open_cl *cl, int num, void *dest, size_t size)
-{
-	if (clEnqueueReadBuffer(cl->queue, cl->buffer[num], CL_FALSE, 0, size, dest
-	, 0, NULL, NULL) != CL_SUCCESS)
+	ptr = cl->buff[num].arr->elems;
+	if (clEnqueueReadBuffer(cl->queue, cl->buff[num].buffer, need_wait, 0
+	, cl->buff[num].buff_used, ptr, 0, NULL, NULL) != CL_SUCCESS)
 		return (FALSE);
 	return (TRUE);
 }
 
-int		ft_read_buffers(t_open_cl *cl, int num, t_buff *buff, int need_wait)
+int		ft_write_buffers(t_open_cl *cl, int num, int need_wait)
 {
-	if (clEnqueueReadBuffer(cl->queue, cl->buffer[num], need_wait, 0
-	, buff[num].buff_used, buff[num].ptr, 0, NULL, NULL) != CL_SUCCESS)
+	void *ptr;
+
+	ptr = cl->buff[num].arr->elems;
+	if (clEnqueueWriteBuffer(cl->queue, cl->buff[num].buffer, need_wait, 0
+	, cl->buff[num].buff_size, ptr, 0, NULL, NULL) != CL_SUCCESS)
 		return (FALSE);
 	return (TRUE);
 }
 
-int		ft_create_buffers(t_open_cl *cl, int num, void *src, size_t size)
+int		ft_create_buffers(t_open_cl *cl, int num, int need_wait)
 {
-	cl->buffer[num] = clCreateBuffer(cl->context, CL_MEM_READ_WRITE, size, NULL
-	, &(cl->errcode_ret));
+	cl->buff[num].buffer = clCreateBuffer(cl->context, CL_MEM_READ_WRITE
+	, cl->buff[num].buff_size, NULL , &(cl->errcode_ret));
 	if (cl->errcode_ret != CL_SUCCESS)
 		return (FALSE);
-	if (clEnqueueWriteBuffer(cl->queue, cl->buffer[num], CL_TRUE, 0, size, src
-	, 0, NULL, NULL) != CL_SUCCESS)
-		return (FALSE);
 	return (TRUE);
 }
 
-void	ft_create_all_buffers(t_open_cl *cl, t_buff *buff)
+void	ft_create_all_buffers(t_open_cl *cl)
 {
 	int i;
 
 	i = 0;
 	while (i < BUFFER_COUNT)
 	{
-		if (!ft_create_buffers(cl, i, buff[i].ptr, buff[i].buff_size))
-			ft_del_all("buffer error\n");
+		if (!ft_create_buffers(cl, i, CL_TRUE))
+			ft_del_all("create buffer error\n");
+		if (!ft_write_buffers(cl, i, CL_TRUE))
+			ft_del_all("write buffer error\n");
 		i++;
 	}
 }
@@ -180,10 +172,11 @@ int		ft_set_kernel_arg(t_open_cl *cl, t_prog *compile)
 	i = 0;
 	while (i < PROGRAMS_COUNT)
 	{
+		cl->buff_index[i] = compile[i].arg[0];
 		n = 0;
 		while (n < compile[i].arg_count)
 		{
-			if (clSetKernelArg(cl->kernel[i], n, sizeof(cl_mem), (void *)&(cl->buffer[compile[i].arg_1 + n])) != CL_SUCCESS)
+			if (clSetKernelArg(cl->kernel[i], n, sizeof(cl_mem), (void *)&(cl->buff[compile[i].arg[n]].buffer)) != CL_SUCCESS)
 				return (FALSE);
 			n++;
 		}
@@ -201,7 +194,7 @@ int		ft_run_kernels(t_open_cl *cl)
 	while (i < PROGRAMS_COUNT)
 	{
 		if (clEnqueueNDRangeKernel(cl->queue, cl->kernel[i], 1, NULL,
-		cl->global_work_size[i], NULL, 0, NULL, NULL) != CL_SUCCESS)
+		cl->buff[cl->buff_index[i]].g_work_size, NULL, 0, NULL, NULL) != CL_SUCCESS)
 			return (FALSE);
 		clFinish(cl->queue);
 		i++;
@@ -231,8 +224,8 @@ void	ft_free_open_cl(t_open_cl **open_cl)
 		clReleaseCommandQueue(cl->queue);
 	}
 	i = 0;
-	while (cl->buffer[i])
-		clReleaseMemObject(cl->buffer[i++]);
+	while (cl->buff[i].buffer)
+		clReleaseMemObject(cl->buff[i++].buffer);
 	i = 0;
 	while (cl->program[i])
 		clReleaseProgram(cl->program[i++]);

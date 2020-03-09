@@ -15,6 +15,7 @@
 
 #define PROGRAMS_COUNT 8
 #define PART_COUNT 10
+#define CELL_MAP_SIZE 27
 
 #define PI 3.141592
 
@@ -102,14 +103,18 @@ typedef struct		s_part
 	struct s_dpoint	speed;
 	struct s_dpoint	delta_pos;
 	struct s_dpoint	pos;
-	struct s_neighs	n;
 }					t_part;
+
+typedef struct		s_cell_map
+{
+	int				obstacle;
+	int				full;
+	int				index[CELL_MAP_SIZE];
+}					t_cell_map;
 
 typedef struct		s_cell
 {
 	int				obstacle;
-	int				full;
-	int				index[27];
 }					t_cell;
 
 typedef struct		s_ipart

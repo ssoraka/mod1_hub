@@ -12,7 +12,7 @@
 
 #include "ft_cl.h"
 
-__kernel void up_part_in_cell(__global t_cell *cell)
+__kernel void up_part_in_cell(__global t_cell_map *cell)
 {
 	int c_gid;
 	int i;

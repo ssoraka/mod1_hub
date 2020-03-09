@@ -115,11 +115,12 @@ typedef struct		s_arr
 {
 	void			*elems;
 	void			*current;
-	int				next;
-	int				elems_count;
-	int				elems_used;
+	size_t			next;
+	size_t			elems_count;
+	size_t			elems_used;
 	int				elem_size;
 	void			(*func_del)(void *);
+	void			*(*value)(void *);
 }					t_arr;
 
 typedef struct		s_solver
@@ -129,7 +130,6 @@ typedef struct		s_solver
 	t_open_cl		*cl;
 	t_cell			*cell;
 	t_param			*param;
-	struct s_buff	*buff;
 }					t_solver;
 
 typedef struct		s_earth
@@ -145,18 +145,7 @@ typedef struct		s_prog
 	char			file[50];
 	char			kernel[50];
 	unsigned int	arg_count;
-	unsigned int	arg_1;
-	unsigned int	arg_2;
-	unsigned int	arg_3;
+	unsigned int	arg[3];
 }					t_prog;
-
-typedef struct		s_buff
-{
-	void			*ptr;
-	size_t			buff_size;
-	size_t			buff_used;
-	size_t			elem_size;
-	size_t			global_work_size;
-}					t_buff;
 
 #endif

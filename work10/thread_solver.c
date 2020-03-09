@@ -12,21 +12,19 @@
 
 #include "ft_mod1.h"
 
-void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param, t_buff *buff)
+void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param)
 {
 	solver->cl = cl;
-	solver->buff = buff;
 	solver->param = param;
 	pthread_attr_init(&(solver->attr));
 	pthread_create(&(solver->tid), &(solver->attr), ft_solver, (void *)solver);
 }
 
-void	ft_after_change_relief(t_buff *buff, t_param *param, t_open_cl *cl)
+void	ft_after_change_relief(t_open_cl *cl, t_param *param)
 {
 	if (!param->is_relief_changed)
 		return ;
-	if (clEnqueueWriteBuffer(cl->queue, cl->buffer[CELLS], CL_TRUE, 0,
-	buff[CELLS].buff_size, buff[CELLS].ptr , 0, NULL, NULL) != CL_SUCCESS)
+	if (!ft_write_buffers(cl, CELLS, CL_TRUE))
 		ft_del_all("write in buffer error\n");
 	param->is_relief_changed = FALSE;
 }
@@ -58,7 +56,7 @@ void	*ft_solver(void *param)
 	{
 		if (!s->param->solver_pause)
 		{
-			ft_after_change_relief(s->buff, s->param, s->cl);
+			ft_after_change_relief(s->cl, s->param);
 			if (!ft_run_kernels(s->cl))
 				ft_del_all("run error\n");
 		}

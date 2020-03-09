@@ -15,7 +15,6 @@
 
 void	ft_del_elems(void *elem)
 {
-	elem = *((void **)elem);
 	free(elem);
 }
 
@@ -32,8 +31,8 @@ t_earth	*ft_create_earth(void)
 
 	if (!(earth = (t_earth *)ft_memalloc(sizeof(t_earth))))
 		return (NULL);
-	earth->points = ft_create_arr(sizeof(t_vektr *), 0, &ft_del_elems);
-	earth->poligons = ft_create_arr(sizeof(t_plgn *), 0, &ft_del_elems);
+	earth->points = ft_create_arr_of_ptr(0, &ft_del_elems);
+	earth->poligons = ft_create_arr_of_ptr(0, &ft_del_elems);
 	if (!earth->points || !earth->poligons)
 		ft_del_earth(&earth);
 	return (earth);
@@ -47,7 +46,7 @@ int		ft_create_rectang_poligon3(t_arr *poligons, t_vektr **p, int color)
 
 	if (!(tmp = ft_create_poligon(p[0], p[1], p[2], color)))
 		return (FALSE);
-	if (!(ft_arr_add(poligons, &tmp)))
+	if (!(ft_arr_add(poligons, tmp)))
 	{
 		free(tmp);
 		return (FALSE);
@@ -65,12 +64,12 @@ int		ft_create_line_of_poligons_of_relief2(t_earth *earth, int k)
 	i = 0;
 	while (i < earth->columns - 1)
 	{
-		p[0] = *((t_vektr **)ft_arr_get(earth->points, earth->columns * k + i));
-		p[1] = *((t_vektr **)ft_arr_get(earth->points, earth->columns * k + i + 1));
-		p[2] = *((t_vektr **)ft_arr_get(earth->points, earth->columns * (k + 1) + i));
+		p[0] = ft_arr_get(earth->points, earth->columns * k + i);
+		p[1] = ft_arr_get(earth->points, earth->columns * k + i + 1);
+		p[2] = ft_arr_get(earth->points, earth->columns * (k + 1) + i);
 		if (!ft_create_rectang_poligon3(earth->poligons, p, OBSTACLES_FRONT_COLOR))
 			return (FALSE);
-		p[0] = *((t_vektr **)ft_arr_get(earth->points, earth->columns * (k + 1) + i + 1));
+		p[0] = ft_arr_get(earth->points, earth->columns * (k + 1) + i + 1);
 		if (!ft_create_rectang_poligon3(earth->poligons, p, OBSTACLES_FRONT_COLOR))
 			return (FALSE);
 		i++;
@@ -109,7 +108,7 @@ int		ft_create_points_of_relief2(t_earth *earth, int  **ground)
 			color = ft_grad_color(ground[k][i], MAP_HEIGTH2, COLOR_UP, COLOR_DOWN);
 			if (!(tmp = ft_new_vektor2((REAL)i / (1 + ADD_POINT) + 0.5,
 			ft_return_heigth(ground[k][i]), (REAL)k / (1 + ADD_POINT) + 0.5, color))
-			|| !(ft_arr_add(earth->points, &tmp)))
+			|| !(ft_arr_add(earth->points, tmp)))
 			{
 				free (tmp);
 				return (FALSE);
@@ -136,17 +135,17 @@ int		ft_create_relief2(t_earth *earth, int  **ground)
 
 void	ft_print_smooth_relief(t_earth *earth, t_pict *pic, t_param *param)
 {
-	t_vektr **v;
-	t_plgn **plgn;
+	t_vektr *v;
+	t_plgn *plgn;
 
 	while ((v = ft_arr_get_next(earth->points)))
-		ft_change_points4(param, *v);
+		ft_change_points4(param, v);
 	while ((plgn = ft_arr_get_next(earth->poligons)))
-		ft_print_plgn(*plgn, pic, param->grad);
+		ft_print_plgn(plgn, pic, param->grad);
 }
 
 
-void	ft_print_relief(t_earth *earth, t_cell *cell, t_pict *pic, t_param *param)
+void	ft_print_relief(t_earth *earth, t_arr *cells, t_pict *pic, t_param *param)
 {
 	if (!param->is_need_print_obstacles)
 		return ;
@@ -155,7 +154,7 @@ void	ft_print_relief(t_earth *earth, t_cell *cell, t_pict *pic, t_param *param)
 		param->is_obstacles_change = FALSE;
 		if (param->is_smooth_relief)
 			ft_print_smooth_relief(earth, pic, param);
-		ft_print_all_cell(cell, pic, param);
+		ft_print_all_cell(cells, pic, param);
 		ft_save_image(pic);
 	}
 	else

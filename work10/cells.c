@@ -63,30 +63,34 @@ int		ft_is_cell_obstacle(int **ground, int cell_number)
 
 
 
-void	ft_fill_cells_from_ground(t_cell *cells, int **ground)
+void	ft_fill_cells_from_ground(t_arr *cells, int **ground)
 {
+	t_cell *cell;
 	int n;
 
 	n = 0;
-	while (n <= CELL_COUNT)
+	while ((cell = ft_arr_get_next(cells)))
 	{
-		cells[n].obstacle = ft_is_cell_obstacle(ground, n);
+		cell->obstacle = ft_is_cell_obstacle(ground, n);
 		n++;
 	}
 }
 
-int		ft_is_need_print_cell(t_cell *cell, int j, int i, int k)
+int		ft_is_need_print_cell(t_arr *cells, int j, int i, int k)
 {
+	t_cell *cell;
+
+	cell = cells->elems;
 	if (j <= J0 || j >= JMAX || i <= I0 || i >= IMAX || k <= K0 || k >= KMAX)
 		return (FALSE);
 	if (j == JMAX - 1 || i == I0 + 1 || i == IMAX - 1 || k == K0 + 1 || k == KMAX - 1)
 		return (TRUE);
-	if (g_cell[ft_get_index(j + 1, i, k)].obstacle
-	&& g_cell[ft_get_index(j - 1, i, k)].obstacle
-	&& g_cell[ft_get_index(j, i + 1, k)].obstacle
-	&& g_cell[ft_get_index(j, i - 1, k)].obstacle
-	&& g_cell[ft_get_index(j, i, k + 1)].obstacle
-	&& g_cell[ft_get_index(j, i, k - 1)].obstacle)
+	if (cell[ft_get_index(j + 1, i, k)].obstacle
+	&& cell[ft_get_index(j - 1, i, k)].obstacle
+	&& cell[ft_get_index(j, i + 1, k)].obstacle
+	&& cell[ft_get_index(j, i - 1, k)].obstacle
+	&& cell[ft_get_index(j, i, k + 1)].obstacle
+	&& cell[ft_get_index(j, i, k - 1)].obstacle)
 		return (FALSE);
 	return (TRUE);
 }
@@ -197,22 +201,21 @@ void	ft_print_one_cell(t_point cell, t_pict *pic, t_param *param)
 	}
 }
 
-
-
-void	ft_print_all_cell(t_cell *cell, t_pict *pic, t_param *param)
+void	ft_print_all_cell(t_arr *cells, t_pict *pic, t_param *param)
 {
+	t_cell *cell;
 	t_point jik;
 	int i;
 
 	ft_memset((void *)pic->index, 0, pic->count_byte);
 	i = 0;
-	while (i < CELL_COUNT)
+	while ((cell = ft_arr_get_next(cells)))
 	{
 		pic->cell = i;
 		jik = ft_get_index_d3(i);
-		if (((cell[i].obstacle == 1 && !param->is_smooth_relief)
-		|| cell[i].obstacle == DYNAMIC_OBSTACLE)
-		&& ft_is_need_print_cell(cell, jik.y, jik.x, jik.z))
+		if (((cell->obstacle == 1 && !param->is_smooth_relief)
+		|| cell->obstacle == DYNAMIC_OBSTACLE)
+		&& ft_is_need_print_cell(cells, jik.y, jik.x, jik.z))
 			ft_print_one_cell(jik, pic, param);
 		i++;
 	}
@@ -245,19 +248,21 @@ void	ft_add_cell(void *ptr, int j, int i, int k)
 	cell[cell_number].obstacle = DYNAMIC_OBSTACLE;
 }
 
-int		ft_change_obstacles(t_cell *cell, int cell_number, int button, t_param *param)
+int		ft_change_obstacles(t_arr *cell, int cell_number, int button, t_param *param)
 {
 	t_point p;
 	t_point start;
 	t_point end;
+	t_cell *cells;
 
+	cells = cell->elems;
 	p = ft_get_index_d3(cell_number);
 	ft_fill_point(&start, p.y - param->brush, p.x - param->brush, p.z - param->brush);
 	ft_fill_point(&end, p.y + param->brush, p.x + param->brush, p.z + param->brush);
 	if (button == RIGHT_MOUSE)
-		ft_cycle_cube((void *)cell, ft_del_cell, &start, &end);
+		ft_cycle_cube((void *)cells, ft_del_cell, &start, &end);
 	else if (button == LEFT_MOUSE)
-		ft_cycle_cube((void *)cell, ft_add_cell, &start, &end);
+		ft_cycle_cube((void *)cells, ft_add_cell, &start, &end);
 	else
 		return (FALSE);
 	return (TRUE);

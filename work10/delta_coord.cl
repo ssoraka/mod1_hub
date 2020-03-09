@@ -12,7 +12,7 @@
 
 #include "ft_cl.h"
 
-__kernel	void delta_coord(__global t_part *p)
+__kernel	void delta_coord(__global t_part *p, __global t_neighs *n)
 {
 	int i;
 	int j;
@@ -28,15 +28,15 @@ __kernel	void delta_coord(__global t_part *p)
 
 	d_pos = (t_dpoint){0.0, 0.0, 0.0};
 	num = 0;
-	while (num < p[i].n.count)
+	while (num < n[i].count)
 	{
-		j = p[i].n.j[num].j;
+		j = n[i].j[num].j;
 		d_speed = (t_dpoint){
 			p[i].speed.y - p[j].speed.y,
 			p[i].speed.x - p[j].speed.x,
 			p[i].speed.z - p[j].speed.z};
 
-		tmp = PART_MASS_0 * 2.0 / (p[i].density + p[j].density) * p[i].n.j[num].w_ij;
+		tmp = PART_MASS_0 * 2.0 / (p[i].density + p[j].density) * n[i].j[num].w_ij;
 
 		d_pos.y += tmp * d_speed.y;
 		d_pos.x += tmp * d_speed.x;

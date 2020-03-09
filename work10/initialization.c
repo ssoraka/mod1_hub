@@ -35,10 +35,16 @@ void	ft_init_parts_arr_and_cell(void)
 		ft_del_all(NULL);
 	if (!(g_parts = ft_init_all_clear_parts()))
 		ft_del_all(NULL);
+	if (!(g_neighs = ft_create_arr(sizeof(t_neighs), 1, NULL)))
+		ft_del_all(NULL);
 	if (!(g_iparts = ft_create_arr(sizeof(t_ipart), g_parts->elems_count, NULL)))
 		ft_del_all(NULL);
-	if (!(g_cell = ft_memalloc(sizeof(t_cell) * (CELL_COUNT + 1))))
+	if (!(g_cell = ft_create_arr(sizeof(t_cell), CELL_COUNT, NULL)))
 		ft_del_all(NULL);
+	g_cell->elems_used = CELL_COUNT;
+	if (!(g_cell_map = ft_create_arr(sizeof(t_cell_map), CELL_COUNT, NULL)))
+		ft_del_all(NULL);
+	g_cell_map->elems_used = CELL_COUNT;
 	if (!(g_earth = ft_create_earth()))
 		ft_del_all(NULL);
 
@@ -47,7 +53,6 @@ void	ft_init_parts_arr_and_cell(void)
 		ft_del_all("init error\n");
 	if (!ft_read_and_build_programs(g_cl, g_compile))
 		ft_del_all("some error\n");
-	ft_prepare_to_compile(g_cl, g_compile, g_buff);
 }
 
 
@@ -68,10 +73,12 @@ void	ft_del_all(char *message)
 	if (message)
 		ft_putstr_fd(message, 2);
 	ft_del_arr(&g_parts);
+	ft_del_arr(&g_neighs);
 	ft_del_arr(&g_iparts);
+	ft_del_arr(&g_cell);
+	ft_del_arr(&g_cell_map);
 	ft_del_earth(&g_earth);
 	ft_str_arr_free((char ***)(&ground));
-	ft_memdel((void **)&g_cell);
 	ft_free_open_cl(&g_cl);
 	ft_destroy_mlx(&vis);
 	exit(0);

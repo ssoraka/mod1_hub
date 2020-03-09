@@ -36,7 +36,7 @@ int		ft_get_arr_index(t_dpoint pos)
 	return (j * (3 * 3) + i * (3) + k);
 }
 
-__kernel void add_part_in_cell(__global t_part *part, __global t_cell *cell)
+__kernel void add_part_in_cell(__global t_part *part, __global t_cell_map *cell_map)
 {
 	int gid;
 	int c_gid;
@@ -48,8 +48,6 @@ __kernel void add_part_in_cell(__global t_part *part, __global t_cell *cell)
 	jik = part[gid].jik;
 
 	c_gid = ft_get_cell_index(jik.y, jik.x, jik.z);
-	cell[c_gid].index[ft_get_arr_index(pos)] = gid;
-	cell[c_gid].full = 1;
-
-	part[gid].n.count = 0;
+	cell_map[c_gid].index[ft_get_arr_index(pos)] = gid;
+	cell_map[c_gid].full = 1;
 }

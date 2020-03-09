@@ -38,12 +38,13 @@ void	ft_fill_part(t_part *part, t_dpoint *p, int type)
 }
 
 
-void	ft_create_new_water_in_area(t_arr **p_arr, t_dpoint *start, t_point *end, int type)
+void	ft_create_new_water_in_area(t_arr *p_arr, t_dpoint *start, t_point *end, int type)
 {
 	REAL i;
 	REAL k;
 	t_part part;
 	t_dpoint pos;
+	t_cell *cell;
 
 	i = start->x;
 	while (i < end->x + 1 && i < IMAX + 1)
@@ -51,11 +52,12 @@ void	ft_create_new_water_in_area(t_arr **p_arr, t_dpoint *start, t_point *end, i
 		k = start->z;
 		while (k < end->z + 1 && k < KMAX + 1)
 		{
-			if (!g_cell[ft_get_index((int)(start->y), (int)i, (int)k)].obstacle)
+			cell = ft_arr_get(g_cell, ft_get_index((int)(start->y), (int)i, (int)k));
+			if (!cell->obstacle)
 			{
 				ft_fill_dpoint(&pos, start->y, i, k);
 				ft_fill_part(&part, &pos, type);
-				ft_arr_add(*p_arr, (void *)&part);
+				ft_arr_add(p_arr, (void *)&part);
 			}
 			k++;
 		}
@@ -64,7 +66,7 @@ void	ft_create_new_water_in_area(t_arr **p_arr, t_dpoint *start, t_point *end, i
 }
 
 
-void	ft_create_new_area_of_water(t_arr **parts, t_point *start, t_point *end, int type)
+void	ft_create_new_area_of_water(t_arr *parts, t_point *start, t_point *end, int type)
 {
 	t_dpoint tmp;
 	int n;

@@ -15,6 +15,19 @@
 #define ARR_REALLOC_COEF 1.5
 #define ARR_FIRST_COUNT 16
 #define NEXT_START -1
+#define SIZE_OF_PTR 8
+
+void	*ft_arr_get_addr(t_arr *arr, int num);
+
+void	*ft_return_elem(void *elem)
+{
+	return (elem);
+}
+
+void	*ft_return_ptr(void *elem)
+{
+	return (*((void **)elem));
+}
 
 void	ft_del_arr(t_arr **arr)
 {
@@ -28,8 +41,8 @@ void	ft_del_arr(t_arr **arr)
 			i = (*arr)->elems_used - 1;
 			while (i >= 0)
 			{
-				elem = ft_arr_get(*arr, i);
-				(*arr)->func_del(elem);
+				elem = ft_arr_get_addr(*arr, i);
+				(*arr)->func_del((*arr)->value(elem));
 				i--;
 			}
 		}
@@ -43,9 +56,9 @@ t_arr	*ft_create_arr(int elem_size, int elems_count, void (*func_del)(void *))
 {
 	t_arr	*arr;
 
-	if (elems_count < ARR_FIRST_COUNT)
+	if (elems_count != 0 && elems_count < ARR_FIRST_COUNT)
 		elems_count = ARR_FIRST_COUNT;
-	if (elem_size * elems_count <= 0)
+	if (elem_size * elems_count < 0)
 		return (NULL);
 	arr = ft_memalloc(sizeof(t_arr));
 	if (arr)
@@ -58,7 +71,19 @@ t_arr	*ft_create_arr(int elem_size, int elems_count, void (*func_del)(void *))
 		if (!(arr->elems = ft_memalloc(elem_size * elems_count)))
 			ft_del_arr(&arr);
 		arr->current = arr->elems - arr->elem_size;
+		arr->value = &ft_return_elem;
 	}
+	return (arr);
+}
+
+t_arr	*ft_create_arr_of_ptr(int elems_count, void (*func_del)(void *))
+{
+	t_arr	*arr;
+
+	arr = ft_create_arr(SIZE_OF_PTR, elems_count, func_del);
+	if (!arr)
+		return (NULL);
+	arr->value = &ft_return_ptr;
 	return (arr);
 }
 
@@ -90,15 +115,25 @@ void	*ft_arr_add(t_arr *arr, void *elem)
 	if (!arr || !elem)
 		return (NULL);
 	if (arr->elems_used == arr->elems_count)
-		if (!ft_realloc_arr(arr, arr->elems_count * ARR_REALLOC_COEF))
+		if (!ft_realloc_arr(arr, arr->elems_count * ARR_REALLOC_COEF + 1))
 			return (NULL);
 	tmp = arr->elems + arr->elems_used * arr->elem_size;
-	ft_memcpy(tmp, elem, arr->elem_size);
+	if (arr->value == ft_return_ptr)
+		ft_memcpy(tmp, &elem, arr->elem_size);
+	else
+		ft_memcpy(tmp, elem, arr->elem_size);
 	(arr->elems_used)++;
 	return (tmp);
 }
 
 void	*ft_arr_get(t_arr *arr, int num)
+{
+	if (!arr || num < 0 || arr->elems_used - 1 < num)
+		return (NULL);
+	return (arr->value(arr->elems + arr->elem_size * num));
+}
+
+void	*ft_arr_get_addr(t_arr *arr, int num)
 {
 	if (!arr || num < 0 || arr->elems_used - 1 < num)
 		return (NULL);
@@ -116,7 +151,7 @@ void	*ft_arr_get_next(t_arr *arr)
 		arr->current = arr->elems - arr->elem_size;
 		return (NULL);
 	}
-	return (arr->current);
+	return (arr->value(arr->current));
 }
 
 void	ft_del_elem(t_arr *arr, int num)
@@ -130,7 +165,7 @@ void	ft_del_elem(t_arr *arr, int num)
 	dst = arr->elems + arr->elem_size * num;
 	src = arr->elems + arr->elem_size * arr->elems_used;
 	if (arr->func_del)
-		arr->func_del(dst);
+		arr->func_del(arr->value(dst));
 	ft_memcpy(dst, src, arr->elem_size);
 }
 
@@ -140,10 +175,10 @@ void	ft_del_elems_if(t_arr *arr, int (*need_del)(void *, void *), void *param)
 	void *elem;
 
 	i = arr->elems_used - 1;
-	elem = ft_arr_get(arr, i);
+	elem = ft_arr_get_addr(arr, i);
 	while (i >= 0)
 	{
-		if (need_del(elem, param))
+		if (need_del(arr->value(elem), param))
 			ft_del_elem(arr, i);
 		elem -= arr->elem_size;
 		i--;
@@ -157,30 +192,13 @@ void	ft_for_each_elem(t_arr *arr, void (*func)(void *, void *), void *param)
 
 	if (!func)
 		return ;
-	elem = (void **)ft_arr_get(arr, 0);
+	elem = arr->elems;
 	i = 0;
 	while (i < arr->elems_used)
 	{
-		func(elem, param);
+		if ((arr->value(elem)))
+			func(arr->value(elem), param);
 		elem += arr->elem_size;
-		i++;
-	}
-}
-
-void	ft_for_each_ptr(t_arr *arr, void (*func)(void *, void *), void *param)
-{
-	void **elem;
-	int i;
-
-	if (!func)
-		return ;
-	elem = (void **)ft_arr_get(arr, 0);
-	i = 0;
-	while (i < arr->elems_used)
-	{
-		if (*elem)
-			func(*elem, param);
-		elem++;
 		i++;
 	}
 }
@@ -203,7 +221,7 @@ void	*ft_use_thread(void *param)
 
 	thread = param;
 	i = thread->start;
-	elem = (void **)ft_arr_get(thread->arr, i);
+	elem = (void **)ft_arr_get_addr(thread->arr, i);
 	while (thread->start < thread->end)
 	{
 		if (*elem)
