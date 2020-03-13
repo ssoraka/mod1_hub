@@ -99,3 +99,10 @@ void	ft_fill_interface(t_arr *parts, t_arr *iparts)
 		ft_arr_add(iparts, (void *)&ip);
 	}
 }
+
+int		ft_del_unused_part(void *elem, void *param)
+{
+	if (((t_part *)elem)->type == 0)
+		return (TRUE);
+	return (FALSE);
+}

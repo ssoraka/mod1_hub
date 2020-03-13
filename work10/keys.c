@@ -97,7 +97,7 @@ int		deal_key(int key, void *param)
 	if (key == KEY_P)
 		vis->pause = !vis->pause;
 	if (key == KEY_R)
-		vis->rain = !vis->rain;
+		vis->rain = NEED_STOP_PRINT_FOR_RAIN;
 	if (key == KEY_O)
 		vis->is_smooth_relief = !vis->is_smooth_relief;
 	if (key == KEY_K && vis->brush < MAX_BRUSH)

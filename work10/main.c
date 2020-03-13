@@ -12,6 +12,12 @@
 
 #include "ft_mod1.h"
 
+
+//
+// надо в сигнатуру ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad, REAL cos)
+// с углом нормали к свету
+//
+
 t_prog    g_compile[PROGRAMS_COUNT + 10] =
 {
 	{"clear_cell.cl", "clear_cell", 2, {CELL_MAPS, CELLS, -1}},
@@ -179,6 +185,8 @@ void	ft_print_all_water2(void *ptr, void *param)
 
 	vis = (t_vis *)param;
 	ipart = (t_ipart *)ptr;
+	if (ipart->type >= FLUIDS)
+		return ;
 	ft_bzero((void *)&vektr, sizeof(t_vektr));
 	ft_fill_dpoint(&vektr.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
 	ft_change_points4(&(vis->param), &vektr);
@@ -235,51 +243,6 @@ void	ft_init_buffers(t_buff *buff, t_arr *arr)
 }
 
 
-/*
-void	ft_add_new_water(t_arr *parts, t_arr *iparts, t_buff *buff, t_open_cl *cl)
-{
-	ft_putstr("-1\n");
-	ft_create_new_area_of_water(&parts, &((t_point){JMAX/2 - 10, IMAX/2 - 10, KMAX/2 - 10})
-	, &((t_point){JMAX/2 + 10, IMAX/2 + 10, KMAX/2 + 10}), MAGMA);
-	ft_putstr("0\n");
-	//скопировать содержимое буфера в структуру
-
-	buff[PARTS].ptr = parts->elems;
-	clFinish(cl->queue);
-	if (!ft_read_buffers(cl, PARTS, CL_TRUE))
-		ft_del_all("read error\n");
-	if (buff[PARTS].buff_size / buff[PARTS].elem_size != parts->elems_count)
-	{
-		//уничтожить буфер
-		ft_putstr("1\n");
-		ft_stop_cl(cl);
-		if (clReleaseMemObject(cl->buffer[PARTS]) != CL_SUCCESS)
-			ft_del_all("del buffer error\n");
-		if (clReleaseMemObject(cl->buffer[INTERFACE]) != CL_SUCCESS)
-			ft_del_all("del buffer error\n");
-		ft_putstr("2\n");
-		ft_prepare_to_buffers(buff, parts, iparts, NULL);
-		//создать новый
-		if (!ft_create_buffers(cl, PARTS, buff[PARTS].ptr, buff[PARTS].buff_size))
-			ft_del_all("buffer error\n");
-		if (!ft_create_buffers(cl, INTERFACE, buff[INTERFACE].ptr, buff[INTERFACE].buff_size))
-			ft_del_all("buffer error\n");
-		ft_putstr("3\n");
-		if (!ft_set_kernel_arg(cl, g_compile))
-			ft_del_all("set error\n");
-		ft_putstr("4\n");
-	}
-	else
-		ft_prepare_to_buffers(buff, parts, iparts, NULL);
-
-	if (!ft_write_buffers(cl, PARTS, CL_TRUE))
-		ft_del_all("realloc error\n");
-	ft_putstr("5\n");
-}
-*/
-
-
-
 
 int loop_hook(void *param)
 {
@@ -289,20 +252,27 @@ int loop_hook(void *param)
 
 	if (vis->param.exit)
 		return (0);
-	if (!vis->param.rain && !ft_read_buffers(g_cl, INTERFACE, CL_TRUE))
+	if (vis->param.rain == RAIN_ACTIVATE)
+		return (0);
+
+	if (!ft_read_buffers(g_cl, INTERFACE, CL_TRUE))
 		ft_del_all("read error\n");
+
+	/*
 	if (vis->param.rain && vis->param.solver_pause)
 	{
 		//ft_add_new_water(g_parts, g_iparts, g_buff, g_cl);
 		vis->param.rain = FALSE;
 	}
-
+*/
 
 	ft_refresh_picture(vis);
 
 	printf("%ld\n", clock() - g_clock);
 	g_clock = clock();
 
+	if (vis->param.rain == NEED_STOP_PRINT_FOR_RAIN)
+		vis->param.rain = RAIN_ACTIVATE;
 	return (0);
 }
 
@@ -377,7 +347,7 @@ int main(int ac, char **av)
 	//ft_create_new_area_of_water(g_parts, &((t_point){99, 99, 98}), &((t_point){99, 99, 99}), WATER);
 
 	ft_create_new_area_of_water(g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 50, 11, KMAX - 1}), WATER);
-	ft_create_new_area_of_water(g_parts, &((t_point){2, IMAX - 11, 2}), &((t_point){JMAX - 50, IMAX - 1, KMAX - 1}), MAGMA);
+	//ft_create_new_area_of_water(g_parts, &((t_point){2, IMAX - 11, 2}), &((t_point){JMAX - 50, IMAX - 1, KMAX - 1}), MAGMA);
 
 
 	//ft_create_new_area_of_water(g_parts, &((t_point){JMAX - 12, IMAX / 2 - 7, KMAX / 2 - 7}), &((t_point){JMAX - 1, IMAX / 2 + 7, KMAX / 2 + 7}), MAGMA);
@@ -405,7 +375,7 @@ int main(int ac, char **av)
 		ft_del_all("set error\n");
 
 
-	ft_create_thread_for_solver(&solver, g_cl, &(vis->param));
+	ft_create_thread_for_solver(&solver, g_cl, &(vis->param), g_compile);
 	//g_clock = clock();
 
 	mlx_hook(vis->win, 2, 0, deal_key, (void *)&(vis->param));

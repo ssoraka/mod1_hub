@@ -112,6 +112,32 @@ void	ft_draw_traing(t_pict *pic, t_vektr **p, int grad, int color)
 }
 
 
+t_dpoint	ft_ret_norm(t_dpoint *a, t_dpoint *b, t_dpoint *c)
+{
+	t_dpoint n;
+	t_dpoint ba;
+	t_dpoint bc;
+
+	ft_fill_dpoint(&ba, a->y - b->y, a->x - b->x, a->z - b->z);
+	ft_fill_dpoint(&bc, c->y - b->y, c->x - b->x, c->z - b->z);
+	ft_fill_dpoint(&n,
+		ba.z * bc.x - ba.x * bc.z,
+		ba.y * bc.z - ba.z * bc.y,
+		ba.x * bc.y - ba.y * bc.x);
+	return (n);
+}
+
+REAL	ft_vekt_cos(t_dpoint a, t_dpoint b)
+{
+	REAL cos;
+
+	cos = (a.x * b.x + a.y * b.y + a.z * b.z) * (a.x * b.x + a.y * b.y + a.z * b.z) /
+	((a.x * a.x + a.y * a.y + a.z * a.z) * (b.x * b.x + b.y * b.y + b.z * b.z));
+	return (sqrt(cos));
+}
+
+
+
 void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad)
 {
 	t_vektr tmp;

@@ -30,44 +30,6 @@ void	ft_init_params(t_param *vis)
 }
 
 
-void	ft_memcpy8(void *dst, void *src, size_t size)
-{
-	long *dst8;
-	long *src8;
-	size_t i;
-	size_t size8;
-
-	dst8 = (long *)dst;
-	src8 = (long *)src;
-	size8 = size >> 3;
-	i = -1;
-	while (++i < size8)
-		dst8[i] = src8[i];
-	size8 = size8 << 3;
-	size = size & 0x7;
-	if (size)
-		ft_memcpy(dst + size8, src + size8, size);
-}
-
-
-void	ft_memset8(void *dst, size_t chr, int size)
-{
-	long *dst8;
-	int i;
-	int size8;
-
-	dst8 = (long *)dst;
-	size8 = size >> 3;
-	i = -1;
-	while (++i < size8)
-		dst8[i] = chr;
-	size8 = size8 << 3;
-	size = size & 0x7;
-	if (size)
-		ft_memset(dst + size8, chr, size);
-}
-
-
 void	ft_clear_image(t_pict *pic)
 {
 	ft_memset8((void *)pic->addr, 0xC0FFFFFFC0FFFFFF, pic->count_byte);

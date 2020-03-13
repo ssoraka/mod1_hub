@@ -12,10 +12,13 @@
 
 #include "ft_mod1.h"
 
-void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param)
+#define CUBE_LEN 9
+
+void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param, t_prog *compile)
 {
 	solver->cl = cl;
 	solver->param = param;
+	solver->compile = compile;
 	pthread_attr_init(&(solver->attr));
 	pthread_create(&(solver->tid), &(solver->attr), ft_solver, (void *)solver);
 }
@@ -29,23 +32,28 @@ void	ft_after_change_relief(t_open_cl *cl, t_param *param)
 	param->is_relief_changed = FALSE;
 }
 
-/*
-void	ft_after_add_water(t_buff *buff, t_param *param, t_open_cl *cl)
+void	ft_add_new_water(t_open_cl *cl)
 {
-	if (!param->add_new_water)
-		return ;
-	if (clEnqueueReadBuffer(cl->queue, cl->buffer[PARTS], CL_TRUE, 0,
-	buff[PARTS].buff_size, buff[PARTS].ptr, 0, NULL, NULL) != CL_SUCCESS)
-		ft_del_all("read in buffer error\n");
+	ft_stop_cl(cl);
+	//создаем новую воду
+	if (!ft_read_buffers(cl, PARTS, CL_TRUE))
+		ft_del_all("read error\n");
+	//для удаления застрявших частиц
+	//ft_del_elems_if(cl->buff[PARTS].arr, &ft_del_unused_part, NULL);
+	//создаем новую воду
+	ft_create_new_area_of_water(cl->buff[PARTS].arr
+		, &((t_point){JMAX/2 - CUBE_LEN, IMAX/2 - CUBE_LEN, KMAX/2 - CUBE_LEN})
+		, &((t_point){JMAX/2 + CUBE_LEN, IMAX/2 + CUBE_LEN, KMAX/2 + CUBE_LEN}), MAGMA);
 
-
-	if (clEnqueueWriteBuffer(cl->queue, cl->buffer[PARTS], CL_TRUE, 0,
-	buff[PARTS].buff_size, buff[PARTS].ptr , 0, NULL, NULL) != CL_SUCCESS)
-
-	if (!ft_create_buffers(cl, PARTS, buff[PARTS].ptr, buff[PARTS].buff_size))
-		ft_del_all("create buffer error\n");
-	param->add_new_water = FALSE;
-}*/
+	//скопировать содержимое буфера в структуру
+	//уничтожить буфер
+	if (!ft_recreate_buffers(cl, PARTS, CL_TRUE, *(cl->buff[PARTS].g_work_size), TRUE))
+		ft_del_all("recreate buffer error\n");
+	if (!ft_recreate_buffers(cl, INTERFACE, CL_TRUE, *(cl->buff[PARTS].g_work_size), TRUE))
+		ft_del_all("recreate buffer error\n");
+	if (!ft_recreate_buffers(cl, NEIGHS, CL_TRUE, *(cl->buff[PARTS].g_work_size), FALSE))
+		ft_del_all("recreate buffer error\n");
+}
 
 void	*ft_solver(void *param)
 {
@@ -54,13 +62,19 @@ void	*ft_solver(void *param)
 	s = (t_solver *)param;
 	while (!s->param->exit)
 	{
-		if (!s->param->solver_pause)
+		if (s->param->rain == RAIN_ACTIVATE)
+		{
+			ft_add_new_water(s->cl);
+			if (!ft_set_kernel_arg(s->cl, s->compile))
+				ft_del_all("set error\n");
+			s->param->rain = RAIN_FALSE;
+		}
+		if (!s->param->pause)
 		{
 			ft_after_change_relief(s->cl, s->param);
 			if (!ft_run_kernels(s->cl))
 				ft_del_all("run error\n");
 		}
-		s->param->solver_pause = s->param->pause;
 	}
 	ft_stop_cl(s->cl);
 	pthread_exit(0);

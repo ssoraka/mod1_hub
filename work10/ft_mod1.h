@@ -175,6 +175,12 @@ typedef enum	e_column
 	COLUMN_COUNT
 }				t_column;
 
+typedef enum	e_rain
+{
+	RAIN_FALSE,
+	NEED_STOP_PRINT_FOR_RAIN,
+	RAIN_ACTIVATE,
+}				t_rain;
 
 
 char *g_names[PROGRAMS_COUNT + 10];
@@ -213,7 +219,7 @@ int		loop_hook(void *param);
 void	ft_del_each_parts(void *param, int j, int i, int k);
 void	ft_create_stable_level_of_water(void *param, int j, int i, int k);
 void	ft_create_first_water(void);
-
+void	ft_prepare_one_buffer(t_buff *buff);
 
 /*
 ** initialization.c
@@ -223,7 +229,6 @@ void	ft_init_variable(void);
 void	ft_init_delta_xyz(void);
 void	ft_init_map_arrs(void);
 void	ft_initialization_of_global_variable(void);
-void	ft_del_cube_arr(void ****arr);
 void	ft_del_all(char *message);
 
 
@@ -315,7 +320,7 @@ t_part	*ft_add_part(void *ptr, t_dpoint *p, int type);
 t_arr	*ft_init_all_clear_parts(void);
 void	ft_create_new_area_of_water(t_arr *parts, t_point *start, t_point *end, int type);
 void	ft_fill_interface(t_arr *parts, t_arr *iparts);
-
+int		ft_del_unused_part(void *elem, void *param);
 /*
 **	map.c
 */
@@ -396,6 +401,7 @@ int		ft_read_and_build_programs(t_open_cl *cl, t_prog *compile);
 void	ft_prepare_to_compile(t_open_cl *cl, t_prog *compile, t_buff *buff);
 void	ft_free_open_cl(t_open_cl **open_cl);
 int		ft_create_buffers(t_open_cl *cl, int num, int need_wait);
+int		ft_recreate_buffers(t_open_cl *cl, int num, int need_wait, size_t new_elem_count, int need_write);
 int		ft_read_buffers(t_open_cl *cl, int num, int need_wait);
 int		ft_write_buffers(t_open_cl *cl, int num, int need_wait);
 void	ft_create_all_buffers(t_open_cl *cl);
@@ -403,10 +409,11 @@ int		ft_run_kernels(t_open_cl *cl);
 int		ft_set_kernel_arg(t_open_cl *cl, t_prog *compile);
 void	ft_stop_cl(t_open_cl *cl);
 
+
 /*
 **	thread_solver.c
 */
-void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param);
+void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param, t_prog *compile);
 void	*ft_solver(void *param);
 
 /*

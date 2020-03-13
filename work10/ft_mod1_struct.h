@@ -94,7 +94,8 @@ typedef struct		s_param
 	int				is_smooth_relief;
 	int				is_need_print_obstacles;
 	int				is_relief_changed;
-	int				solver_pause;
+	int				is_printing;
+	int				is_reading;
 	int				grad;
 	double			len;
 	struct s_dpoint	ang;
@@ -128,7 +129,7 @@ typedef struct		s_solver
 	pthread_t		tid;
 	pthread_attr_t	attr;
 	t_open_cl		*cl;
-	t_cell			*cell;
+	struct s_prog	*compile;
 	t_param			*param;
 }					t_solver;
 

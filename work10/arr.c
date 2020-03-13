@@ -100,7 +100,7 @@ int		ft_realloc_arr(t_arr *arr, int new_count)
 		return (TRUE);
 	if (!tmp)
 		return (FALSE);
-	ft_memcpy(tmp, arr->elems, arr->elems_count * arr->elem_size);
+	ft_memcpy8(tmp, arr->elems, arr->elems_count * arr->elem_size);
 	free(arr->elems);
 	arr->elems = tmp;
 	arr->elems_count = new_count;
@@ -119,9 +119,9 @@ void	*ft_arr_add(t_arr *arr, void *elem)
 			return (NULL);
 	tmp = arr->elems + arr->elems_used * arr->elem_size;
 	if (arr->value == ft_return_ptr)
-		ft_memcpy(tmp, &elem, arr->elem_size);
+		ft_memcpy8(tmp, &elem, arr->elem_size);
 	else
-		ft_memcpy(tmp, elem, arr->elem_size);
+		ft_memcpy8(tmp, elem, arr->elem_size);
 	(arr->elems_used)++;
 	return (tmp);
 }
@@ -166,7 +166,7 @@ void	ft_del_elem(t_arr *arr, int num)
 	src = arr->elems + arr->elem_size * arr->elems_used;
 	if (arr->func_del)
 		arr->func_del(arr->value(dst));
-	ft_memcpy(dst, src, arr->elem_size);
+	ft_memcpy8(dst, src, arr->elem_size);
 }
 
 void	ft_del_elems_if(t_arr *arr, int (*need_del)(void *, void *), void *param)
