@@ -66,6 +66,10 @@ int		ft_rotate_and_csale(t_param *vis, int key)
 	else
 		return (FALSE);
 	ft_rotate_xyz(&(vis->oxyz), &(vis->ang));
+	vis->cos.y = ft_vekt_cos(vis->oxyz.oy, vis->light);
+	vis->cos.x = ft_vekt_cos(vis->oxyz.ox, vis->light);
+	vis->cos.z = ft_vekt_cos(vis->oxyz.oz, vis->light);
+	printf("%lf_%lf_%lf\n", vis->cos.y, vis->cos.x, vis->cos.z);
 	return (TRUE);
 }
 

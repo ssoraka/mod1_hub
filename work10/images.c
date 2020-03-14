@@ -17,16 +17,19 @@
 ** надо пачку защит маллока наставить ...
 */
 
-void	ft_init_params(t_param *vis)
+void	ft_init_params(t_param *param)
 {
-	vis->cam_x = CAM_X;
-	vis->cam_y = CAM_Y;
-	vis->len = CONST_LEN;
-	vis->ang.z = M_PI;
-	vis->pause = 1;
-	vis->is_need_print_obstacles = TRUE;
-	vis->brush = 1;
-	ft_create_xyz(&(vis->oxyz));
+	param->cam_x = CAM_X;
+	param->cam_y = CAM_Y;
+	param->len = CONST_LEN;
+	param->ang.z = M_PI;
+	param->pause = 1;
+	param->is_need_print_obstacles = TRUE;
+	param->brush = 1;
+	param->light.x = 0.5;
+	param->light.y = -1;
+	param->light.z = 1;
+	ft_create_xyz(&(param->oxyz));
 }
 
 

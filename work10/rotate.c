@@ -75,6 +75,8 @@ void	ft_rotate_xyz(t_oxyz *oxyz, t_dpoint *ang)
 	ft_fill_dpoint(ang, 0.0, 0.0, 0.0);
 }
 
+
+
 void	ft_change_points4(t_param *vis, t_vektr *p)
 {
 	t_dpoint *ox;
@@ -88,13 +90,4 @@ void	ft_change_points4(t_param *vis, t_vektr *p)
 	p->zoom.x = (int)((ox->x * p->abs.x + oy->x * p->abs.y + oz->x * p->abs.z) * vis->len) + vis->cam_x;
 	p->zoom.y = (int)((ox->y * p->abs.x + oy->y * p->abs.y + oz->y * p->abs.z) * vis->len) + vis->cam_y;
 	p->zoom.z = (int)((ox->z * p->abs.x + oy->z * p->abs.y + oz->z * p->abs.z) * vis->len);
-}
-
-void	ft_change_points5(t_param *param, t_vektr *p)
-{
-	while (p)
-	{
-		ft_change_points4(param, p);
-		p = p->next;
-	}
 }

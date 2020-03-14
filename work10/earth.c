@@ -69,7 +69,8 @@ int		ft_create_line_of_poligons_of_relief2(t_earth *earth, int k)
 		p[2] = ft_arr_get(earth->points, earth->columns * (k + 1) + i);
 		if (!ft_create_rectang_poligon3(earth->poligons, p, OBSTACLES_FRONT_COLOR))
 			return (FALSE);
-		p[0] = ft_arr_get(earth->points, earth->columns * (k + 1) + i + 1);
+		p[0] = p[2];
+		p[2] = ft_arr_get(earth->points, earth->columns * (k + 1) + i + 1);
 		if (!ft_create_rectang_poligon3(earth->poligons, p, OBSTACLES_FRONT_COLOR))
 			return (FALSE);
 		i++;
@@ -132,7 +133,6 @@ int		ft_create_relief2(t_earth *earth, int  **ground)
 	return(TRUE);
 }
 
-
 void	ft_print_smooth_relief(t_earth *earth, t_pict *pic, t_param *param)
 {
 	t_vektr *v;
@@ -141,7 +141,10 @@ void	ft_print_smooth_relief(t_earth *earth, t_pict *pic, t_param *param)
 	while ((v = ft_arr_get_next(earth->points)))
 		ft_change_points4(param, v);
 	while ((plgn = ft_arr_get_next(earth->poligons)))
-		ft_print_plgn(plgn, pic, param->grad);
+	{
+		//printf("%lf\n", ft_lightness_coeff(plgn, param));
+		ft_print_plgn(plgn, pic, param->grad, ft_lightness_coeff(plgn, param));
+	}
 }
 
 

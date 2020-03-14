@@ -109,11 +109,11 @@
 */
 #define CONST_WIDTH 2000
 #define CONST_HEINTH 1360
-#define CAM_X 1700
-#define CAM_Y 1300
+#define CAM_X 1200
+#define CAM_Y 1100
 //#define RADIUS (DELTA * CONST_LEN * 0.7)
 #define RADIUS 3
-#define CONST_LEN (JMAX * 0.15)
+#define CONST_LEN (CONST_HEINTH / JMAX)
 #define KOEFF (1.0 / (DELTA_XY))
 #define SLEEP1
 
@@ -128,7 +128,6 @@ t_arr	*g_neighs;
 
 t_open_cl	*g_cl;
 t_earth *g_earth;
-
 
 t_dpoint g;
 
@@ -289,13 +288,14 @@ void	draw_line_img2(t_line *line, t_pict *pic, int grad);
 */
 t_plgn	*ft_create_poligon(t_vektr *p1, t_vektr *p2, t_vektr *p3, int color);
 void	ft_del_poligines(t_plgn **begin);
-void	ft_swap_points(t_vektr **p1, t_vektr **p2);
-void	ft_sort_points_by_y(t_plgn *plgn);
+void	ft_swap_ptr(void **ptr1, void **ptr2);
+void	ft_sort_points_by_y(t_vektr **p);
 void	ft_vektr_interpolation_by_y(t_vektr *p, t_vektr *p1, t_vektr *p2, int grad);
 int		ft_need_print_traing(t_vektr **p, t_pict *pic);
 void	ft_draw_traing(t_pict *pic, t_vektr **p, int grad, int color);
-void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad);
+void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad, REAL cos);
 void	ft_print_poligons(t_plgn *plgn, t_vektr *points, t_pict *pic, t_param *param);
+REAL	ft_lightness_coeff(t_plgn *plgn, t_param *param);
 /*
 **	keys.c
 */
@@ -309,6 +309,9 @@ int		deal_key(int key, void *param);
 void	ft_fill_point(t_point *p, int y, int x, int z);
 void	ft_fill_dpoint(t_dpoint *p, REAL y, REAL x, REAL z);
 void	ft_create_xyz(t_oxyz *oxyz);
+t_dpoint	ft_ret_norm(t_dpoint *a, t_dpoint *b, t_dpoint *c);
+REAL	ft_vekt_cos(t_dpoint a, t_dpoint b);
+REAL	ft_dot_dpoints(t_dpoint *a, t_dpoint *b);
 
 /*
 **	parts.c

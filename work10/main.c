@@ -342,11 +342,11 @@ int main(int ac, char **av)
 	//ft_create_points_in_cells(vis);
 	//ft_del_all("exit\n");
 
-	//t_part part;
-	//ft_arr_add(g_parts, (void *)&part);
+	t_part part;
+	ft_arr_add(g_parts, (void *)&part);
 	//ft_create_new_area_of_water(g_parts, &((t_point){99, 99, 98}), &((t_point){99, 99, 99}), WATER);
 
-	ft_create_new_area_of_water(g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 50, 11, KMAX - 1}), WATER);
+	//ft_create_new_area_of_water(g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 50, 11, KMAX - 1}), WATER);
 	//ft_create_new_area_of_water(g_parts, &((t_point){2, IMAX - 11, 2}), &((t_point){JMAX - 50, IMAX - 1, KMAX - 1}), MAGMA);
 
 

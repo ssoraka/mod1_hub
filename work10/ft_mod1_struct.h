@@ -52,9 +52,8 @@ typedef struct		s_line
 typedef struct		s_plgn
 {
 	int color;
+	int colors[4];
 	struct s_vektr	*p[4];
-	struct s_plgn	*next;
-
 }					t_plgn;
 
 typedef struct		s_pict
@@ -98,7 +97,9 @@ typedef struct		s_param
 	int				is_reading;
 	int				grad;
 	double			len;
+	struct s_dpoint	light;
 	struct s_dpoint	ang;
+	struct s_dpoint	cos;
 	struct s_oxyz	oxyz;
 }					t_param;
 

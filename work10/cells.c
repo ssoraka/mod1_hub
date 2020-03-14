@@ -48,6 +48,11 @@ int		ft_is_cell_obstacle(int **ground, int cell_number)
 	k = cell.z;
 	if (j == J0 || i == IMAX || i == I0 || k == K0 || k == KMAX)
 		return (OBSTACLE);
+
+	// if (j == J0 + 1 && i == I0 + 1 && k == K0 + 1)
+	// 	return (OBSTACLE);
+	// return (FALSE);
+
 	if (j < J0 || j > JMAX || i > IMAX || i < I0 || k < K0 || k > KMAX)
 		return (FALSE);
 	//хотел исправить ground[k - 1][i - 1] на ground[k][i],
@@ -96,22 +101,22 @@ int		ft_is_need_print_cell(t_arr *cells, int j, int i, int k)
 }
 
 
-void	ft_print_one_edge(t_vektr **p, t_pict *pic, t_param *param, int color)
+void	ft_print_one_edge(t_vektr **p, t_pict *pic, t_param *param, REAL cos)
 {
 	t_plgn plgn;
 
-	plgn.color = color;
+	plgn.color = OBSTACLES_FRONT_COLOR;
 	plgn.p[0] = p[0];
 	plgn.p[1] = p[1];
 	plgn.p[2] = p[2];
 	plgn.p[3] = p[3];
 	if (!ft_need_print_traing(plgn.p, pic))
 		return ;
-	ft_print_plgn(&plgn, pic, param->grad);
+	ft_print_plgn(&plgn, pic, param->grad, cos);
 	plgn.p[0] = p[3];
 	plgn.p[1] = p[2];
 	plgn.p[2] = p[0];
-	ft_print_plgn(&plgn, pic, param->grad);
+	ft_print_plgn(&plgn, pic, param->grad, cos);
 }
 
 
@@ -191,12 +196,18 @@ void	ft_print_one_cell(t_point cell, t_pict *pic, t_param *param)
 
 	ft_fill_points_cell2(cell, p8, param);
 	ft_fill_points_cell3(p8, p);
+	ft_print_one_edge(p, pic, param, -param->cos.z);
+	ft_print_one_edge(p + 12, pic, param, param->cos.z);
+	ft_print_one_edge(p + 4, pic, param, -param->cos.x);
+	ft_print_one_edge(p + 16, pic, param, param->cos.x);
+	ft_print_one_edge(p + 8, pic, param, -param->cos.y);
+	ft_print_one_edge(p + 20, pic, param, param->cos.y);
 	i = 0;
 	while (i < 2)
 	{
-		ft_print_one_edge(p + i * 12, pic, param, OBSTACLES_FRONT_COLOR);
-		ft_print_one_edge(p + i * 12 + 4, pic, param, OBSTACLES_TOP_COLOR);
-		ft_print_one_edge(p + i * 12 + 8, pic, param, OBSTACLES_RIGHT_COLOR);
+		//ft_print_one_edge(p + i * 12, pic, param, OBSTACLES_FRONT_COLOR);
+		//ft_print_one_edge(p + i * 12 + 4, pic, param, OBSTACLES_TOP_COLOR);
+		//ft_print_one_edge(p + i * 12 + 8, pic, param, OBSTACLES_RIGHT_COLOR);
 		i++;
 	}
 }
