@@ -115,6 +115,7 @@ typedef struct		s_cell_map
 typedef struct		s_cell
 {
 	int				obstacle;
+	int				water;
 }					t_cell;
 
 typedef struct		s_ipart

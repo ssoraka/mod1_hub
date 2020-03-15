@@ -29,6 +29,10 @@ void	ft_init_params(t_param *param)
 	param->light.x = 0.5;
 	param->light.y = -1;
 	param->light.z = 1;
+	param->water.x = I0 + 1;
+	param->water.y = J0 + 1;
+	param->water.z = K0 + 1;
+	param->is_need_print_water = TRUE;
 	ft_create_xyz(&(param->oxyz));
 }
 
@@ -107,13 +111,13 @@ int		ft_not_need_print(t_line *line, t_pict *pic)
 	if (line->p1->zoom.x >= CONST_WIDTH && line->p2->zoom.x >= CONST_WIDTH)
 		return (TRUE);
 	//хз, спорное условие...
-	if (line->p1->zoom.x >= 0 && line->p1->zoom.x < CONST_WIDTH
+	/*if (line->p1->zoom.x >= 0 && line->p1->zoom.x < CONST_WIDTH
 	&& line->p1->zoom.y >= 0 && line->p1->zoom.y < CONST_HEINTH
 	&& pic->z_buffer[line->p1->zoom.y * CONST_WIDTH + line->p1->zoom.x] > line->p1->zoom.z + 10
 	&& line->p2->zoom.x >= 0 && line->p2->zoom.x < CONST_WIDTH
 	&& line->p2->zoom.y >= 0 && line->p2->zoom.y < CONST_HEINTH
 	&& pic->z_buffer[line->p2->zoom.y * CONST_WIDTH + line->p2->zoom.x] > line->p2->zoom.z + 10)
-		return (TRUE);
+		return (TRUE);*/
 	return (FALSE);
 }
 

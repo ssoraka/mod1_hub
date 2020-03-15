@@ -202,15 +202,22 @@ void	ft_refresh_picture(t_vis *vis)
 	mlx_clear_window(vis->mlx, vis->win);
 	ft_clear_image(&(vis->pic));
 
+	if (vis->param.is_water_change)
+	{
+		ft_move_water_cell(g_cell, &(vis->param));
+		vis->param.is_water_change = FALSE;
+	}
+
 	ft_print_relief(g_earth, g_cell, &(vis->pic), &(vis->param));
 
+	if (vis->param.is_need_print_water)
+		ft_print_water_cell(g_cell, &(vis->pic), &(vis->param));
 
+	ft_init_picture(&(vis->pict), vis->param.len, WATER_COLOR);
+	ft_for_each_elem(g_iparts, print_img_to_img, (void *)vis);
+	free((void *)vis->pict.addr);
 
-	//ft_init_picture(&(vis->pict), vis->param.len, WATER_COLOR);
-	//ft_for_each_elem(g_iparts, print_img_to_img, (void *)vis);
-	//free((void *)vis->pict.addr);
-
-	ft_for_each_elem(g_iparts, ft_print_all_water2, (void *)vis);
+	//ft_for_each_elem(g_iparts, ft_print_all_water2, (void *)vis);
 
 	//ft_memcpy((void *)vis->pic.addr, (void *)vis->pic.index, vis->pic.count_byte);
 
@@ -346,8 +353,8 @@ int main(int ac, char **av)
 	ft_arr_add(g_parts, (void *)&part);
 	//ft_create_new_area_of_water(g_parts, &((t_point){99, 99, 98}), &((t_point){99, 99, 99}), WATER);
 
-	//ft_create_new_area_of_water(g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 50, 11, KMAX - 1}), WATER);
-	//ft_create_new_area_of_water(g_parts, &((t_point){2, IMAX - 11, 2}), &((t_point){JMAX - 50, IMAX - 1, KMAX - 1}), MAGMA);
+//	ft_create_new_area_of_water(g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 20, 11, KMAX - 1}), WATER);
+//	ft_create_new_area_of_water(g_parts, &((t_point){2, IMAX - 11, 2}), &((t_point){JMAX - 20, IMAX - 1, KMAX - 1}), MAGMA);
 
 
 	//ft_create_new_area_of_water(g_parts, &((t_point){JMAX - 12, IMAX / 2 - 7, KMAX / 2 - 7}), &((t_point){JMAX - 1, IMAX / 2 + 7, KMAX / 2 + 7}), MAGMA);

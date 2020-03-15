@@ -253,6 +253,7 @@ void	ft_norm_vektor(t_dpoint *vek);
 void	ft_rotate_vek_around_vek_by_ang(t_dpoint *ox, t_dpoint *oy, double ang);
 void	ft_change_points4(t_param *vis, t_vektr *p);
 void	ft_rotate_xyz(t_oxyz *oxyz, t_dpoint *ang);
+t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz);
 void	ft_ret_zoom_xyz(t_vektr *ox, t_param *vis);
 void	ft_change_points5(t_param *param, t_vektr *p);
 
@@ -293,9 +294,9 @@ void	ft_sort_points_by_y(t_vektr **p);
 void	ft_vektr_interpolation_by_y(t_vektr *p, t_vektr *p1, t_vektr *p2, int grad);
 int		ft_need_print_traing(t_vektr **p, t_pict *pic);
 void	ft_draw_traing(t_pict *pic, t_vektr **p, int grad, int color);
-void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad, REAL cos);
+void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad);
 void	ft_print_poligons(t_plgn *plgn, t_vektr *points, t_pict *pic, t_param *param);
-REAL	ft_lightness_coeff(t_plgn *plgn, t_param *param);
+void	ft_prepare_plgn_for_printing(t_plgn *plgn, t_param *param);
 /*
 **	keys.c
 */
@@ -382,7 +383,8 @@ int		ft_get_index(int j, int i, int k);
 int		ft_is_cell_obstacle(int **ground, int cell_number);
 void	ft_fill_cells_from_ground(t_arr *cells, int **ground);
 void	ft_print_all_cell(t_arr *cells, t_pict *pic, t_param *param);
-
+void	ft_print_water_cell(t_arr *cells, t_pict *pic, t_param *param);
+void	ft_move_water_cell(t_arr *cells, t_param *param);
 
 /*
 **	read_program.c

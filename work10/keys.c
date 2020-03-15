@@ -89,12 +89,59 @@ int		ft_shift(t_param *vis, int key)
 	return (TRUE);
 }
 
+#define MOVE_LEFT 86
+#define MOVE_RIGHT 88
+#define MOVE_UP 91
+#define MOVE_DOWN 87
+#define MOVE_FORW 83
+#define MOVE_BACKW 84
+
+int		ft_is_water_cell_shift(t_param *param, int key)
+{
+	t_point	dir;
+
+	dir = param->water;
+	if (key == MOVE_LEFT)
+		dir.x++;
+	else if (key == MOVE_RIGHT)
+		dir.x--;
+	else if (key == MOVE_UP)
+		dir.y++;
+	else if (key == MOVE_DOWN)
+		dir.y--;
+	else if (key == MOVE_FORW)
+		dir.z++;
+	else if (key == MOVE_BACKW)
+		dir.z--;
+	else
+		return (FALSE);
+	if (dir.x <= I0 || dir.x >= IMAX || dir.y <= J0 || dir.y >= JMAX
+	|| dir.z <= K0 || dir.z >= KMAX)
+		return (FALSE);
+	param->water = dir;
+	return (TRUE);
+}
+
+int		ft_change_brush(t_param *param, int key)
+{
+	if (key == KEY_K && param->brush < MAX_BRUSH)
+		param->brush++;
+	else if (key == KEY_L && param->brush > 1)
+		param->brush--;
+	else
+		return (FALSE);
+	return (TRUE);
+}
+
 int		deal_key(int key, void *param)
 {
 	t_param *vis;
 
 	vis = (t_param *)param;
-	if (ft_rotate_and_csale(vis, key) || ft_shift(vis, key) || key == KEY_O)
+	vis->is_water_change = ft_change_brush(vis, key)
+	+ ft_is_water_cell_shift(vis, key);
+	if (ft_rotate_and_csale(vis, key) || ft_shift(vis, key) || key == KEY_O
+	|| key == KEY_G)
 		vis->is_obstacles_change = TRUE;
 	if (key == KEY_ESC)
 		ft_del_all(NULL);
@@ -104,10 +151,6 @@ int		deal_key(int key, void *param)
 		vis->rain = NEED_STOP_PRINT_FOR_RAIN;
 	if (key == KEY_O)
 		vis->is_smooth_relief = !vis->is_smooth_relief;
-	if (key == KEY_K && vis->brush < MAX_BRUSH)
-		vis->brush++;
-	if (key == KEY_L && vis->brush > 1)
-		vis->brush--;
 	if (key == KEY_I)
 	{
 		vis->is_need_print_obstacles = !vis->is_need_print_obstacles;

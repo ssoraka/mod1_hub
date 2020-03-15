@@ -142,8 +142,9 @@ void	ft_print_smooth_relief(t_earth *earth, t_pict *pic, t_param *param)
 		ft_change_points4(param, v);
 	while ((plgn = ft_arr_get_next(earth->poligons)))
 	{
-		//printf("%lf\n", ft_lightness_coeff(plgn, param));
-		ft_print_plgn(plgn, pic, param->grad, ft_lightness_coeff(plgn, param));
+		ft_prepare_plgn_for_printing(plgn, param);
+		//if (ft_vekt_cos(plgn->rot_n, (t_dpoint){0.0, 0.0, 1.0}) > 0.0)
+			ft_print_plgn(plgn, pic, param->grad);
 	}
 }
 

@@ -32,8 +32,13 @@ void	ft_after_change_relief(t_open_cl *cl, t_param *param)
 	param->is_relief_changed = FALSE;
 }
 
-void	ft_add_new_water(t_open_cl *cl)
+void	ft_add_new_water(t_open_cl *cl, t_param *param)
 {
+	t_point start;
+	t_point end;
+	t_point p;
+	int brush;
+
 	ft_stop_cl(cl);
 	//создаем новую воду
 	if (!ft_read_buffers(cl, PARTS, CL_TRUE))
@@ -41,9 +46,11 @@ void	ft_add_new_water(t_open_cl *cl)
 	//для удаления застрявших частиц
 	//ft_del_elems_if(cl->buff[PARTS].arr, &ft_del_unused_part, NULL);
 	//создаем новую воду
-	ft_create_new_area_of_water(cl->buff[PARTS].arr
-		, &((t_point){JMAX/2 - CUBE_LEN, IMAX/2 - CUBE_LEN, KMAX/2 - CUBE_LEN})
-		, &((t_point){JMAX/2 + CUBE_LEN, IMAX/2 + CUBE_LEN, KMAX/2 + CUBE_LEN}), MAGMA);
+	p = param->water;
+	brush = param->brush;
+	ft_fill_point(&start, p.y - brush, p.x - brush, p.z - brush);
+	ft_fill_point(&end, p.y + brush, p.x + brush, p.z + brush);
+	ft_create_new_area_of_water(cl->buff[PARTS].arr, &start, &end, MAGMA);
 
 	//скопировать содержимое буфера в структуру
 	//уничтожить буфер
@@ -64,7 +71,7 @@ void	*ft_solver(void *param)
 	{
 		if (s->param->rain == RAIN_ACTIVATE)
 		{
-			ft_add_new_water(s->cl);
+			ft_add_new_water(s->cl, s->param);
 			if (!ft_set_kernel_arg(s->cl, s->compile))
 				ft_del_all("set error\n");
 			s->param->rain = RAIN_FALSE;

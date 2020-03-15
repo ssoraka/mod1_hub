@@ -23,6 +23,7 @@ t_plgn	*ft_create_poligon(t_vektr *p1, t_vektr *p2, t_vektr *p3, int color)
 	tmp->p[1] = p2;
 	tmp->p[2] = p3;
 	tmp->color = color;
+	tmp->n = ft_ret_norm(&p1->abs, &p2->abs, &p3->abs);
 	return (tmp);
 }
 
@@ -112,61 +113,48 @@ void	ft_draw_traing(t_pict *pic, t_vektr **p, int grad, int color)
 }
 
 
-REAL	ft_lightness_coeff(t_plgn *plgn, t_param *param)
+void	ft_save_points_colors(t_plgn *plgn, int *colors)
 {
-	t_dpoint n;
-	t_dpoint n2;
-	t_dpoint *ox;
-	t_dpoint *oy;
-	t_dpoint *oz;
-	//n = ft_ret_norm(&plgn->p[0]->zoom, &plgn->p[1]->zoom, &plgn->p[2]->zoom);
-
-	n2 = ft_ret_norm(&plgn->p[0]->abs, &plgn->p[1]->abs, &plgn->p[2]->abs);
-
-	ox = &(param->oxyz.ox);
-	oy = &(param->oxyz.oy);
-	oz = &(param->oxyz.oz);
-
-	n.x = (ox->x * n2.x + oy->x * n2.y + oz->x * n2.z);
-	n.y = (ox->y * n2.x + oy->y * n2.y + oz->y * n2.z);
-	n.z = (ox->z * n2.x + oy->z * n2.y + oz->z * n2.z);
-	return (ft_vekt_cos(n, param->light));
+	colors[0] = plgn->p[0]->color;
+	colors[1] = plgn->p[1]->color;
+	colors[2] = plgn->p[2]->color;
+	colors[3] = plgn->color;
 }
 
-void	ft_save_points_colors(t_plgn *plgn)
+void	ft_change_points_colors(t_plgn *plgn)
 {
-	plgn->colors[0] = plgn->p[0]->color;
-	plgn->colors[1] = plgn->p[1]->color;
-	plgn->colors[2] = plgn->p[2]->color;
-	plgn->colors[3] = plgn->color;
+	plgn->p[0]->color = ft_grad_color((int)(1024 * plgn->cos), 1024, plgn->p[0]->color, 0);
+	plgn->p[1]->color = ft_grad_color((int)(1024 * plgn->cos), 1024, plgn->p[1]->color, 0);
+	plgn->p[2]->color = ft_grad_color((int)(1024 * plgn->cos), 1024, plgn->p[2]->color, 0);
+	plgn->color = ft_grad_color((int)(1024 * plgn->cos), 1024, plgn->color, 0);
 }
 
-void	ft_change_points_colors(t_plgn *plgn, REAL cos)
+void	ft_recovery_points_colors(t_plgn *plgn, int *colors)
 {
-	plgn->p[0]->color = ft_grad_color((int)(1024 * cos), 1024, plgn->p[0]->color, 0);
-	plgn->p[1]->color = ft_grad_color((int)(1024 * cos), 1024, plgn->p[1]->color, 0);
-	plgn->p[2]->color = ft_grad_color((int)(1024 * cos), 1024, plgn->p[2]->color, 0);
-	plgn->color = ft_grad_color((int)(1024 * cos), 1024, plgn->color, 0);
-}
-
-void	ft_recovery_points_colors(t_plgn *plgn)
-{
-	plgn->p[0]->color = plgn->colors[0];
-	plgn->p[1]->color = plgn->colors[1];
-	plgn->p[2]->color = plgn->colors[2];
-	plgn->color = plgn->colors[3];
+	plgn->p[0]->color = colors[0];
+	plgn->p[1]->color = colors[1];
+	plgn->p[2]->color = colors[2];
+	plgn->color = colors[3];
 }
 
 
-void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad, REAL cos)
+void	ft_prepare_plgn_for_printing(t_plgn *plgn, t_param *param)
+{
+	plgn->rot_n = ft_rot_dpoint(&plgn->n, &param->oxyz);
+	plgn->cos = ft_vekt_cos(plgn->rot_n, param->light);
+	if (plgn->cos < 0.0)
+		plgn->cos = 0.0;
+}
+
+
+void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad)
 {
 	t_vektr tmp;
 	t_vektr *p[4];
+	int colors[4];
 
-	if (cos <= 0.0)
-		cos = 0.0;
-	ft_save_points_colors(plgn);
-	ft_change_points_colors(plgn, cos);
+	ft_save_points_colors(plgn, colors);
+	ft_change_points_colors(plgn);
 	p[0] = plgn->p[0];
 	p[1] = plgn->p[1];
 	p[2] = plgn->p[2];
@@ -178,5 +166,5 @@ void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad, REAL cos)
 	ft_draw_traing(pic, p, grad, plgn->color);
 	p[0] = p[3];
 	ft_draw_traing(pic, p, grad, plgn->color);
-	ft_recovery_points_colors(plgn);
+	ft_recovery_points_colors(plgn, colors);
 }

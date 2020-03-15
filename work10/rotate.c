@@ -76,18 +76,28 @@ void	ft_rotate_xyz(t_oxyz *oxyz, t_dpoint *ang)
 }
 
 
-
-void	ft_change_points4(t_param *vis, t_vektr *p)
+t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz)
 {
+	t_dpoint rot_v;
 	t_dpoint *ox;
 	t_dpoint *oy;
 	t_dpoint *oz;
 
-	ox = &(vis->oxyz.ox);
-	oy = &(vis->oxyz.oy);
-	oz = &(vis->oxyz.oz);
+	ox = &(oxyz->ox);
+	oy = &(oxyz->oy);
+	oz = &(oxyz->oz);
+	rot_v.x = (ox->x * v->x + oy->x * v->y + oz->x * v->z);
+	rot_v.y = (ox->y * v->x + oy->y * v->y + oz->y * v->z);
+	rot_v.z = (ox->z * v->x + oy->z * v->y + oz->z * v->z);
+	return (rot_v);
+}
 
-	p->zoom.x = (int)((ox->x * p->abs.x + oy->x * p->abs.y + oz->x * p->abs.z) * vis->len) + vis->cam_x;
-	p->zoom.y = (int)((ox->y * p->abs.x + oy->y * p->abs.y + oz->y * p->abs.z) * vis->len) + vis->cam_y;
-	p->zoom.z = (int)((ox->z * p->abs.x + oy->z * p->abs.y + oz->z * p->abs.z) * vis->len);
+void	ft_change_points4(t_param *param, t_vektr *p)
+{
+	t_dpoint rot_p;
+
+	rot_p = ft_rot_dpoint(&p->abs, &param->oxyz);
+	p->zoom.x = (int)(rot_p.x * param->len) + param->cam_x;
+	p->zoom.y = (int)(rot_p.y * param->len) + param->cam_y;
+	p->zoom.z = (int)(rot_p.z * param->len);
 }

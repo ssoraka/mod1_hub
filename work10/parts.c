@@ -53,7 +53,7 @@ void	ft_create_new_water_in_area(t_arr *p_arr, t_dpoint *start, t_point *end, in
 		while (k < end->z + 1 && k < KMAX + 1)
 		{
 			cell = ft_arr_get(g_cell, ft_get_index((int)(start->y), (int)i, (int)k));
-			if (!cell->obstacle)
+			if (ft_get_index((int)(start->y), (int)i, (int)k) && !cell->obstacle)
 			{
 				ft_fill_dpoint(&pos, start->y, i, k);
 				ft_fill_part(&part, &pos, type);
