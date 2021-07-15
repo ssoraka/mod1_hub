@@ -84,7 +84,7 @@ norm:
 	norminette -R CheckForbiddenSourceHeader
 
 clean:
-	rm -f $(OBJS)
+	rm -f $(OBJECTS)
 	make -C libft clean
 
 fclean: clean
