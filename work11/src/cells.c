@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_mod1.h"
+#include "../ft_mod1.h"
 
 #define OBSTACLE 1
 #define DYNAMIC_OBSTACLE 2

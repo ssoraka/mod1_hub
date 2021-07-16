@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_mod1.h"
+#include "../ft_mod1.h"
 
 int		is_read_programm(char *buffer, char *filename)
 {

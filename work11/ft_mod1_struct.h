@@ -118,18 +118,6 @@ typedef struct		s_vis
 	void			*win;
 }					t_vis;
 
-//typedef struct		s_arr
-//{
-//	void			*elems;
-//	void			*current;
-//	size_t			next;
-//	size_t			elems_count;
-//	size_t			elems_used;
-//	int				elem_size;
-//	void			(*func_del)(void *);
-//	void			*(*value)(void *);
-//}					t_arr;
-
 typedef struct		s_solver
 {
 	pthread_t		tid;

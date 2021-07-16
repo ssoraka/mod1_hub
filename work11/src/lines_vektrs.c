@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_mod1.h"
+#include "../ft_mod1.h"
 
 t_vektr	*ft_new_vektor2(REAL x, REAL y, REAL z, int color)
 {

@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_mod1.h"
+#include "../ft_mod1.h"
 
 int		ft_grad_color(int delta1, int delta2, int color1, int color2)
 {

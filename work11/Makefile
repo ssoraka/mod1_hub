@@ -29,7 +29,7 @@ LEM_DIR = lem-in/
 VIS_DIR = visu-hex/
 
 PATH_OBJ	= obj
-PATH_SRC	= .
+PATH_SRC	= src
 PATH_INC	= includes
 PATH_LIB	= libft
 
@@ -42,11 +42,12 @@ MLX_LIB = -L /usr/local/lib/ -lmlx
 MLX_HEAD = -I /usr/local/include
 FRAMEWORK = -framework OpenGL -framework AppKit -framework OpenCL
 
-SRC = color_interpolation.c ground.c images.c initialization.c \
+FILES = color_interpolation.c ground.c images.c initialization.c \
 keys.c lines_vektrs.c main.c map.c parts.c points.c poligons.c print_shapes.c \
 rotate.c cells.c read_program.c open_cl.c thread_solver.c earth.c
 
-OBJECTS		= $(patsubst %.c, $(PATH_OBJ)/%.o, $(SRC))
+SRC		= $(addprefix $(PATH_SRC)/,$(FILES))
+OBJECTS		= $(patsubst %.c, $(PATH_OBJ)/%.o, $(FILES))
 
 all: libs_refresh $(NAME)
 	./$(NAME)

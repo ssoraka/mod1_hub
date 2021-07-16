@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_mod1.h"
+#include "../ft_mod1.h"
 
 void	ft_print_rect2(t_pict *pic, t_point *center, int len, int color)
 {
