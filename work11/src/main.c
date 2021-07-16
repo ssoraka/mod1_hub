@@ -20,15 +20,15 @@
 
 t_prog    g_compile[PROGRAMS_COUNT + 10] =
 {
-	{"clear_cell.cl", "clear_cell", 2, {CELL_MAPS, CELLS, -1}},
-	{"add_part_in_cell.cl", "add_part_in_cell", 2, {PARTS, CELL_MAPS, -1}},
-	{"up_part_in_cell.cl", "up_part_in_cell", 1, {CELL_MAPS, -1, -1}},
-	{"find_neighbors.cl", "find_neighbors", 3, {PARTS, CELL_MAPS, NEIGHS}},
-	{"density_press.cl", "density_press", 2, {PARTS, NEIGHS, -1}},
-	{"delta_speed.cl", "delta_speed", 2, {PARTS, NEIGHS, -1}},
-	{"delta_coord.cl", "delta_coord", 2, {PARTS, NEIGHS, -1}},
-	{"change_cell.cl", "change_cell", 3, {PARTS, CELLS, INTERFACE}},
-	{"print_parts.cl", "print_parts", 2, {PARTS, -1, -1}}, //надо бы это в сунуть в другую функцию...
+	{"./cl/clear_cell.cl", "clear_cell", 2, {CELL_MAPS, CELLS, -1}},
+	{"./cl/add_part_in_cell.cl", "add_part_in_cell", 2, {PARTS, CELL_MAPS, -1}},
+	{"./cl/up_part_in_cell.cl", "up_part_in_cell", 1, {CELL_MAPS, -1, -1}},
+	{"./cl/find_neighbors.cl", "find_neighbors", 3, {PARTS, CELL_MAPS, NEIGHS}},
+	{"./cl/density_press.cl", "density_press", 2, {PARTS, NEIGHS, -1}},
+	{"./cl/delta_speed.cl", "delta_speed", 2, {PARTS, NEIGHS, -1}},
+	{"./cl/delta_coord.cl", "delta_coord", 2, {PARTS, NEIGHS, -1}},
+	{"./cl/change_cell.cl", "change_cell", 3, {PARTS, CELLS, INTERFACE}},
+	{"./cl/print_parts.cl", "print_parts", 2, {PARTS, -1, -1}}, //надо бы это в сунуть в другую функцию...
 	{"", "", 0, {0, 0, 0}}
 };
 
@@ -53,22 +53,6 @@ int	g_color[FLUIDS][COLUMN_COUNT2] =
 	{BLOB, 0xFFFFFF, 3},
 	{OBSTCL, OBSTACLES_TOP_COLOR, 5},
 };
-
-
-
-int ft_znak(int num)
-{
-	int znak;
-
-	znak = 0;
-	if (num > 0)
-		znak = 1;
-	else if (num < 0)
-		znak = -1;
-	return (znak);
-}
-
-
 
 void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start, t_point *end)
 {
