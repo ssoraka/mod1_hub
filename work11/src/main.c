@@ -119,66 +119,81 @@ void ft_init_picture(t_pict *pict, int diameter, int color)
 	ft_fill_picture(pict, color);
 }
 
+//void print_img_to_img(void *ptr, void *param)
+//{
+//	t_ipart *ipart;
+//	t_vis *vis;
+//	t_pict *pict;
+//	t_vektr vektr;
+//	t_point p;
+//	int shift;
+//	int x;
+//	int y;
+//
+//	vis = (t_vis *)param;
+//	ipart = (t_ipart *)ptr;
+//	pict = &(vis->pict);
+//	ft_bzero((void *)&vektr, sizeof(t_vektr));
+//	ft_fill_dpoint(&vektr.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
+//	ft_rotate_point_around_point(&(vis->param), &vektr);
+//
+//	shift = pict->size_line / 2;
+//	//if (!ft_put_pixel_to_img2(&(vis->pic), &vektr.zoom, pict->addr[shift * pict->size_line + shift]))
+//	//	return ;
+//	//printf("_%d_\n",pict->size_line);
+//	y = 0;
+//	while (y < pict->size_line)
+//	{
+//		x = 0;
+//		while (x < pict->size_line)
+//		{
+//			if (pict->addr[y * pict->size_line + x])
+//			{
+//				ft_fill_point(&p, vektr.zoom.y  - shift + y, vektr.zoom.x - shift + x, vektr.zoom.z);
+//				ft_put_pixel_to_img2(&(vis->pic), &p, pict->addr[y * pict->size_line + x]);
+//			}
+//			x++;
+//		}
+//		y++;
+//	}
+//}
 
-void print_img_to_img(void *ptr, void *param)
+//void	ft_print_all_water2(void *ptr, void *param)
+//{
+//	t_ipart *ipart;
+//	t_vis *vis;
+//	t_vektr vektr;
+//
+//	vis = (t_vis *)param;
+//	ipart = (t_ipart *)ptr;
+//	if (ipart->type >= FLUIDS)
+//		return ;
+//	ft_bzero((void *)&vektr, sizeof(t_vektr));
+//	ft_fill_dpoint(&vektr.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
+//	ft_rotate_point_around_point(&(vis->param), &vektr);
+//	ft_print_rect2(&(vis->pic), &(vektr.zoom), g_color[ipart->type][RADIUS2], g_color[ipart->type][COLOR]);
+//}
+
+void	print_img_as_water(t_arr *ipoints, t_vis *vis, t_pict *from)
 {
+	t_iter iter;
 	t_ipart *ipart;
-	t_vis *vis;
-	t_pict *pict;
-	t_vektr vektr;
-	t_point p;
-	int shift;
-	int x;
-	int y;
+	t_shape printer;
+	t_pict *to;
+	t_vektr v;
 
-	vis = (t_vis *)param;
-	ipart = (t_ipart *)ptr;
-	pict = &(vis->pict);
-	ft_bzero((void *)&vektr, sizeof(t_vektr));
-	ft_fill_dpoint(&vektr.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
-	ft_change_points4(&(vis->param), &vektr);
-
-	shift = pict->size_line / 2;
-	//if (!ft_put_pixel_to_img2(&(vis->pic), &vektr.zoom, pict->addr[shift * pict->size_line + shift]))
-	//	return ;
-	//printf("_%d_\n",pict->size_line);
-	y = 0;
-	while (y < pict->size_line)
+	ft_bzero((void *)&v, sizeof(t_vektr));
+	ft_init_shape(&printer, IMAGE, FALSE);
+	printer.pic = from;
+	to = &vis->pic;
+	iter = get_arr_iter(ipoints);
+	while ((ipart = (t_ipart *)iter.get_next_elem(&iter)))
 	{
-		x = 0;
-		while (x < pict->size_line)
-		{
-			if (pict->addr[y * pict->size_line + x])
-			{
-				ft_fill_point(&p, vektr.zoom.y  - shift + y, vektr.zoom.x - shift + x, vektr.zoom.z);
-				ft_put_pixel_to_img2(&(vis->pic), &p, pict->addr[y * pict->size_line + x]);
-			}
-			x++;
-		}
-		y++;
+		ft_fill_dpoint(&v.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
+		ft_rotate_point_around_point(&(vis->param), &v);
+		printer.print(to, &v.zoom, &printer);
 	}
-
 }
-
-
-void	ft_print_all_water2(void *ptr, void *param)
-{
-	t_ipart *ipart;
-	t_vis *vis;
-	t_vektr vektr;
-
-	vis = (t_vis *)param;
-	ipart = (t_ipart *)ptr;
-	if (ipart->type >= FLUIDS)
-		return ;
-	ft_bzero((void *)&vektr, sizeof(t_vektr));
-	ft_fill_dpoint(&vektr.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
-	ft_change_points4(&(vis->param), &vektr);
-	ft_print_rect2(&(vis->pic), &(vektr.zoom), g_color[ipart->type][RADIUS2], g_color[ipart->type][COLOR]);
-}
-
-
-
 
 
 void	ft_refresh_picture(t_vis *vis)
@@ -198,7 +213,8 @@ void	ft_refresh_picture(t_vis *vis)
 		ft_print_water_cell(g_cell, &(vis->pic), &(vis->param));
 
 	ft_init_picture(&(vis->pict), vis->param.len, WATER_COLOR);
-	ft_for_each_elem(g_iparts, print_img_to_img, (void *)vis);
+//	ft_for_each_elem(g_iparts, print_img_to_img, (void *)vis);
+	print_img_as_water(g_iparts, vis, &vis->pict);
 	free((void *)vis->pict.addr);
 
 	//ft_for_each_elem(g_iparts, ft_print_all_water2, (void *)vis);

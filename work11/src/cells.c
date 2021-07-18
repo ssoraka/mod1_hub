@@ -112,7 +112,7 @@ void	ft_print_one_edge(t_vektr **p, t_pict *pic, t_param *param, t_plgn *plgn)
 	plgn->p[1] = p[1];
 	plgn->p[2] = p[2];
 	plgn->p[3] = p[3];
-	if (!ft_need_print_traing(plgn->p, pic))
+	if (!ft_need_print_traing(plgn->p))
 		return ;
 	ft_print_plgn(plgn, pic, param->grad);
 	plgn->p[0] = p[3];
@@ -177,14 +177,14 @@ void	ft_fill_points_cell2(t_point cell, t_vektr *p, t_param *param)
 	p[6].color = p[2].color;
 	p[7].color = p[2].color;
 
-	ft_change_points4(param, &p[0]);
-	ft_change_points4(param, &p[1]);
-	ft_change_points4(param, &p[2]);
-	ft_change_points4(param, &p[3]);
-	ft_change_points4(param, &p[4]);
-	ft_change_points4(param, &p[5]);
-	ft_change_points4(param, &p[6]);
-	ft_change_points4(param, &p[7]);
+	ft_rotate_point_around_point(param, &p[0]);
+	ft_rotate_point_around_point(param, &p[1]);
+	ft_rotate_point_around_point(param, &p[2]);
+	ft_rotate_point_around_point(param, &p[3]);
+	ft_rotate_point_around_point(param, &p[4]);
+	ft_rotate_point_around_point(param, &p[5]);
+	ft_rotate_point_around_point(param, &p[6]);
+	ft_rotate_point_around_point(param, &p[7]);
 }
 
 void	ft_fill_plgns_cell4(t_plgn *plgn, t_param *param, int color)

@@ -45,7 +45,7 @@ typedef struct		s_line
 	struct s_vektr *p1;
 	struct s_vektr *p2;
 	struct s_line *next;
-
+	int				index;
 }					t_line;
 
 
@@ -87,6 +87,9 @@ typedef struct		s_param
 {
 	int				cam_x;
 	int				cam_y;
+	int				target_x;
+	int				target_y;
+
 	int				pause;
 	int				exit;
 	int				rain;
@@ -101,6 +104,20 @@ typedef struct		s_param
 	int				is_need_print_water;
 	int				grad;
 	double			len;
+
+	struct s_point	mouse;
+
+	int				right_button_press;
+	struct s_point	pos;
+
+	int				left_button_press;
+	int				rounds;
+	struct s_point	rot_pos;
+	struct s_point	first_pos;
+
+	int				active_id;
+	struct s_vektr	*centr;
+
 	struct s_dpoint	light;
 	struct s_dpoint	ang;
 	struct s_dpoint	cos;
@@ -143,4 +160,15 @@ typedef struct		s_prog
 	unsigned int	arg[3];
 }					t_prog;
 
+typedef struct		s_shape
+{
+	int				color;
+	int				index;
+	int				len;
+	int				only_index;
+	int				is_particles;
+	int				form;
+	struct s_pict	*pic;
+	t_bool			(*print)(t_pict *, t_point *, struct s_shape *);
+}					t_shape;
 #endif

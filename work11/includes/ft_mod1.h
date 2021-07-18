@@ -27,11 +27,12 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <OpenCL/opencl.h>
+#include <time.h>
 #include "../libs/minilibx_macos/mlx.h"
 #include "ft_cl.h"
 #include "ft_cl_struct.h"
 #include "ft_mod1_struct.h"
-#include <time.h>
+#include "ft_buttons.h"
 
 #define ABS(nbr) ((nbr) >= 0 ? (nbr) : (-1) * (nbr))
 
@@ -180,6 +181,15 @@ typedef enum	e_rain
 	RAIN_ACTIVATE,
 }				t_rain;
 
+typedef enum	e_form
+{
+	POINT,
+	POINT_INDEX,
+	RECTANGLE,
+	CIRCLE,
+	IMAGE
+}				t_form;
+
 
 char *g_names[PROGRAMS_COUNT + 10];
 
@@ -190,7 +200,8 @@ t_prog    g_compile[PROGRAMS_COUNT + 10];
 
 #define PROGRAMM_SIZE 5000
 
-
+// todo это надо убрать в структуру с параметрами
+#define DEFAULT_INDEX 0
 
 int		g_color[FLUIDS][COLUMN_COUNT2];
 REAL	g_param[FLUIDS][COLUMN_COUNT];
@@ -239,31 +250,22 @@ int		ft_set_color_to_point(t_line *line, t_point *p, int lower_45);
 int		ft_int_interpolation(int y, int delta_y, int x1, int x2);
 
 /*
-**	print_shapes.c
-*/
-void	ft_print_rect2(t_pict *pic, t_point *center, int len, int color);
-void	plot_circle2(t_pict *pic, t_point *p, t_point *center, int color_code);
-void	circle2(t_pict *pic, t_vektr *center, int radius, int color_code);
-
-/*
 **	rotate.c
 */
-void	ft_norm_vektor(t_dpoint *vek);
+void	ft_normalize_vektor(t_dpoint *vek);
 void	ft_rotate_vek_around_vek_by_ang(t_dpoint *ox, t_dpoint *oy, double ang);
 void	ft_change_points4(t_param *vis, t_vektr *p);
 void	ft_rotate_xyz(t_oxyz *oxyz, t_dpoint *ang);
 t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz);
 void	ft_ret_zoom_xyz(t_vektr *ox, t_param *vis);
 void	ft_change_points5(t_param *param, t_vektr *p);
+void	ft_rotate_point_around_point(t_param *param, t_vektr *p);
 
 /*
 **	images.c
 */
 int		ft_create_img(t_pict *pic, void *mlx, int width, int heigth);
 t_vis	*ft_create_mlx(int width, int heigth, char *name);
-int		ft_not_need_print(t_line *line, t_pict *pic);
-int		ft_put_pixel_to_img2(t_pict *pic, t_point *p, int color);
-int		ft_put_pixel_to_img(t_pict *pic, t_point *p, int color);
 void	ft_destroy_img(t_pict *pic);
 void	ft_clear_image(t_pict *pic);
 void	ft_save_image(t_pict *pic);
@@ -274,15 +276,8 @@ t_vis	*ft_destroy_mlx(t_vis **vis);
 /*
 **	lines_vektrs.c
 */
-t_vektr	*ft_new_vektor2(REAL x, REAL y, REAL z, int color);
-t_vektr	*ft_add_vektor2(void *ptr, t_point *p, int color);
-t_line	*ft_new_line(t_vektr *p1, t_vektr *p2, int color);
-void	ft_add_line(t_line **begin, t_vektr *p1, t_vektr *p2, int color);
-void	ft_del_vektor(t_vektr **begin);
-void	ft_del_lines(t_line **begin);
-void	draw_line_img_lower_452(t_line *line, t_point *p, t_pict *pic, int grad);
-void	draw_line_img_over_452(t_line *line, t_point *p, t_pict *pic, int grad);
-void	draw_line_img2(t_line *line, t_pict *pic, int grad);
+void	draw_line_img(t_line *line, t_pict *pic, int grad);
+
 /*
 **	poligons.c
 */
@@ -291,7 +286,7 @@ void	ft_del_poligines(t_plgn **begin);
 void	ft_swap_ptr(void **ptr1, void **ptr2);
 void	ft_sort_points_by_y(t_vektr **p);
 void	ft_vektr_interpolation_by_y(t_vektr *p, t_vektr *p1, t_vektr *p2, int grad);
-int		ft_need_print_traing(t_vektr **p, t_pict *pic);
+int		ft_need_print_traing(t_vektr **p);
 void	ft_draw_traing(t_pict *pic, t_vektr **p, int grad, int color);
 void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad);
 void	ft_print_poligons(t_plgn *plgn, t_vektr *points, t_pict *pic, t_param *param);
@@ -312,6 +307,7 @@ void	ft_create_xyz(t_oxyz *oxyz);
 t_dpoint	ft_ret_norm(t_dpoint *a, t_dpoint *b, t_dpoint *c);
 REAL	ft_vekt_cos(t_dpoint a, t_dpoint b);
 REAL	ft_dot_dpoints(t_dpoint *a, t_dpoint *b);
+REAL	ft_vektr_len(t_dpoint *a);
 
 /*
 **	parts.c
@@ -427,5 +423,10 @@ t_earth	*ft_create_earth(void);
 void	ft_del_earth(t_earth **earth);
 int		ft_create_relief2(t_earth *earth, int  **ground);
 void	ft_print_relief(t_earth *earth, t_arr *cells, t_pict *pic, t_param *param);
+
+/*
+**	print_shapes.c
+*/
+void	ft_init_shape(t_shape *shape, t_form form, t_bool is_particle);
 
 #endif

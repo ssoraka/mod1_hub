@@ -43,9 +43,13 @@ COMPILE_HEADER = -I ./$(PATH_INC)
 MLX_LIB = -L /usr/local/lib/ -lmlx
 #FRAMEWORK = -framework OpenGL -framework AppKit -framework OpenCL
 
-FILES = color_interpolation.c ground.c images.c initialization.c \
-keys.c lines_vektrs.c main.c map.c parts.c points.c poligons.c print_shapes.c \
-rotate.c cells.c read_program.c open_cl.c thread_solver.c earth.c
+FILES = grathics/color_interpolation.c	grathics/picture.c \
+		grathics/points.c	grathics/points2.c	grathics/print_shapes.c \
+		grathics/images.c	grathics/lines_vektrs.c \
+		grathics/polygons.c	grathics/polygons2.c \
+		ground.c initialization.c \
+		keys.c main.c map.c parts.c \
+		rotate.c cells.c read_program.c open_cl.c thread_solver.c earth.c
 
 SRC		= $(addprefix $(PATH_SRC)/,$(FILES))
 OBJECTS		= $(patsubst %.c, $(PATH_OBJ)/%.o, $(FILES))
@@ -85,6 +89,7 @@ libs_refresh:
 
 $(PATH_OBJ)/%.o: $(addprefix $(PATH_SRC)/,%.c)  ${LIBFT_HEADER}
 	@mkdir -p $(PATH_OBJ)
+	@mkdir -p $(PATH_OBJ)/grathics
 	$(GCC) -c $< -o $@  $(COMPILE_HEADER)
 
 $(NAME): $(OBJECTS) $(MAKES) $(LIBFT)
@@ -109,7 +114,7 @@ clean:
 
 fclean: clean
 	rm -f $(NAME)
-	make -C libft fclean
-	make -C $(LIBMAKE) clean
+	#make -C libft fclean
+	#make -C $(LIBMAKE) clean
 
 re: fclean all

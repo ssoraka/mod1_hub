@@ -19,29 +19,6 @@
 #define MIN_SCALE 0.01
 #define MAX_SCALE 1000.0
 
-#define KEY_PLUS 18
-#define KEY_MINUS 19
-#define KEY_Q 12
-#define KEY_A 0
-#define KEY_W 13
-#define KEY_S 1
-#define KEY_E 14
-#define KEY_D 2
-#define KEY_K 40
-#define KEY_L 37
-
-#define KEY_LEFT 123
-#define KEY_RIGHT 124
-#define KEY_UP 126
-#define KEY_DOWN 125
-
-#define KEY_ESC 53
-#define KEY_P 35
-#define KEY_O 31
-#define KEY_R 15
-#define KEY_G 5
-#define KEY_I 34
-
 #define MAX_BRUSH (IMAX / 2)
 
 
