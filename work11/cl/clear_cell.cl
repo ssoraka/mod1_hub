@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_cl.h"
+#include "./includes/ft_cl.h"
 
 __kernel void clear_cell(__global t_cell_map *cell_map, __global t_cell *cell)
 {

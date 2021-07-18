@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_cl.h"
+#include "./includes/ft_cl.h"
 
 
 __kernel	void print_parts(__global t_part *part, __global t_ipart *ipart)

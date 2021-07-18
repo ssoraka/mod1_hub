@@ -17,7 +17,7 @@
 #define EMPTY_MAP
 #define CHANGE_FLUIDS1
 
-#include "libft/libft.h"
+#include "../libft/libft.h"
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -27,11 +27,10 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <OpenCL/opencl.h>
-#include "mlx.h"
+#include "../libs/minilibx_macos/mlx.h"
 #include "ft_cl.h"
 #include "ft_cl_struct.h"
 #include "ft_mod1_struct.h"
-
 #include <time.h>
 
 #define ABS(nbr) ((nbr) >= 0 ? (nbr) : (-1) * (nbr))

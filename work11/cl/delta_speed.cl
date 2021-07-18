@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_cl.h"
+#include "./includes/ft_cl.h"
 
 __kernel	void delta_speed(__global t_part *p, __global t_neighs *n)
 {

@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../ft_mod1.h"
+#include "../includes/ft_mod1.h"
 
 # define MAX_NEIGHBORS 32
 # define DELTA_H 0.78

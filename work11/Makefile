@@ -35,12 +35,13 @@ PATH_LIB	= libft
 
 
 LIBFT = ./$(PATH_LIB)/libft.a
-HEADERS = ./  ./$(PATH_LIB)
-COMPILE_HEADER = $(addprefix -I ,${HEADERS})
+
+HEADERS = ft_cl.h ft_cl_struct.h ft_mod1.h ft_mod1_struct.h
+PATH_HEADERS = $(addprefix ./$(PATH_INC)/,${HEADERS})
+COMPILE_HEADER = -I ./$(PATH_INC)
 
 MLX_LIB = -L /usr/local/lib/ -lmlx
-MLX_HEAD = -I /usr/local/include
-FRAMEWORK = -framework OpenGL -framework AppKit -framework OpenCL
+#FRAMEWORK = -framework OpenGL -framework AppKit -framework OpenCL
 
 FILES = color_interpolation.c ground.c images.c initialization.c \
 keys.c lines_vektrs.c main.c map.c parts.c points.c poligons.c print_shapes.c \
@@ -49,11 +50,30 @@ rotate.c cells.c read_program.c open_cl.c thread_solver.c earth.c
 SRC		= $(addprefix $(PATH_SRC)/,$(FILES))
 OBJECTS		= $(patsubst %.c, $(PATH_OBJ)/%.o, $(FILES))
 
+ifeq ($(OS),Windows_NT)
+	detected_OS := Windows
+else
+	detected_OS := $(shell uname)
+endif
+ifeq ($(detected_OS),Linux)
+	MAKES := ./libs/minilibx/libmlx.a
+	LIBMAKE := libs/minilibx
+	LIB := -L libs/minilibx -lmlx_Linux -lXext -lX11 -lm -framework OpenCL
+	COMPILE_HEADER += -I ./libs/minilibx/
+endif
+ifeq ($(detected_OS),Darwin)
+	MAKES = ./libs/minilibx_macos/libmlx.a
+	LIBMAKE := libs/minilibx_macos
+	LIB := -L libs/minilibx_macos -lmlx -framework OpenGL -framework Appkit -framework OpenCL
+	COMPILE_HEADER += -I ./libs/minilibx_macos/
+endif
+
 all: libs_refresh $(NAME)
 	./$(NAME)
 
 libs_refresh:
 	@make -C ./$(PATH_LIB)/
+	@make -sC ./$(LIBMAKE)
 
 #all:
 #	##gcc $(C_FLAGS) -o a.out main.c libft.a $(MLX_LIB) $(MLX_HEAD) $(FRAMEWORK)
@@ -65,11 +85,10 @@ libs_refresh:
 
 $(PATH_OBJ)/%.o: $(addprefix $(PATH_SRC)/,%.c)  ${LIBFT_HEADER}
 	@mkdir -p $(PATH_OBJ)
-	$(GCC) -c $< -o $@  $(COMPILE_HEADER) $(MLX_HEAD)
+	$(GCC) -c $< -o $@  $(COMPILE_HEADER)
 
-$(NAME): $(OBJECTS) $(LIBFT)
-	$(GCC) -o $@ $(OBJECTS)  $(MLX_HEAD) $(LIBFT) $(COMPILE_HEADER) $(MLX_LIB) $(FRAMEWORK)
-
+$(NAME): $(OBJECTS) $(MAKES) $(LIBFT)
+	$(GCC) -o $@ $(OBJECTS) $(LIBFT) $(COMPILE_HEADER) $(LIB)
 
 test:
 	gcc -o $(NAME1) test.c solver.c $(LIBFT)
@@ -91,5 +110,6 @@ clean:
 fclean: clean
 	rm -f $(NAME)
 	make -C libft fclean
+	make -C $(LIBMAKE) clean
 
 re: fclean all

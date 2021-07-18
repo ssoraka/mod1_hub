@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../ft_mod1.h"
+#include "../includes/ft_mod1.h"
 
 void	ft_fill_point(t_point *p, int y, int x, int z)
 {

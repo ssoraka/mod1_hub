@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_cl.h"
+#include "./includes/ft_cl.h"
 
 t_dpoint	ft_len(t_dpoint pos1, t_dpoint pos2);
 int			ft_get_cell_index(int j, int i, int k);

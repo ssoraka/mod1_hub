@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../ft_mod1.h"
+#include "../includes/ft_mod1.h"
 
 #define CAM_SHIFT 20
 #define CAM_SCALE 1.1

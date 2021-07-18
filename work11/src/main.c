@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../ft_mod1.h"
+#include "../includes/ft_mod1.h"
 
 
 //
@@ -203,7 +203,8 @@ void	ft_refresh_picture(t_vis *vis)
 
 	//ft_for_each_elem(g_iparts, ft_print_all_water2, (void *)vis);
 
-	//ft_memcpy((void *)vis->pic.addr, (void *)vis->pic.index, vis->pic.count_byte);
+
+//	ft_memcpy((void *)vis->pic.addr, (void *)vis->pic.index, vis->pic.count_byte);
 
 	mlx_put_image_to_window(vis->mlx, vis->win, vis->pic.img, 0, 0);
 

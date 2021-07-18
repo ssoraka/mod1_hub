@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_cl.h"
+#include "./includes/ft_cl.h"
 
 __kernel void up_part_in_cell(__global t_cell_map *cell)
 {
