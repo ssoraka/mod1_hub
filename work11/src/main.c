@@ -183,7 +183,7 @@ void	print_img_as_water(t_arr *ipoints, t_vis *vis, t_pict *from)
 	t_vektr v;
 
 	ft_bzero((void *)&v, sizeof(t_vektr));
-	ft_init_shape(&printer, IMAGE, FALSE);
+	ft_init_shape(&printer, IMAGE, set_param(DEFAULT_IMAGE, DEFAULT_INDEX, WATER_COLOR));
 	printer.pic = from;
 	to = &vis->pic;
 	iter = get_arr_iter(ipoints);

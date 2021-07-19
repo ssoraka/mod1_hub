@@ -32,7 +32,7 @@ t_earth	*ft_create_earth(void)
 	return (earth);
 }
 
-int		ft_create_rectang_poligon3(t_arr *poligons, t_vektr **p, int color)
+int		ft_create_rectang_poligon3(t_arr *poligons, t_vektr **p)
 {
 	t_plgn tmp;
 
@@ -40,7 +40,6 @@ int		ft_create_rectang_poligon3(t_arr *poligons, t_vektr **p, int color)
 	tmp.p[0] = p[0];
 	tmp.p[1] = p[1];
 	tmp.p[2] = p[2];
-	tmp.color = color;
 	tmp.n = ft_ret_norm(&p[0]->abs, &p[1]->abs, &p[2]->abs);
 	if (!(ft_arr_add(poligons, &tmp)))
 		return (FALSE);
@@ -58,11 +57,11 @@ int		ft_create_line_of_poligons_of_relief2(t_earth *earth, int k)
 		p[0] = ft_arr_get(earth->points, earth->columns * k + i);
 		p[1] = ft_arr_get(earth->points, earth->columns * k + i + 1);
 		p[2] = ft_arr_get(earth->points, earth->columns * (k + 1) + i);
-		if (!ft_create_rectang_poligon3(earth->poligons, p, OBSTACLES_FRONT_COLOR))
+		if (!ft_create_rectang_poligon3(earth->poligons, p))
 			return (FALSE);
 		p[0] = p[2];
 		p[2] = ft_arr_get(earth->points, earth->columns * (k + 1) + i + 1);
-		if (!ft_create_rectang_poligon3(earth->poligons, p, OBSTACLES_FRONT_COLOR))
+		if (!ft_create_rectang_poligon3(earth->poligons, p))
 			return (FALSE);
 		i++;
 	}
@@ -126,19 +125,21 @@ int		ft_create_relief2(t_earth *earth, int  **ground)
 
 void	ft_print_smooth_relief(t_earth *earth, t_pict *pic, t_param *param)
 {
-	t_vektr *v;
-	t_plgn *plgn;
+	t_vektr	*v;
+	t_plgn	*plgn;
 	t_iter	iter;
+	t_prop	prop;
 
 	iter = get_arr_iter(earth->points);
 	while ((v = (t_vektr *)iter.get_next_elem(&iter)))
 		ft_rotate_point_around_point(param, v);
+	prop = set_param(DEFAULT_IMAGE | (GRADIENT * param->grad), 0, OBSTACLES_FRONT_COLOR);
 	iter = get_arr_iter(earth->poligons);
 	while ((plgn = (t_plgn *)iter.get_next_elem(&iter)))
 	{
 		ft_prepare_plgn_for_printing(plgn, param);
 		//if (ft_vekt_cos(plgn->rot_n, (t_dpoint){0.0, 0.0, 1.0}) > 0.0)
-			ft_print_plgn(plgn, pic, param->grad);
+			ft_print_plgn(plgn, pic, prop);
 	}
 }
 

@@ -104,7 +104,7 @@ int		ft_is_need_print_cell(t_arr *cells, int j, int i, int k)
 }
 
 
-void	ft_print_one_edge(t_vektr **p, t_pict *pic, t_param *param, t_plgn *plgn)
+void	ft_print_one_edge(t_vektr **p, t_pict *pic, t_prop prop, t_plgn *plgn)
 {
 	if (ft_vekt_cos(plgn->rot_n, (t_dpoint){0.0, 0.0, 1.0}) <= 0.0)
 		return ;
@@ -114,11 +114,11 @@ void	ft_print_one_edge(t_vektr **p, t_pict *pic, t_param *param, t_plgn *plgn)
 	plgn->p[3] = p[3];
 	if (!ft_need_print_traing(plgn->p))
 		return ;
-	ft_print_plgn(plgn, pic, param->grad);
+	ft_print_plgn(plgn, pic, prop);
 	plgn->p[0] = p[3];
 	plgn->p[1] = p[2];
 	plgn->p[2] = p[0];
-	ft_print_plgn(plgn, pic, param->grad);
+	ft_print_plgn(plgn, pic, prop);
 }
 
 
@@ -187,7 +187,7 @@ void	ft_fill_points_cell2(t_point cell, t_vektr *p, t_param *param)
 	ft_rotate_point_around_point(param, &p[7]);
 }
 
-void	ft_fill_plgns_cell4(t_plgn *plgn, t_param *param, int color)
+void	ft_fill_plgns_cell4(t_plgn *plgn, t_param *param)
 {
 	t_dpoint p;
 
@@ -207,34 +207,26 @@ void	ft_fill_plgns_cell4(t_plgn *plgn, t_param *param, int color)
 	p = param->oxyz.oy;
 	plgn[2].rot_n = (t_dpoint){-p.y, -p.x, -p.z};
 	plgn[5].rot_n = p;
-
-	plgn[0].color = color;
-	plgn[1].color = color;
-	plgn[2].color = color;
-	plgn[3].color = color;
-	plgn[4].color = color;
-	plgn[5].color = color;
 }
 
 
 #define EDGE 4
 #define EDGE_COUNT 6
 
-void	ft_print_one_cell(t_point cell, t_pict *pic, t_param *param, int color)
+void	ft_print_one_cell(t_point cell, t_pict *pic, t_param *param, t_prop prop)
 {
-	t_vektr *p[EDGE * EDGE_COUNT];
-	t_vektr p8[8];
-	t_plgn plgn[EDGE_COUNT];
-	int i;
+	t_vektr	*p[EDGE * EDGE_COUNT];
+	t_vektr	p8[8];
+	t_plgn	plgn[EDGE_COUNT];
+	int		i;
 
 	ft_fill_points_cell2(cell, p8, param);
 	ft_fill_points_cell3(p8, p);
-	ft_fill_plgns_cell4(plgn, param, color);
-
+	ft_fill_plgns_cell4(plgn, param);
 	i = 0;
 	while (i < EDGE_COUNT)
 	{
-		ft_print_one_edge(p + i * 4, pic, param, &plgn[i]);
+		ft_print_one_edge(p + i * 4, pic, prop, &plgn[i]);
 		i++;
 	}
 }
@@ -244,22 +236,23 @@ void	ft_print_all_cell(t_arr *cells, t_pict *pic, t_param *param)
 	t_cell	*cell;
 	t_point	jik;
 	t_iter	iter;
-	int i;
+	int		i;
+	t_prop	prop;
 
 	ft_memset((void *)pic->index, 0, pic->count_byte);
 	i = 0;
+	prop = set_param(DEFAULT_POINT | (GRADIENT * param->grad), i, OBSTACLES_FRONT_COLOR);
 	iter = get_arr_iter(cells);
 	while ((cell = (t_cell *)iter.get_next_elem(&iter)))
 	{
-		pic->cell = i;
+		prop.index = i;
 		jik = ft_get_index_d3(i);
 		if (((cell->obstacle == 1 && !param->is_smooth_relief)
 		|| cell->obstacle == DYNAMIC_OBSTACLE)
 		&& ft_is_need_print_cell(cells, jik.y, jik.x, jik.z))
-			ft_print_one_cell(jik, pic, param, OBSTACLES_FRONT_COLOR);
+			ft_print_one_cell(jik, pic, param, prop);
 		i++;
 	}
-	pic->cell = 0;
 }
 
 void	ft_print_water_cell(t_arr *cells, t_pict *pic, t_param *param)
@@ -267,20 +260,21 @@ void	ft_print_water_cell(t_arr *cells, t_pict *pic, t_param *param)
 	t_cell *cell;
 	t_point jik;
 	t_iter	iter;
-	int i;
+	int		i;
+	t_prop prop;
 
 	i = 0;
+	prop = set_param(DEFAULT_POINT, i, WATER_COLOR);
 	iter = get_arr_iter(cells);
 	while ((cell = (t_cell *)iter.get_next_elem(&iter)))
 	{
 		if (cell->water)
 		{
 			jik = ft_get_index_d3(i);
-			ft_print_one_cell(jik, pic, param, WATER_COLOR);
+			ft_print_one_cell(jik, pic, param, prop);
 		}
 		i++;
 	}
-	pic->cell = 0;
 }
 
 void	ft_del_cell(void *ptr, int j, int i, int k)

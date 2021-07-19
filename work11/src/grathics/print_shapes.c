@@ -22,20 +22,38 @@ t_bool	ft_put_pixel_to_img(t_pict *pic, t_point *p, int color)
 
 t_bool	ft_put_pixel_to_img2(t_pict *pic, t_point *p, t_shape *shape)
 {
+	size_t params;
+
 	if (p->x < 0 || p->y < 0 || p->x >= CONST_WIDTH || p->y >= CONST_HEINTH)
 		return (FALSE);
-	if (!shape->is_particles)
-	{
-		if (pic->z_buffer[p->y * CONST_WIDTH + p->x] > p->z)
-			return (FALSE);
-		pic->index[p->y * CONST_WIDTH + p->x] = shape->index;
-		if (shape->only_index)
-			return (TRUE);
+	params = shape->params.params;
+	if (params & CHECK_Z_BUFFER && pic->z_buffer[p->y * CONST_WIDTH + p->x] > p->z)
+		return (FALSE);
+	if (params & MARK_Z_BUFFER)
 		pic->z_buffer[p->y * CONST_WIDTH + p->x] = p->z;
-	}
-	pic->addr[p->y * CONST_WIDTH + p->x] = shape->color;
+	if (params & INDEX)
+		pic->index[p->y * CONST_WIDTH + p->x] = shape->params.index;
+	if (params & PIXEL)
+		pic->addr[p->y * CONST_WIDTH + p->x] = shape->color;
 	return (TRUE);
 }
+
+//t_bool	ft_put_pixel_to_img2(t_pict *pic, t_point *p, t_shape *shape)
+//{
+//	if (p->x < 0 || p->y < 0 || p->x >= CONST_WIDTH || p->y >= CONST_HEINTH)
+//		return (FALSE);
+//	if (!shape->is_particles)
+//	{
+//		if (pic->z_buffer[p->y * CONST_WIDTH + p->x] > p->z)
+//			return (FALSE);
+//		pic->index[p->y * CONST_WIDTH + p->x] = shape->index;
+//		if (shape->only_index)
+//			return (TRUE);
+//		pic->z_buffer[p->y * CONST_WIDTH + p->x] = p->z;
+//	}
+//	pic->addr[p->y * CONST_WIDTH + p->x] = shape->color;
+//	return (TRUE);
+//}
 
 t_bool	ft_print_rect2(t_pict *pic, t_point *center, t_shape *shape)
 {
@@ -77,7 +95,6 @@ void	plot_circle(t_pict *pic, t_point *p, t_point *center, t_shape *shape)
 	ft_put_pixel_to_img2(pic, &point, shape);
 }
 
-/* Вычерчивание окружности с использованием алгоритма Мичнера */
 t_bool	circle(t_pict *pic, t_point *center, t_shape *shape)
 {
 	int		x;
@@ -109,15 +126,15 @@ t_bool	circle(t_pict *pic, t_point *center, t_shape *shape)
 
 t_bool	print_img_to_img(t_pict *pic, t_point *center, t_shape *shape)
 {
-	t_point p;
-	t_pict *from;
-	int shift;
-	int x;
-	int y;
+	t_point	p;
+	t_pict	*from;
+	int		shift;
+	int		x;
+	int		y;
 
 	shift = shape->pic->size_line / 2;
 	from = shape->pic;
-	ft_init_shape(shape, POINT, FALSE);
+	ft_init_shape(shape, POINT, shape->params);
 	y = -1;
 	while (++y < from->size_line)
 	{
@@ -132,21 +149,28 @@ t_bool	print_img_to_img(t_pict *pic, t_point *center, t_shape *shape)
 			}
 		}
 	}
-	ft_init_shape(shape, IMAGE, FALSE);
+	ft_init_shape(shape, IMAGE, shape->params);
 	return (TRUE);
 }
 
 /*
  * todo сделать структуру параметров для текущего принта
  */
-void	ft_init_shape(t_shape *shape, t_form form, t_bool is_particle)
+
+t_prop	set_param(size_t params, size_t index, int color)
 {
-	shape->only_index = FALSE;
-	shape->is_particles = is_particle;
-	shape->form = form;
-	if (form == POINT_INDEX)
-		shape->only_index = TRUE;
-	else if (form == CIRCLE)
+	t_prop print;
+
+	print.params = params;
+	print.index = index;
+	return (print);
+}
+
+void	ft_init_shape(t_shape *shape, t_form form, t_prop prop)
+{
+	shape->params = prop;
+	shape->color = prop.color;
+	if (form == CIRCLE)
 		shape->print = circle;
 	else if (form == RECTANGLE)
 		shape->print = ft_print_rect2;

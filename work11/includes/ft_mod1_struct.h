@@ -39,7 +39,6 @@ typedef struct		s_vektr
 
 typedef struct		s_line
 {
-	int color;
 	struct s_point dir;
 	struct s_point delta;
 	struct s_vektr *p1;
@@ -51,7 +50,6 @@ typedef struct		s_line
 
 typedef struct		s_plgn
 {
-	int color;
 	struct s_vektr	*p[4];
 	struct s_dpoint	n;
 	struct s_dpoint	rot_n;
@@ -66,7 +64,6 @@ typedef struct		s_pict
 	int				*z_buffer;
 	int				*addr_copy;
 	int				*z_buffer_copy;
-	int				cell;
 	int				bits_per_pixel;
 	int				size_line;
 	int				count_line;
@@ -160,14 +157,18 @@ typedef struct		s_prog
 	unsigned int	arg[3];
 }					t_prog;
 
+typedef struct		s_prop
+{
+	int				color;
+	size_t			index;
+	size_t			params;
+}					t_prop;
+
 typedef struct		s_shape
 {
 	int				color;
-	int				index;
 	int				len;
-	int				only_index;
-	int				is_particles;
-	int				form;
+	struct s_prop	params;
 	struct s_pict	*pic;
 	t_bool			(*print)(t_pict *, t_point *, struct s_shape *);
 }					t_shape;

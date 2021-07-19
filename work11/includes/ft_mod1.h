@@ -141,6 +141,15 @@ t_vis *vis;
 t_solver solver;
 
 
+#define PIXEL 2
+#define INDEX 4
+#define CHECK_Z_BUFFER 8
+#define MARK_Z_BUFFER 16
+#define GRADIENT 32
+
+#define PARTICLE		( PIXEL | CHECK_Z_BUFFER )
+#define DEFAULT_POINT	( PIXEL | INDEX | CHECK_Z_BUFFER | MARK_Z_BUFFER )
+#define DEFAULT_IMAGE	( PIXEL | CHECK_Z_BUFFER | MARK_Z_BUFFER )
 
 typedef enum	e_fluids
 {
@@ -184,7 +193,6 @@ typedef enum	e_rain
 typedef enum	e_form
 {
 	POINT,
-	POINT_INDEX,
 	RECTANGLE,
 	CIRCLE,
 	IMAGE
@@ -276,7 +284,7 @@ t_vis	*ft_destroy_mlx(t_vis **vis);
 /*
 **	lines_vektrs.c
 */
-void	draw_line_img(t_line *line, t_pict *pic, int grad);
+void	draw_line_img(t_line *line, t_pict *pic, t_prop prop);
 
 /*
 **	poligons.c
@@ -287,8 +295,8 @@ void	ft_swap_ptr(void **ptr1, void **ptr2);
 void	ft_sort_points_by_y(t_vektr **p);
 void	ft_vektr_interpolation_by_y(t_vektr *p, t_vektr *p1, t_vektr *p2, int grad);
 int		ft_need_print_traing(t_vektr **p);
-void	ft_draw_traing(t_pict *pic, t_vektr **p, int grad, int color);
-void	ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad);
+void	ft_draw_traing(t_pict *pic, t_vektr **p, t_prop prop, int grad);
+void	ft_print_plgn(t_plgn *plgn, t_pict *pic, t_prop prop);
 void	ft_print_poligons(t_plgn *plgn, t_vektr *points, t_pict *pic, t_param *param);
 void	ft_prepare_plgn_for_printing(t_plgn *plgn, t_param *param);
 /*
@@ -351,25 +359,6 @@ int		ft_create_line_of_poligons_of_relief(t_plgn **plgn, t_vektr *p1, t_vektr *p
 int		ft_create_rectang_poligon2(t_plgn **plgn, t_vektr **p, int color);
 
 
-///*
-//** arr.c
-//*/
-//
-//
-//void	ft_del_arr(t_arr **arr);
-//t_arr	*ft_create_arr(int elem_size, int elems_count, void (*func_del)(void *));
-//t_arr	*ft_create_arr_of_ptr(int elems_count, void (*func_del)(void *));
-//int		ft_realloc_arr(t_arr *arr, int new_count);
-//void	*ft_arr_add(t_arr *arr, void *elem);
-//void	*ft_arr_get(t_arr *arr, int num);
-//void	ft_del_elem(t_arr *arr, int num);
-//void	ft_del_elems_if(t_arr *arr, int (*need_del)(void *, void *), void *param);
-//void	ft_for_each_ptr(t_arr *arr, void (*func)(void *, void *), void *param);
-//void	ft_for_each_elem(t_arr *arr, void (*func)(void *, void *), void *param);
-//void	*ft_arr_get_next(t_arr *arr);
-//void	ft_for_each_ptr2(t_arr *arr, void (*func)(void *, void *), void *param);
-
-
 /*
 **	cells.c
 */
@@ -427,6 +416,7 @@ void	ft_print_relief(t_earth *earth, t_arr *cells, t_pict *pic, t_param *param);
 /*
 **	print_shapes.c
 */
-void	ft_init_shape(t_shape *shape, t_form form, t_bool is_particle);
+void	ft_init_shape(t_shape *shape, t_form form, t_prop print);
+t_prop	set_param(size_t params, size_t index, int color);
 
 #endif

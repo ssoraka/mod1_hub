@@ -81,7 +81,7 @@ int		ft_not_need_print(t_line *line)
 	return (FALSE);
 }
 
-void	draw_line_img(t_line *line, t_pict *pic, int grad)
+void	draw_line_img(t_line *line, t_pict *pic, t_prop prop)
 {
 	t_point	p;
 	t_shape shape;
@@ -97,11 +97,9 @@ void	draw_line_img(t_line *line, t_pict *pic, int grad)
 	line->delta.y = line->dir.y * (line->p2->zoom.y - p.y);
 	line->delta.x = line->dir.x * (line->p2->zoom.x - p.x);
 	line->delta.z = line->dir.z * (line->p2->zoom.z - p.z);
-	ft_init_shape(&shape, POINT, FALSE);
-	shape.color = line->color;
-	shape.index = line->index;
+	ft_init_shape(&shape, POINT, prop);
 	if (line->delta.x >= line->delta.y)
-		draw_line_img_lower(line, pic, grad, &shape);
+		draw_line_img_lower(line, pic, prop.params & GRADIENT, &shape);
 	else
-		draw_line_img_over(line, pic, grad, &shape);
+		draw_line_img_over(line, pic, prop.params & GRADIENT, &shape);
 }
