@@ -245,6 +245,7 @@ void	ft_print_all_cell(t_arr *cells, t_pict *pic, t_param *param)
 	iter = get_arr_iter(cells);
 	while ((cell = (t_cell *)iter.get_next_elem(&iter)))
 	{
+		prop.color = OBSTACLES_FRONT_COLOR;
 		prop.index = i;
 		jik = ft_get_index_d3(i);
 		if (((cell->obstacle == 1 && !param->is_smooth_relief)
