@@ -92,12 +92,13 @@ void	draw_line_img(t_line *line, t_pict *pic, t_prop prop)
 	line->dir.y = ft_znak(line->p2->zoom.y - p.y);
 	line->dir.x = ft_znak(line->p2->zoom.x - p.x);
 	line->dir.z = ft_znak(line->p2->zoom.z - p.z);
-	if (!line->dir.y && !line->dir.x)
-		return ;
+	ft_init_shape(&shape, POINT, prop);
+//	if (!line->dir.y && !line->dir.x)
+//		return;
 	line->delta.y = line->dir.y * (line->p2->zoom.y - p.y);
 	line->delta.x = line->dir.x * (line->p2->zoom.x - p.x);
 	line->delta.z = line->dir.z * (line->p2->zoom.z - p.z);
-	ft_init_shape(&shape, POINT, prop);
+
 	if (line->delta.x >= line->delta.y)
 		draw_line_img_lower(line, pic, prop.params & GRADIENT, &shape);
 	else
