@@ -54,6 +54,15 @@ int	g_color[FLUIDS][COLUMN_COUNT2] =
 	{OBSTCL, OBSTACLES_TOP_COLOR, 5},
 };
 
+
+/*
+ * todo сделать вращение вокруг мышки
+ * todo сделать сериаализацию
+ * todo разобрать баг с замедлением
+ * todo попробовать сделать дождь и волны
+ * todo сделать изменение осей гравитации
+ */
+
 void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start, t_point *end)
 {
 	int k;
@@ -118,45 +127,6 @@ void ft_init_picture(t_pict *pict, int diameter, int color)
 	pict->addr = ft_memalloc(4 * diameter * (diameter + 1));
 	ft_fill_picture(pict, color);
 }
-
-//void print_img_to_img(void *ptr, void *param)
-//{
-//	t_ipart *ipart;
-//	t_vis *vis;
-//	t_pict *pict;
-//	t_vektr vektr;
-//	t_point p;
-//	int shift;
-//	int x;
-//	int y;
-//
-//	vis = (t_vis *)param;
-//	ipart = (t_ipart *)ptr;
-//	pict = &(vis->pict);
-//	ft_bzero((void *)&vektr, sizeof(t_vektr));
-//	ft_fill_dpoint(&vektr.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
-//	ft_rotate_point_around_point(&(vis->param), &vektr);
-//
-//	shift = pict->size_line / 2;
-//	//if (!ft_put_pixel_to_img2(&(vis->pic), &vektr.zoom, pict->addr[shift * pict->size_line + shift]))
-//	//	return ;
-//	//printf("_%d_\n",pict->size_line);
-//	y = 0;
-//	while (y < pict->size_line)
-//	{
-//		x = 0;
-//		while (x < pict->size_line)
-//		{
-//			if (pict->addr[y * pict->size_line + x])
-//			{
-//				ft_fill_point(&p, vektr.zoom.y  - shift + y, vektr.zoom.x - shift + x, vektr.zoom.z);
-//				ft_put_pixel_to_img2(&(vis->pic), &p, pict->addr[y * pict->size_line + x]);
-//			}
-//			x++;
-//		}
-//		y++;
-//	}
-//}
 
 //void	ft_print_all_water2(void *ptr, void *param)
 //{

@@ -160,8 +160,8 @@ typedef struct		s_prog
 typedef struct		s_prop
 {
 	int				color;
-	size_t			index;
-	size_t			params;
+	int				index;
+	int				params;
 }					t_prop;
 
 typedef struct		s_shape

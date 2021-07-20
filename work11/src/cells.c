@@ -100,6 +100,13 @@ int		ft_is_need_print_cell(t_arr *cells, int j, int i, int k)
 	&& cell[ft_get_index(j, i, k + 1)].obstacle
 	&& cell[ft_get_index(j, i, k - 1)].obstacle)
 		return (FALSE);
+	if (cell[ft_get_index(j + 1, i, k)].water
+	&& cell[ft_get_index(j - 1, i, k)].water
+	&& cell[ft_get_index(j, i + 1, k)].water
+	&& cell[ft_get_index(j, i - 1, k)].water
+	&& cell[ft_get_index(j, i, k + 1)].water
+	&& cell[ft_get_index(j, i, k - 1)].water)
+		return (FALSE);
 	return (TRUE);
 }
 
@@ -258,21 +265,23 @@ void	ft_print_all_cell(t_arr *cells, t_pict *pic, t_param *param)
 
 void	ft_print_water_cell(t_arr *cells, t_pict *pic, t_param *param)
 {
-	t_cell *cell;
-	t_point jik;
+	t_cell	*cell;
+	t_point	jik;
 	t_iter	iter;
 	int		i;
-	t_prop prop;
+	t_prop	prop;
 
 	i = 0;
-	prop = set_param(DEFAULT_POINT, i, WATER_COLOR);
+	prop = set_param(DEFAULT_POINT, 0, WATER_COLOR);
 	iter = get_arr_iter(cells);
 	while ((cell = (t_cell *)iter.get_next_elem(&iter)))
 	{
 		if (cell->water)
 		{
+			prop.color = WATER_COLOR;
 			jik = ft_get_index_d3(i);
-			ft_print_one_cell(jik, pic, param, prop);
+			if (ft_is_need_print_cell(cells, jik.y, jik.x, jik.z))
+				ft_print_one_cell(jik, pic, param, prop);
 		}
 		i++;
 	}

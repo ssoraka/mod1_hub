@@ -99,8 +99,8 @@ int		ft_create_points_of_relief2(t_earth *earth, int  **ground)
 		{
 			tmp.color = ft_grad_color(ground[k][i], MAP_HEIGTH2, COLOR_UP, COLOR_DOWN);
 			ft_fill_dpoint(&tmp.abs,
-				(REAL)i / (1 + ADD_POINT) + 0.5,
 				ft_return_heigth(ground[k][i]),
+				(REAL)i / (1 + ADD_POINT) + 0.5,
 				(REAL)k / (1 + ADD_POINT) + 0.5);
 			if (!(ft_arr_add(earth->points, &tmp)))
 				return (FALSE);
@@ -133,7 +133,7 @@ void	ft_print_smooth_relief(t_earth *earth, t_pict *pic, t_param *param)
 	iter = get_arr_iter(earth->points);
 	while ((v = (t_vektr *)iter.get_next_elem(&iter)))
 		ft_rotate_point_around_point(param, v);
-	prop = set_param(DEFAULT_IMAGE | (GRADIENT * param->grad), 0, OBSTACLES_FRONT_COLOR);
+	prop = set_param(DEFAULT_POINT | (GRADIENT * param->grad), 0, OBSTACLES_FRONT_COLOR);
 	iter = get_arr_iter(earth->poligons);
 	while ((plgn = (t_plgn *)iter.get_next_elem(&iter)))
 	{
