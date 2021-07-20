@@ -177,6 +177,11 @@ void	ft_refresh_picture(t_vis *vis)
 		vis->param.is_water_change = FALSE;
 	}
 
+	t_param *param = &vis->param;
+	ft_rotate_point_around_point(param, &param->centr);
+	param->centr.zoom.x = param->cam_x;
+	param->centr.zoom.y = param->cam_y;
+
 	ft_print_relief(g_earth, g_cell, &(vis->pic), &(vis->param));
 
 	if (vis->param.is_need_print_water)

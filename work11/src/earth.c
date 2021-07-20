@@ -137,7 +137,6 @@ void	ft_print_smooth_relief(t_earth *earth, t_pict *pic, t_param *param)
 	iter = get_arr_iter(earth->poligons);
 	while ((plgn = (t_plgn *)iter.get_next_elem(&iter)))
 	{
-		prop.color = OBSTACLES_FRONT_COLOR;
 		ft_prepare_plgn_for_printing(plgn, param);
 		//if (ft_vekt_cos(plgn->rot_n, (t_dpoint){0.0, 0.0, 1.0}) > 0.0)
 			ft_print_plgn(plgn, pic, prop);

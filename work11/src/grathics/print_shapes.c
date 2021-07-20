@@ -161,6 +161,7 @@ t_prop	set_param(size_t params, size_t index, int color)
 {
 	t_prop print;
 
+	print.color = color;
 	print.params = params;
 	print.index = index;
 	return (print);

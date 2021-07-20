@@ -31,19 +31,18 @@ typedef struct		s_map
 
 typedef struct		s_vektr
 {
-	int color;
+	int				color;
 	struct s_dpoint	abs;
 	struct s_point	zoom;
-	struct s_vektr	*next;
 }					t_vektr;
 
 typedef struct		s_line
 {
-	struct s_point dir;
-	struct s_point delta;
-	struct s_vektr *p1;
-	struct s_vektr *p2;
-	struct s_line *next;
+	struct s_point	dir;
+	struct s_point	delta;
+	struct s_vektr	*p1;
+	struct s_vektr	*p2;
+	struct s_line	*next;
 	int				index;
 }					t_line;
 
@@ -113,7 +112,7 @@ typedef struct		s_param
 	struct s_point	first_pos;
 
 	int				active_id;
-	struct s_vektr	*centr;
+	struct s_vektr	centr;
 
 	struct s_dpoint	light;
 	struct s_dpoint	ang;

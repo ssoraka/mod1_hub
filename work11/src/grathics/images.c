@@ -35,6 +35,8 @@ void	ft_init_params(t_param *param)
 	param->water.z = K0 + 1;
 	param->is_need_print_water = TRUE;
 	ft_create_xyz(&(param->oxyz));
+	param->centr.zoom = (t_point){.x = CAM_X, .y = CAM_Y, .z = 0};
+	param->centr.abs = (t_dpoint){.x = IMAX / 2, .y = JMAX / 2, .z = KMAX / 2};
 }
 
 int		ft_create_img(t_pict *pic, void *mlx, int width, int heigth)

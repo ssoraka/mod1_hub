@@ -109,8 +109,8 @@
 */
 #define CONST_WIDTH 2000
 #define CONST_HEINTH 1360
-#define CAM_X 1200
-#define CAM_Y 1100
+#define CAM_X 1000
+#define CAM_Y 680
 //#define RADIUS (DELTA * CONST_LEN * 0.7)
 #define RADIUS 3
 #define CONST_LEN (CONST_HEINTH / JMAX)
@@ -268,6 +268,7 @@ t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz);
 void	ft_ret_zoom_xyz(t_vektr *ox, t_param *vis);
 void	ft_change_points5(t_param *param, t_vektr *p);
 void	ft_rotate_point_around_point(t_param *param, t_vektr *p);
+//void	ft_rotate_point_around_point(t_param *param, t_vektr *p, t_dpoint *zero);
 
 /*
 **	images.c

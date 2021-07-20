@@ -80,33 +80,20 @@ t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz)
 	return (rot_v);
 }
 
-void	ft_change_points_del(t_param *param, t_vektr *p)
-{
-	t_dpoint rot_p;
-
-	rot_p = ft_rot_dpoint(&p->abs, &param->oxyz);
-	p->zoom.x = (int)(rot_p.x * param->len) + param->cam_x;
-	p->zoom.y = (int)(rot_p.y * param->len) + param->cam_y;
-	p->zoom.z = (int)(rot_p.z * param->len);
-}
-
-
 /*
  * todo zero подавался из вне
  * идея была в том, чтоб вращать можно было относительно любой точки
  * надо будет это обмозговать еще
+ * пока вращение идет относительно зарардкоженной точки
  */
 void		ft_rotate_point_around_point(t_param *param, t_vektr *p)
 {
-	ft_change_points_del(param, p);
-	return;
-
 	t_dpoint	rot_p;
 	t_point		center;
 	t_dpoint	*zero;
 
-	zero = &param->centr->abs;
-	center = param->centr->zoom;
+	zero = &param->centr.abs;
+	center = param->centr.zoom;
 	ft_fill_dpoint(&rot_p, p->abs.y - zero->y, p->abs.x - zero->x,
 			p->abs.z - zero->z);
 	rot_p = ft_rot_dpoint(&rot_p, &param->oxyz);
