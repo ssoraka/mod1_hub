@@ -107,6 +107,7 @@
 /*
 **	images
 */
+# define ROTATE_ANGLE 0.05 / 180.0
 #define CONST_WIDTH 2000
 #define CONST_HEINTH 1360
 #define CAM_X 1000
@@ -306,6 +307,7 @@ void	ft_prepare_plgn_for_printing(t_plgn *plgn, t_param *param);
 int		ft_rotate_and_csale(t_param *vis, int key);
 int		ft_shift(t_param *vis, int key);
 int		deal_key(int key, void *param);
+int		ft_csale_picture(t_param *param, int button, t_point *mouse);
 
 /*
 **	point.c
@@ -317,6 +319,7 @@ t_dpoint	ft_ret_norm(t_dpoint *a, t_dpoint *b, t_dpoint *c);
 REAL	ft_vekt_cos(t_dpoint a, t_dpoint b);
 REAL	ft_dot_dpoints(t_dpoint *a, t_dpoint *b);
 REAL	ft_vektr_len(t_dpoint *a);
+void	ft_rotate_xyz_around_v(t_oxyz *oxyz, t_dpoint *v, double ang);
 
 /*
 **	parts.c
@@ -420,4 +423,16 @@ void	ft_print_relief(t_earth *earth, t_arr *cells, t_pict *pic, t_param *param);
 void	ft_init_shape(t_shape *shape, t_form form, t_prop print);
 t_prop	set_param(size_t params, size_t index, int color);
 
+/*
+** animation.c
+*/
+int		ft_move_camera(t_param *param);
+int		ft_is_cam_moved(t_param *param);
+int		ft_is_cam_rotated(t_param *param);
+int		ft_auto_rotate(t_param *param);
+
+/*
+** mouse.c
+*/
+void	ft_init_hooks(t_vis *vis);
 #endif

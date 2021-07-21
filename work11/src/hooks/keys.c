@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/ft_mod1.h"
+#include "../../includes/ft_mod1.h"
 
 #define CAM_SHIFT 20
 #define CAM_SCALE 1.1
@@ -43,6 +43,8 @@ int		ft_rotate_and_csale(t_param *vis, int key)
 	else
 		return (FALSE);
 	ft_rotate_xyz(&(vis->oxyz), &(vis->ang));
+	/*todo посмотреть эту херь
+	 * */
 	vis->cos.y = ft_vekt_cos(vis->oxyz.oy, vis->light);
 	vis->cos.x = ft_vekt_cos(vis->oxyz.ox, vis->light);
 	vis->cos.z = ft_vekt_cos(vis->oxyz.oz, vis->light);
@@ -119,23 +121,45 @@ int		deal_key(int key, void *param)
 	+ ft_is_water_cell_shift(vis, key);
 	if (ft_rotate_and_csale(vis, key) || ft_shift(vis, key) || key == KEY_O
 	|| key == KEY_G)
-		vis->is_obstacles_change = TRUE;
+		vis->is_points_change = TRUE;
 	if (key == KEY_ESC)
 		ft_del_all(NULL);
-	if (key == KEY_P)
+	else if (key == KEY_P)
 		vis->pause = !vis->pause;
-	if (key == KEY_R)
+	else if (key == KEY_R)
 		vis->rain = NEED_STOP_PRINT_FOR_RAIN;
-	if (key == KEY_O)
+	else if (key == KEY_O)
 		vis->is_smooth_relief = !vis->is_smooth_relief;
-	if (key == KEY_I)
+	else if (key == KEY_I)
 	{
 		vis->is_need_print_obstacles = !vis->is_need_print_obstacles;
 		if (vis->is_need_print_obstacles) //возможно следует изменить эту херь
-			vis->is_obstacles_change = TRUE;
+			vis->is_points_change = TRUE;
 	}
-	if (key == KEY_G)
+	else if (key == KEY_G)
 		vis->grad = !vis->grad;
 	printf("\n%d\n", key);
 	return (0);
+}
+
+int		ft_csale_picture(t_param *param, int button, t_point *mouse)
+{
+	if (button == MIDDLE_FORW_BUTTON && param->len < MAX_SCALE)
+		param->len *= CAM_SCALE;
+	else if (button == MIDDLE_BACK_BUTTON && param->len > MIN_SCALE)
+		param->len /= CAM_SCALE;
+	else if (button == LEFT_BUTTON)
+	{
+		ft_fill_point(&param->first_pos, mouse->y, mouse->x, 0);
+		param->left_button_press = TRUE;
+	}
+	else if (button == MIDDLE_BUTTON)
+	{
+		ft_fill_point(&param->pos, mouse->y, mouse->x, 0);
+		param->right_button_press = TRUE;
+	}
+	else
+		return (FALSE);
+	param->is_points_change = TRUE;
+	return (TRUE);
 }

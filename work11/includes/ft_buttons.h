@@ -14,6 +14,29 @@
 # define FT_BUTTONS_H
 
 # if defined(__linux__)
+#  include "X11/X.h"
+#  define KEY_PRESS_MASK KeyPressMask
+#  define POINTER_MOTION_MASK PointerMotionMask
+#  define BUTTON_PRESS_MASK ButtonPressMask
+#  define BUTTON_RELEASE_MASK ButtonReleaseMask
+#  define KEY_PRESS KeyPress
+#  define KEY_RELEASE KeyRelease
+#  define BUTTON_PRESS ButtonPress
+#  define BUTTON_RELEASE ButtonRelease
+#  define MOTION_NOTIFY MotionNotify
+# else
+#  define KEY_PRESS_MASK 0
+#  define POINTER_MOTION_MASK 0
+#  define BUTTON_PRESS_MASK 0
+#  define BUTTON_RELEASE_MASK 0
+#  define KEY_PRESS 		2
+#  define KEY_RELEASE 		3
+#  define BUTTON_PRESS 		4
+#  define BUTTON_RELEASE 		5
+#  define MOTION_NOTIFY 		6
+# endif
+
+# if defined(__linux__)
 
 #  define KEY_PLUS	18
 #  define KEY_MINUS	19

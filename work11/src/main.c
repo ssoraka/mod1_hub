@@ -177,10 +177,15 @@ void	ft_refresh_picture(t_vis *vis)
 		vis->param.is_water_change = FALSE;
 	}
 
+	// todo исправить говно с флагами
 	t_param *param = &vis->param;
-	ft_rotate_point_around_point(param, &param->centr);
-	param->centr.zoom.x = param->cam_x;
-	param->centr.zoom.y = param->cam_y;
+	if ((ft_move_camera(&vis->param) + ft_auto_rotate(&vis->param)))
+	{
+		ft_rotate_point_around_point(param, &param->centr);
+		param->centr.zoom.x = param->cam_x;
+		param->centr.zoom.y = param->cam_y;
+		param->is_points_change = TRUE;
+	}
 
 	ft_print_relief(g_earth, g_cell, &(vis->pic), &(vis->param));
 
@@ -262,25 +267,25 @@ int loop_hook(void *param)
 
 
 
-int		mouse_hook(int button, int x,int y, void *param)
-{
-	t_vis *vis;
-	int cell_number;
-
-	vis = (t_vis *)param;
-
-	if (vis->param.exit)
-		return (0);
-	cell_number = vis->pic.index[y * CONST_WIDTH + x];
-	if (!cell_number)
-		return (0);
-	if (ft_change_obstacles(g_cell, cell_number, button, &vis->param))
-	{
-		vis->param.is_obstacles_change = TRUE;
-		vis->param.is_relief_changed = TRUE;
-	}
-	return (0);
-}
+//int		mouse_hook(int button, int x,int y, void *param)
+//{
+//	t_vis *vis;
+//	int cell_number;
+//
+//	vis = (t_vis *)param;
+//
+//	if (vis->param.exit)
+//		return (0);
+//	cell_number = vis->pic.index[y * CONST_WIDTH + x];
+//	if (!cell_number)
+//		return (0);
+//	if (ft_change_obstacles(g_cell, cell_number, button, &vis->param))
+//	{
+//		vis->param.is_obstacles_change = TRUE;
+//		vis->param.is_relief_changed = TRUE;
+//	}
+//	return (0);
+//}
 
 
 
@@ -361,10 +366,12 @@ int main(int ac, char **av)
 	ft_create_thread_for_solver(&solver, g_cl, &(vis->param), g_compile);
 	//g_clock = clock();
 
-	mlx_hook(vis->win, 2, 0, deal_key, (void *)&(vis->param));
-	mlx_loop_hook(vis->mlx, loop_hook, (void *)vis);
-	mlx_mouse_hook(vis->win, mouse_hook, (void *)vis);
+	ft_init_hooks(vis);
 	mlx_loop(vis->mlx);
+//	mlx_hook(vis->win, 2, 0, deal_key, (void *)&(vis->param));
+//	mlx_loop_hook(vis->mlx, loop_hook, (void *)vis);
+//	mlx_mouse_hook(vis->win, mouse_hook, (void *)vis);
+//	mlx_loop(vis->mlx);
 
 	return (0);
 }

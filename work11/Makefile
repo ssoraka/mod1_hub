@@ -47,8 +47,9 @@ FILES = grathics/color_interpolation.c	grathics/picture.c \
 		grathics/points.c	grathics/points2.c	grathics/print_shapes.c \
 		grathics/images.c	grathics/lines_vektrs.c \
 		grathics/polygons.c	grathics/polygons2.c \
+		hooks/animation.c	hooks/mouse.c	hooks/keys.c \
 		ground.c initialization.c \
-		keys.c main.c map.c parts.c \
+		 main.c map.c parts.c \
 		rotate.c cells.c read_program.c open_cl.c thread_solver.c earth.c
 
 SRC		= $(addprefix $(PATH_SRC)/,$(FILES))
@@ -90,6 +91,7 @@ libs_refresh:
 $(PATH_OBJ)/%.o: $(addprefix $(PATH_SRC)/,%.c)  ${LIBFT_HEADER}
 	@mkdir -p $(PATH_OBJ)
 	@mkdir -p $(PATH_OBJ)/grathics
+	@mkdir -p $(PATH_OBJ)/hooks
 	$(GCC) -c $< -o $@  $(COMPILE_HEADER)
 
 $(NAME): $(OBJECTS) $(MAKES) $(LIBFT)
