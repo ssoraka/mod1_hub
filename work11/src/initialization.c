@@ -49,7 +49,7 @@ void	ft_init_parts_arr_and_cell(void)
 		ft_del_all(NULL);
 
 	//инициализируем сл и компилим программы
-	if (!(g_cl = ft_init_open_cl()))
+	if (!(g_cl = ft_init_open_cl(CL_DEVICE_TYPE_GPU)))
 		ft_del_all("init error\n");
 	if (!ft_read_and_build_programs(g_cl, g_compile))
 		ft_del_all("some error\n");

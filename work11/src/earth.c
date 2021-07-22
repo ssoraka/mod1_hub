@@ -148,9 +148,9 @@ void	ft_print_relief(t_earth *earth, t_arr *cells, t_pict *pic, t_param *param)
 {
 	if (!param->is_need_print_obstacles)
 		return ;
-	if (param->is_points_change)
+	if (param->need_refresh)
 	{
-		param->is_points_change = FALSE;
+		param->need_refresh = FALSE;
 		if (param->is_smooth_relief)
 			ft_print_smooth_relief(earth, pic, param);
 		ft_print_all_cell(cells, pic, param);

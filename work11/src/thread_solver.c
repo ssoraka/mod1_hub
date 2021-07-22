@@ -51,14 +51,14 @@ void	ft_add_new_water(t_open_cl *cl, t_param *param)
 	ft_fill_point(&start, p.y - brush, p.x - brush, p.z - brush);
 	ft_fill_point(&end, p.y + brush, p.x + brush, p.z + brush);
 	ft_create_new_area_of_water(cl->buff[PARTS].arr, &start, &end, MAGMA);
-
 	//скопировать содержимое буфера в структуру
 	//уничтожить буфер
-	if (!ft_recreate_buffers(cl, PARTS, CL_TRUE, *(cl->buff[PARTS].g_work_size), TRUE))
+
+	if (!ft_recreate_buffers(cl, PARTS, *(cl->buff[PARTS].g_work_size), TRUE))
 		ft_del_all("recreate buffer error\n");
-	if (!ft_recreate_buffers(cl, INTERFACE, CL_TRUE, *(cl->buff[PARTS].g_work_size), TRUE))
+	if (!ft_recreate_buffers(cl, INTERFACE, *(cl->buff[PARTS].g_work_size), TRUE))
 		ft_del_all("recreate buffer error\n");
-	if (!ft_recreate_buffers(cl, NEIGHS, CL_TRUE, *(cl->buff[PARTS].g_work_size), FALSE))
+	if (!ft_recreate_buffers(cl, NEIGHS, *(cl->buff[PARTS].g_work_size), FALSE))
 		ft_del_all("recreate buffer error\n");
 }
 

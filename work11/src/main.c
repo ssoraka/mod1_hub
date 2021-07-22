@@ -184,7 +184,7 @@ void	ft_refresh_picture(t_vis *vis)
 		ft_rotate_point_around_point(param, &param->centr);
 		param->centr.zoom.x = param->cam_x;
 		param->centr.zoom.y = param->cam_y;
-		param->is_points_change = TRUE;
+		param->need_refresh = TRUE;
 	}
 
 	ft_print_relief(g_earth, g_cell, &(vis->pic), &(vis->param));
@@ -208,18 +208,14 @@ void	ft_refresh_picture(t_vis *vis)
 
 void	ft_prepare_one_buffer(t_buff *buff)
 {
-	buff->old_elems_count = buff->arr->elems_count;
-	buff->old_g_work_size = buff->arr->elems_used;
-	buff->buff_used = buff->old_g_work_size * buff->arr->elem_size;
-	buff->buff_size = buff->old_elems_count * buff->arr->elem_size;
+	buff->work_size = buff->arr->elems_used;
+	buff->buff_used = buff->work_size * buff->arr->elem_size;
 
 	ft_putnbr(buff->arr->elem_size);
 	ft_putchar('\n');
-	ft_putnbr(buff->old_g_work_size);
+	ft_putnbr(buff->work_size);
 	ft_putchar('\n');
 	ft_putnbr(buff->buff_used);
-	ft_putchar('\n');
-	ft_putnbr(buff->buff_size);
 	ft_putchar('\n');
 }
 
@@ -256,7 +252,7 @@ int loop_hook(void *param)
 
 	ft_refresh_picture(vis);
 
-	printf("%ld\n", clock() - g_clock);
+//	printf("%ld\n", clock() - g_clock);
 	g_clock = clock();
 
 	if (vis->param.rain == NEED_STOP_PRINT_FOR_RAIN)

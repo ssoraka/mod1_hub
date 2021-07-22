@@ -24,7 +24,7 @@ void	ft_rotate_vek_around_vek_by_ang(t_dpoint *ox, t_dpoint *oy, double ang)
 	double temp_y;
 	double temp_z;
 
-	if (ang == 0.0 || !ox || !oy)
+	if (ang == 0.0 || !ox || !oy || ox == oy)
 		return ;
 	cosa = cos(ang);
 	sina = sin(ang);
@@ -43,27 +43,6 @@ void	ft_rotate_vek_around_vek_by_ang(t_dpoint *ox, t_dpoint *oy, double ang)
 	ft_normalize_vektor(ox);
 }
 
-void	ft_rotate_xyz(t_oxyz *oxyz, t_dpoint *ang)
-{
-	if (ang->z != 0)
-	{
-		ft_rotate_vek_around_vek_by_ang(&(oxyz->oy), &(oxyz->oz), ang->z);
-		ft_rotate_vek_around_vek_by_ang(&(oxyz->ox), &(oxyz->oz), ang->z);
-	}
-	if (ang->x != 0)
-	{
-		ft_rotate_vek_around_vek_by_ang(&(oxyz->oy), &(oxyz->ox), ang->x);
-		ft_rotate_vek_around_vek_by_ang(&(oxyz->oz), &(oxyz->ox), ang->x);
-	}
-	if (ang->y != 0)
-	{
-		ft_rotate_vek_around_vek_by_ang(&(oxyz->ox), &(oxyz->oy), ang->y);
-		ft_rotate_vek_around_vek_by_ang(&(oxyz->oz), &(oxyz->oy), ang->y);
-	}
-	ft_fill_dpoint(ang, 0.0, 0.0, 0.0);
-}
-
-
 t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz)
 {
 	t_dpoint rot_v;
@@ -80,12 +59,6 @@ t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz)
 	return (rot_v);
 }
 
-/*
- * todo zero подавался из вне
- * идея была в том, чтоб вращать можно было относительно любой точки
- * надо будет это обмозговать еще
- * пока вращение идет относительно зарардкоженной точки
- */
 void		ft_rotate_point_around_point(t_param *param, t_vektr *p)
 {
 	t_dpoint	rot_p;
@@ -100,4 +73,11 @@ void		ft_rotate_point_around_point(t_param *param, t_vektr *p)
 	p->zoom.x = (int)(rot_p.x * param->len) + center.x;
 	p->zoom.y = (int)(rot_p.y * param->len) + center.y;
 	p->zoom.z = (int)(rot_p.z * param->len) + center.z;
+}
+
+void	calc_light(t_param *param)
+{
+	param->cos.y = ft_vekt_cos(param->oxyz.oy, param->light);
+	param->cos.x = ft_vekt_cos(param->oxyz.ox, param->light);
+	param->cos.z = ft_vekt_cos(param->oxyz.oz, param->light);
 }

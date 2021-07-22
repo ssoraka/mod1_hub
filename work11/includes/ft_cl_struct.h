@@ -30,10 +30,8 @@ typedef struct		s_buff
 	cl_mem			buffer;
 	struct s_arr	*arr;
 	size_t			*g_work_size;
-	size_t			old_g_work_size;
-	size_t			old_elems_count;
+	size_t			work_size;
 	size_t			buff_used;
-	size_t			buff_size;
 }					t_buff;
 
 typedef struct			s_open_cl

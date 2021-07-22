@@ -269,7 +269,7 @@ t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz);
 void	ft_ret_zoom_xyz(t_vektr *ox, t_param *vis);
 void	ft_change_points5(t_param *param, t_vektr *p);
 void	ft_rotate_point_around_point(t_param *param, t_vektr *p);
-//void	ft_rotate_point_around_point(t_param *param, t_vektr *p, t_dpoint *zero);
+void	calc_light(t_param *param);
 
 /*
 **	images.c
@@ -381,27 +381,54 @@ int		is_read_programm(char *buffer, char *filename);
 
 
 
+///*
+//** open_cl.c
+//*/
+//void	*ft_error(t_open_cl *cl, char *message);
+//void	pfn_notify2(cl_program program, void *user_data);
+//void	pfn_notify(const char *errinfo, const void *private_info, size_t cb, void *user_data);
+//void	ft_context_error(cl_int errcode_ret);
+//void	ft_queue_error(cl_int errcode_ret);
+//t_open_cl	*ft_init_open_cl(void);
+//int		ft_read_and_build_programs(t_open_cl *cl, t_prog *compile);
+//void	ft_prepare_to_compile(t_open_cl *cl, t_prog *compile, t_buff *buff);
+//void	ft_free_open_cl(t_open_cl **open_cl);
+//int		ft_create_buffers(t_open_cl *cl, int num, int need_wait);
+//int		ft_recreate_buffers(t_open_cl *cl, int num, int need_wait, size_t new_elem_count, int need_write);
+//int		ft_read_buffers(t_open_cl *cl, int num, int need_wait);
+//int		ft_write_buffers(t_open_cl *cl, int num, int need_wait);
+//void	ft_create_all_buffers(t_open_cl *cl);
+//int		ft_run_kernels(t_open_cl *cl);
+//int		ft_set_kernel_arg(t_open_cl *cl, t_prog *compile);
+//void	ft_stop_cl(t_open_cl *cl);
+
 /*
-** open_cl.c
+**	open_cl_buffers.c
 */
-void	*ft_error(t_open_cl *cl, char *message);
-void	pfn_notify2(cl_program program, void *user_data);
-void	pfn_notify(const char *errinfo, const void *private_info, size_t cb, void *user_data);
-void	ft_context_error(cl_int errcode_ret);
-void	ft_queue_error(cl_int errcode_ret);
-t_open_cl	*ft_init_open_cl(void);
-int		ft_read_and_build_programs(t_open_cl *cl, t_prog *compile);
-void	ft_prepare_to_compile(t_open_cl *cl, t_prog *compile, t_buff *buff);
-void	ft_free_open_cl(t_open_cl **open_cl);
-int		ft_create_buffers(t_open_cl *cl, int num, int need_wait);
-int		ft_recreate_buffers(t_open_cl *cl, int num, int need_wait, size_t new_elem_count, int need_write);
-int		ft_read_buffers(t_open_cl *cl, int num, int need_wait);
+int		ft_create_all_buffers(t_open_cl *cl);
+int		ft_create_buffers(t_open_cl *cl, int num);
 int		ft_write_buffers(t_open_cl *cl, int num, int need_wait);
-void	ft_create_all_buffers(t_open_cl *cl);
+int		ft_read_buffers(t_open_cl *cl, int num, int need_wait);
+int		ft_recreate_buffers(t_open_cl *cl, int num, size_t new_elem_count, int need_write);
+
+/*
+**	open_cl_read_build_run.c
+*/
+int		is_read_programm(char *buffer, char *filename);
+int		ft_read_and_build_programs(t_open_cl *cl, t_prog *compile);
 int		ft_run_kernels(t_open_cl *cl);
 int		ft_set_kernel_arg(t_open_cl *cl, t_prog *compile);
-void	ft_stop_cl(t_open_cl *cl);
 
+/*
+**	open_cl_init.c
+*/
+t_open_cl	*ft_init_open_cl(int device);
+
+/*
+**	open_cl_free.c
+*/
+void	ft_free_open_cl(t_open_cl **open_cl);
+void	ft_stop_cl(t_open_cl *cl);
 
 /*
 **	thread_solver.c
@@ -432,7 +459,14 @@ int		ft_is_cam_rotated(t_param *param);
 int		ft_auto_rotate(t_param *param);
 
 /*
-** mouse.c
+** hooks.c
 */
 void	ft_init_hooks(t_vis *vis);
+
+/*
+** mouse.c
+*/
+int		ft_mouse_on_window(int x, int y);
+int		ft_mouse_get_new_pos(int x, int y, t_param *param);
+
 #endif

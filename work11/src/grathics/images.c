@@ -23,7 +23,6 @@ void	ft_init_params(t_param *param)
 	param->target_x = CAM_X;
 	param->target_y = CAM_Y;
 	param->len = CONST_LEN;
-	param->ang.z = M_PI;
 	param->pause = 1;
 	param->is_need_print_obstacles = TRUE;
 	param->brush = 1;
@@ -37,6 +36,9 @@ void	ft_init_params(t_param *param)
 	ft_create_xyz(&(param->oxyz));
 	param->centr.zoom = (t_point){.x = CAM_X, .y = CAM_Y, .z = 0};
 	param->centr.abs = (t_dpoint){.x = IMAX / 2, .y = JMAX / 2, .z = KMAX / 2};
+	ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oz, M_PI);
+	calc_light(param);
+	param->need_refresh = TRUE;
 }
 
 int		ft_create_img(t_pict *pic, void *mlx, int width, int heigth)

@@ -97,7 +97,7 @@ typedef struct		s_param
 	int				is_reading;
 	int				is_water_change;
 	int				is_need_print_water;
-	int				is_points_change;
+	int				need_refresh;
 	int				grad;
 	double			len;
 

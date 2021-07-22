@@ -22,47 +22,41 @@
 #define MAX_BRUSH (IMAX / 2)
 
 
-int		ft_rotate_and_csale(t_param *vis, int key)
+int		ft_rotate_and_csale(t_param *param, int key)
 {
-	if ((key == KEY_PLUS || key == 69) && vis->len < MAX_SCALE)
-		vis->len *= CAM_SCALE;
-	else if ((key == KEY_MINUS || key == 78) && vis->len > MIN_SCALE)
-		vis->len /= CAM_SCALE;
+	if ((key == KEY_PLUS || key == 69) && param->len < MAX_SCALE)
+		param->len *= CAM_SCALE;
+	else if ((key == KEY_MINUS || key == 78) && param->len > MIN_SCALE)
+		param->len /= CAM_SCALE;
 	else if (key == KEY_Q)
-		vis->ang.z += M_PI / CAM_ROTATE;
+		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oz, M_PI / CAM_ROTATE);
 	else if (key == KEY_A)
-		vis->ang.z -= M_PI / CAM_ROTATE;
+		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oz, -M_PI / CAM_ROTATE);
 	else if (key == KEY_W)
-		vis->ang.y += M_PI / CAM_ROTATE;
+		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oy, M_PI / CAM_ROTATE);
 	else if (key == KEY_S)
-		vis->ang.y -= M_PI / CAM_ROTATE;
+		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oy, -M_PI / CAM_ROTATE);
 	else if (key == KEY_E)
-		vis->ang.x += M_PI / CAM_ROTATE;
+		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.ox, M_PI / CAM_ROTATE);
 	else if (key == KEY_D)
-		vis->ang.x -= M_PI / CAM_ROTATE;
+		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.ox, -M_PI / CAM_ROTATE);
 	else
 		return (FALSE);
-	ft_rotate_xyz(&(vis->oxyz), &(vis->ang));
-	/*todo посмотреть эту херь
-	 * */
-	vis->cos.y = ft_vekt_cos(vis->oxyz.oy, vis->light);
-	vis->cos.x = ft_vekt_cos(vis->oxyz.ox, vis->light);
-	vis->cos.z = ft_vekt_cos(vis->oxyz.oz, vis->light);
-	printf("%lf_%lf_%lf\n", vis->cos.y, vis->cos.x, vis->cos.z);
+	calc_light(param);
 	return (TRUE);
 }
 
 
-int		ft_shift(t_param *vis, int key)
+int		ft_shift(t_param *param, int key)
 {
 	if (key == KEY_RIGHT)
-		vis->cam_x += CAM_SHIFT;
+		param->target_x += CAM_SHIFT;
 	else if (key == KEY_LEFT)
-		vis->cam_x -= CAM_SHIFT;
+		param->target_x -= CAM_SHIFT;
 	else if (key == KEY_UP)
-		vis->cam_y -= CAM_SHIFT;
+		param->target_y -= CAM_SHIFT;
 	else if (key == KEY_DOWN)
-		vis->cam_y += CAM_SHIFT;
+		param->target_y += CAM_SHIFT;
 	else
 		return (FALSE);
 	return (TRUE);
@@ -112,32 +106,32 @@ int		ft_change_brush(t_param *param, int key)
 	return (TRUE);
 }
 
-int		deal_key(int key, void *param)
+int		deal_key(int key, void *parameters)
 {
-	t_param *vis;
+	t_param *param;
 
-	vis = (t_param *)param;
-	vis->is_water_change = ft_change_brush(vis, key)
-	+ ft_is_water_cell_shift(vis, key);
-	if (ft_rotate_and_csale(vis, key) || ft_shift(vis, key) || key == KEY_O
+	param = (t_param *)parameters;
+	param->is_water_change = ft_change_brush(param, key)
+	+ ft_is_water_cell_shift(param, key);
+	if (ft_rotate_and_csale(param, key) || ft_shift(param, key) || key == KEY_O
 	|| key == KEY_G)
-		vis->is_points_change = TRUE;
+		param->need_refresh = TRUE;
 	if (key == KEY_ESC)
 		ft_del_all(NULL);
 	else if (key == KEY_P)
-		vis->pause = !vis->pause;
+		param->pause = !param->pause;
 	else if (key == KEY_R)
-		vis->rain = NEED_STOP_PRINT_FOR_RAIN;
+		param->rain = NEED_STOP_PRINT_FOR_RAIN;
 	else if (key == KEY_O)
-		vis->is_smooth_relief = !vis->is_smooth_relief;
+		param->is_smooth_relief = !param->is_smooth_relief;
 	else if (key == KEY_I)
 	{
-		vis->is_need_print_obstacles = !vis->is_need_print_obstacles;
-		if (vis->is_need_print_obstacles) //возможно следует изменить эту херь
-			vis->is_points_change = TRUE;
+		param->is_need_print_obstacles = !param->is_need_print_obstacles;
+		if (param->is_need_print_obstacles) //возможно следует изменить эту херь
+			param->need_refresh = TRUE;
 	}
 	else if (key == KEY_G)
-		vis->grad = !vis->grad;
+		param->grad = !param->grad;
 	printf("\n%d\n", key);
 	return (0);
 }
@@ -160,6 +154,6 @@ int		ft_csale_picture(t_param *param, int button, t_point *mouse)
 	}
 	else
 		return (FALSE);
-	param->is_points_change = TRUE;
+	param->need_refresh = TRUE;
 	return (TRUE);
 }

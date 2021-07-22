@@ -60,11 +60,7 @@ int		ft_auto_rotate(t_param *param)
 		(param->rounds)--;
 		ft_fill_dpoint(&v, -param->rot_pos.x, param->rot_pos.y, 0.0);
 		ft_rotate_xyz_around_v(&param->oxyz, &v, ROTATE_ANGLE);
-
-		//todo надо бы прояснить эти 3 строчки
-		param->cos.y = ft_vekt_cos(param->oxyz.oy, param->light);
-		param->cos.x = ft_vekt_cos(param->oxyz.ox, param->light);
-		param->cos.z = ft_vekt_cos(param->oxyz.oz, param->light);
+		calc_light(param);
 		return (TRUE);
 	}
 	return (FALSE);
