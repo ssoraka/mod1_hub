@@ -86,6 +86,7 @@
 #  define KEY_D 2
 #  define KEY_K 40
 #  define KEY_L 37
+#  define KEY_T 17
 
 #  define KEY_LEFT 123
 #  define KEY_RIGHT 124

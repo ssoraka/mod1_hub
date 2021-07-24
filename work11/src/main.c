@@ -18,48 +18,49 @@
 // с углом нормали к свету
 //
 
+t_mut	g_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 t_prog    g_compile[PROGRAMS_COUNT + 10] =
 {
 	{"./cl/clear_cell.cl", "clear_cell", 2, {CELL_MAPS, CELLS, -1}},
 	{"./cl/add_part_in_cell.cl", "add_part_in_cell", 2, {PARTS, CELL_MAPS, -1}},
 	{"./cl/up_part_in_cell.cl", "up_part_in_cell", 1, {CELL_MAPS, -1, -1}},
 	{"./cl/find_neighbors.cl", "find_neighbors", 3, {PARTS, CELL_MAPS, NEIGHS}},
-	{"./cl/density_press.cl", "density_press", 2, {PARTS, NEIGHS, -1}},
-	{"./cl/delta_speed.cl", "delta_speed", 2, {PARTS, NEIGHS, -1}},
-	{"./cl/delta_coord.cl", "delta_coord", 2, {PARTS, NEIGHS, -1}},
+	{"./cl/density_press.cl", "density_press", 3, {PARTS, NEIGHS, PARAMS}},
+	{"./cl/delta_speed.cl", "delta_speed", 3, {PARTS, NEIGHS, PARAMS}},
+	{"./cl/delta_coord.cl", "delta_coord", 3, {PARTS, NEIGHS, PARAMS}},
 	{"./cl/change_cell.cl", "change_cell", 3, {PARTS, CELLS, INTERFACE}},
 	{"./cl/print_parts.cl", "print_parts", 2, {PARTS, -1, -1}}, //надо бы это в сунуть в другую функцию...
-	{"", "", 0, {0, 0, 0}}
+	{"", "", 0, {-1, -1, -1}}
 };
 
-REAL	g_param[FLUIDS][COLUMN_COUNT] =
-{
-	{FLUID, F_H, F_C, F_MASS, F_PRESS, F_DENS, F_VIS, F_Y_SPEED},
-	{WATER, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0000.0, 00.0},
-	{WATER2, PART_H, 120.0, PART_MASS_0 * 0.50, 22000.0, 500.0, 0000.0, 00.0},
-	{MAGMA, PART_H, 120.0, PART_MASS_0 * 1.0, 220000000.0, 1000.0, 00.0, -10.0},
-	{MAGMA2, PART_H, 120.0, PART_MASS_0 * 10.0, 2200000000.0, 10000.0, 2000.0, 0.0},
-	{BLOB, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0.0, -20.0},
-	{OBSTCL, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0000.0, 00.0},
-};
-
-int	g_color[FLUIDS][COLUMN_COUNT2] =
-{
-	{FLUID, COLOR, RADIUS2},
-	{WATER, WATER_COLOR, 3},
-	{WATER2, 0xFFFFFF, 3},
-	{MAGMA, 0xFF0000, 5},
-	{MAGMA2, OBSTACLES_TOP_COLOR, 5},
-	{BLOB, 0xFFFFFF, 3},
-	{OBSTCL, OBSTACLES_TOP_COLOR, 5},
-};
+//REAL	g_param[FLUIDS][COLUMN_COUNT] =
+//{
+//	{FLUID, F_H, F_C, F_MASS, F_PRESS, F_DENS, F_VIS, F_Y_SPEED},
+//	{WATER, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0000.0, 00.0},
+//	{WATER2, PART_H, 120.0, PART_MASS_0 * 0.50, 22000.0, 500.0, 0000.0, 00.0},
+//	{MAGMA, PART_H, 120.0, PART_MASS_0 * 1.0, 220000000.0, 1000.0, 00.0, -10.0},
+//	{MAGMA2, PART_H, 120.0, PART_MASS_0 * 10.0, 2200000000.0, 10000.0, 2000.0, 0.0},
+//	{BLOB, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0.0, -20.0},
+//	{OBSTCL, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0000.0, 00.0}
+//};
+//
+//int	g_color[FLUIDS][COLUMN_COUNT2] =
+//{
+//	{FLUID, COLOR, RADIUS2},
+//	{WATER, WATER_COLOR, 3},
+//	{WATER2, 0xFFFFFF, 3},
+//	{MAGMA, 0xFF0000, 5},
+//	{MAGMA2, OBSTACLES_TOP_COLOR, 5},
+//	{BLOB, 0xFFFFFF, 3},
+//	{OBSTCL, OBSTACLES_TOP_COLOR, 5},
+//};
 
 
 /*
- * todo сделать вращение вокруг мышки
  * todo сделать сериаализацию
- * todo разобрать баг с замедлением
- * todo попробовать сделать дождь и волны
+ * todo разобрать баг с замедлением (хз, что-то с размером группы или буффера)
+ * todo попробовать сделать дождь и волны (на это забью)
  * todo сделать изменение осей гравитации
  */
 
@@ -161,7 +162,9 @@ void	print_img_as_water(t_arr *ipoints, t_vis *vis, t_pict *from)
 	{
 		ft_fill_dpoint(&v.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
 		ft_rotate_point_around_point(&(vis->param), &v);
-		printer.print(to, &v.zoom, &printer);
+		printer.params.index = ipart->type;
+		if (printer.params.index != NOTHING)
+			printer.print(to, &v.zoom, &printer);
 	}
 }
 
@@ -177,25 +180,18 @@ void	ft_refresh_picture(t_vis *vis)
 		vis->param.is_water_change = FALSE;
 	}
 
-	// todo исправить говно с флагами
-	t_param *param = &vis->param;
-	if ((ft_move_camera(&vis->param) + ft_auto_rotate(&vis->param)))
-	{
-		ft_rotate_point_around_point(param, &param->centr);
-		param->centr.zoom.x = param->cam_x;
-		param->centr.zoom.y = param->cam_y;
-		param->need_refresh = TRUE;
-	}
-
 	ft_print_relief(g_earth, g_cell, &(vis->pic), &(vis->param));
 
 	if (vis->param.is_need_print_water)
 		ft_print_water_cell(g_cell, &(vis->pic), &(vis->param));
 
-	ft_init_picture(&(vis->pict), vis->param.len, WATER_COLOR);
+	//todo исправить это говно с буфферами
+	ft_init_picture(vis->fluids + WATER, vis->param.len, WATER_COLOR);
+	ft_init_picture(vis->fluids + MAGMA, vis->param.len, MAGMA_COLOR);
 //	ft_for_each_elem(g_iparts, print_img_to_img, (void *)vis);
-	print_img_as_water(g_iparts, vis, &vis->pict);
-	free((void *)vis->pict.addr);
+	print_img_as_water(g_iparts_copy, vis, vis->fluids);
+	free((void *)vis->fluids[WATER].addr);
+	free((void *)vis->fluids[MAGMA].addr);
 
 	//ft_for_each_elem(g_iparts, ft_print_all_water2, (void *)vis);
 
@@ -203,7 +199,6 @@ void	ft_refresh_picture(t_vis *vis)
 //	ft_memcpy((void *)vis->pic.addr, (void *)vis->pic.index, vis->pic.count_byte);
 
 	mlx_put_image_to_window(vis->mlx, vis->win, vis->pic.img, 0, 0);
-
 }
 
 void	ft_prepare_one_buffer(t_buff *buff)
@@ -227,61 +222,47 @@ void	ft_init_buffers(t_buff *buff, t_arr *arr)
 }
 
 
+t_bool	ft_copy_arrs(t_arr *dst, t_arr *src)
+{
+	if (!ft_realloc_arr(dst, src->elems_used))
+		return (FALSE);
+	dst->elems_used = src->elems_used;
+	ft_memcpy8(dst->elems, src->elems, dst->elem_size * dst->elems_used);
+	return (TRUE);
+}
 
-int loop_hook(void *param)
+int loop_hook(void *parameters)
 {
 	t_vis *vis;
+	t_param *param;
 
-	vis = (t_vis *)param;
+	vis = (t_vis *)parameters;
 
 	if (vis->param.exit)
 		return (0);
-	if (vis->param.rain == RAIN_ACTIVATE)
-		return (0);
 
-	if (!ft_read_buffers(g_cl, INTERFACE, CL_TRUE))
-		ft_del_all("read error\n");
-
-	/*
-	if (vis->param.rain && vis->param.solver_pause)
+	param = &vis->param;
+	if ((ft_move_camera(&vis->param) + ft_auto_rotate(&vis->param)))
 	{
-		//ft_add_new_water(g_parts, g_iparts, g_buff, g_cl);
-		vis->param.rain = FALSE;
+		ft_rotate_point_around_point(param, &param->centr);
+		param->centr.zoom.x = param->cam_x;
+		param->centr.zoom.y = param->cam_y;
+		param->need_refresh = TRUE;
 	}
-*/
+
+	pthread_mutex_lock(&g_mutex);
+	if (!ft_copy_arrs(g_iparts_copy, g_cl->buff[INTERFACE].arr))
+		ft_del_all("read error\n");
+	pthread_mutex_unlock(&g_mutex);
 
 	ft_refresh_picture(vis);
 
 //	printf("%ld\n", clock() - g_clock);
-	g_clock = clock();
-
-	if (vis->param.rain == NEED_STOP_PRINT_FOR_RAIN)
-		vis->param.rain = RAIN_ACTIVATE;
+//	g_clock = clock();
 	return (0);
 }
 
 
-
-
-//int		mouse_hook(int button, int x,int y, void *param)
-//{
-//	t_vis *vis;
-//	int cell_number;
-//
-//	vis = (t_vis *)param;
-//
-//	if (vis->param.exit)
-//		return (0);
-//	cell_number = vis->pic.index[y * CONST_WIDTH + x];
-//	if (!cell_number)
-//		return (0);
-//	if (ft_change_obstacles(g_cell, cell_number, button, &vis->param))
-//	{
-//		vis->param.is_obstacles_change = TRUE;
-//		vis->param.is_relief_changed = TRUE;
-//	}
-//	return (0);
-//}
 
 
 
@@ -327,6 +308,7 @@ int main(int ac, char **av)
 	//ft_del_all("exit\n");
 
 	t_part part;
+	ft_bzero(&part, sizeof(t_part));
 	ft_arr_add(g_parts, (void *)&part);
 	//ft_create_new_area_of_water(g_parts, &((t_point){99, 99, 98}), &((t_point){99, 99, 99}), WATER);
 
@@ -349,6 +331,7 @@ int main(int ac, char **av)
 	ft_init_buffers(&(g_cl->buff[INTERFACE]), g_iparts);
 	ft_init_buffers(&(g_cl->buff[CELL_MAPS]), g_cell_map);
 	ft_init_buffers(&(g_cl->buff[NEIGHS]), g_neighs);
+	ft_init_buffers(&(g_cl->buff[PARAMS]), g_cl_prop);
 
 	ft_create_all_buffers(g_cl);
 
@@ -364,10 +347,5 @@ int main(int ac, char **av)
 
 	ft_init_hooks(vis);
 	mlx_loop(vis->mlx);
-//	mlx_hook(vis->win, 2, 0, deal_key, (void *)&(vis->param));
-//	mlx_loop_hook(vis->mlx, loop_hook, (void *)vis);
-//	mlx_mouse_hook(vis->win, mouse_hook, (void *)vis);
-//	mlx_loop(vis->mlx);
-
 	return (0);
 }

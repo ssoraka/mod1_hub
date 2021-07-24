@@ -20,16 +20,22 @@ __kernel void up_part_in_cell(__global t_cell_map *cell)
 
 	c_gid = get_global_id(0);
 	if (cell[c_gid].obstacle != 0 || cell[c_gid].full == 0)
+	{
+		cell[c_gid].full = 0;
 		return;
+	}
+
 	last = 0;
 	i = 0;
-	while (i < 27)
+	while (i < CELL_MAP_SIZE)
 	{
 		if (cell[c_gid].index[i] != -1)
 		{
-			cell[c_gid].index[last] = cell[c_gid].index[i];
 			if (i != last)
+			{
+				cell[c_gid].index[last] = cell[c_gid].index[i];
 				cell[c_gid].index[i] = -1;
+			}
 			last++;
 		}
 		i++;

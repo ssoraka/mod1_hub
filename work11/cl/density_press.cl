@@ -12,7 +12,7 @@
 
 #include "./includes/ft_cl.h"
 
-__kernel	void density_press(__global t_part *p, __global t_neighs *n)
+__kernel	void density_press(__global t_part *p, __global t_neighs *n, __global t_cl_prop *params)
 {
 	int i;
 	int j;
@@ -21,17 +21,20 @@ __kernel	void density_press(__global t_part *p, __global t_neighs *n)
 	REAL density;
 	REAL d_density;
 	t_dpoint d_speed;
-
+	REAL m_j;
 
 	i = get_global_id(0);
 
 	//определяем плотность
 
-	density = PART_MASS_0;
+
+	density = params->f[p[i].type].m;
 	num = 0;
 	while (num < n[i].count)
 	{
-		density += PART_MASS_0 * n[i].j[num].w_ij;
+		j = n[i].j[num].j;
+		m_j = params->f[p[j].type].m;
+		density += m_j * n[i].j[num].w_ij;
 		num++;
 	}
 
@@ -53,7 +56,8 @@ __kernel	void density_press(__global t_part *p, __global t_neighs *n)
 			d_speed.z * n[i].j[num].nabla_w_ij.z;
 
 		n[i].j[num].u_ij = d_speed;
-		d_density += PART_MASS_0 * tmp;
+		m_j = params->f[p[j].type].m;
+		d_density += m_j * tmp;
 		num++;
 	}
 
@@ -62,7 +66,9 @@ __kernel	void density_press(__global t_part *p, __global t_neighs *n)
 	density += d_density * D_TIME;
 	p[i].density = density;
 
-	p[i].press = PRESS_G * (pow(density / DENSITY_0, GAMMA) - 1.0);
+	REAL density_0 = params->f[p[i].type].dens;
+	REAL press_g = params->f[p[i].type].p;
+	p[i].press = press_g * (pow(density / density_0, GAMMA) - 1.0);
 	if (p[i].press < 0.0)
 		p[i].press = 0.0;
 }

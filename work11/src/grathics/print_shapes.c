@@ -133,7 +133,7 @@ t_bool	print_img_to_img(t_pict *pic, t_point *center, t_shape *shape)
 	int		y;
 
 	shift = shape->pic->size_line / 2;
-	from = shape->pic;
+	from = shape->pic + shape->params.index;
 	ft_init_shape(shape, POINT, shape->params);
 	y = -1;
 	while (++y < from->size_line)

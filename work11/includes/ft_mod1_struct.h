@@ -126,7 +126,7 @@ typedef struct		s_vis
 {
 	struct s_param	param;
 	struct s_pict	pic;
-	struct s_pict	pict;
+	struct s_pict	fluids[FLUIDS];
 	void			*mlx;
 	void			*win;
 }					t_vis;

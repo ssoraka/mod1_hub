@@ -84,6 +84,6 @@ void	ft_prepare_plgn_for_printing(t_plgn *plgn, t_param *param)
 	plgn->rot_n = ft_rot_dpoint(&plgn->n, &param->oxyz);
 	plgn->cos = ft_vekt_cos(plgn->rot_n, param->light);
 	if (plgn->cos < 0.0)
-		plgn->cos *= -1.0;
-	plgn->cos = plgn->cos * 0.3 + 0.7;
+		plgn->cos = 0.0;
+	plgn->cos = plgn->cos * 0.7 + 0.3;
 }

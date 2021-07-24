@@ -21,11 +21,16 @@ void	ft_init_variable(void)
 	g_cl = NULL;
 }
 
-void	ft_init_delta_xyz(void)
+void	init_cl_properties(void)
 {
-	g.x = CONST_GX;
-	g.y = CONST_GY;
-	g.z = CONST_GZ;
+	t_cl_prop	g_prop;
+
+	g_prop.g = (t_dpoint){CONST_GY, CONST_GX, CONST_GZ};
+	g_prop.f[WATER] = (t_fluid){WATER_COLOR, 3, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0000.0};
+	g_prop.f[MAGMA] = (t_fluid){MAGMA_COLOR, 5, PART_H, 120.0, PART_MASS_0 * 10.0, 2200000000.0, 10000.0, 2000.0};
+	if (!(g_cl_prop = ft_create_arr(sizeof(t_cl_prop), 1, NULL)))
+		ft_del_all(NULL);
+	ft_arr_add(g_cl_prop, &g_prop);
 }
 
 void	ft_init_parts_arr_and_cell(void)
@@ -35,9 +40,11 @@ void	ft_init_parts_arr_and_cell(void)
 		ft_del_all(NULL);
 	if (!(g_parts = ft_init_all_clear_parts()))
 		ft_del_all(NULL);
-	if (!(g_neighs = ft_create_arr(sizeof(t_neighs), 1, NULL)))
+	if (!(g_neighs = ft_create_arr(sizeof(t_neighs), g_parts->elems_count, NULL)))
 		ft_del_all(NULL);
 	if (!(g_iparts = ft_create_arr(sizeof(t_ipart), g_parts->elems_count, NULL)))
+		ft_del_all(NULL);
+	if (!(g_iparts_copy = ft_create_arr(sizeof(t_ipart), g_parts->elems_count, NULL)))
 		ft_del_all(NULL);
 	if (!(g_cell = ft_create_arr(sizeof(t_cell), CELL_COUNT, NULL)))
 		ft_del_all(NULL);
@@ -59,8 +66,8 @@ void	ft_init_parts_arr_and_cell(void)
 void	ft_initialization_of_global_variable(void)
 {
 	ft_init_variable();
-	ft_init_delta_xyz();
 	ft_init_parts_arr_and_cell();
+	init_cl_properties();
 }
 
 
@@ -75,8 +82,10 @@ void	ft_del_all(char *message)
 	ft_del_arr(&g_parts);
 	ft_del_arr(&g_neighs);
 	ft_del_arr(&g_iparts);
+	ft_del_arr(&g_iparts_copy);
 	ft_del_arr(&g_cell);
 	ft_del_arr(&g_cell_map);
+	ft_del_arr(&g_cl_prop);
 	ft_del_earth(&g_earth);
 	ft_mem_arr_free((void ***)(&ground));
 	ft_free_open_cl(&g_cl);

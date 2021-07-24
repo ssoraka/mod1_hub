@@ -22,6 +22,7 @@ typedef enum	e_buf
 	PARTS, //буффер для частиц
 	INTERFACE, //буфер для ответа с положением частиц
 	NEIGHS, //буфер хешмап
+	PARAMS, //буфер глобальных параметров
 	BUFFER_COUNT
 }				t_buf;
 

@@ -121,7 +121,9 @@ int		deal_key(int key, void *parameters)
 	else if (key == KEY_P)
 		param->pause = !param->pause;
 	else if (key == KEY_R)
-		param->rain = NEED_STOP_PRINT_FOR_RAIN;
+		param->rain = WATER;
+	else if (key == KEY_T)
+		param->rain = MAGMA;
 	else if (key == KEY_O)
 		param->is_smooth_relief = !param->is_smooth_relief;
 	else if (key == KEY_I)

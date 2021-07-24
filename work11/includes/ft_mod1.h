@@ -74,6 +74,7 @@
 #define TEST_WATER_WALL 0
 //#define MAP_HEIGTH 50
 #define WATER_COLOR 0xFFFF
+#define MAGMA_COLOR 0xFF0000
 #define OBSTACLES_TOP_COLOR 0x704214
 #define OBSTACLES_FRONT_COLOR 0x5b432d
 //#define OBSTACLES_RIGHT_COLOR 0xFF
@@ -121,11 +122,16 @@
 
 int		**ground;
 
+typedef pthread_mutex_t	t_mut;
+t_mut	g_mutex;
+
 t_arr	*g_cell;
 t_arr	*g_parts;
 t_arr	*g_iparts;
+t_arr	*g_iparts_copy;
 t_arr	*g_cell_map;
 t_arr	*g_neighs;
+t_arr	*g_cl_prop;
 
 t_open_cl	*g_cl;
 t_earth *g_earth;
@@ -152,18 +158,6 @@ t_solver solver;
 #define DEFAULT_POINT	( PIXEL | INDEX | CHECK_Z_BUFFER | MARK_Z_BUFFER )
 #define DEFAULT_IMAGE	( PIXEL | CHECK_Z_BUFFER | MARK_Z_BUFFER )
 
-typedef enum	e_fluids
-{
-	//EMPTY = 0,
-	WATER = 1,
-	WATER2,
-	MAGMA,
-	MAGMA2,
-	BLOB,
-	OBSTCL,
-	FLUIDS
-}				t_fluids;
-
 typedef enum	e_print
 {
 	COLOR = 1,
@@ -183,13 +177,6 @@ typedef enum	e_column
 	F_Y_SPEED,
 	COLUMN_COUNT
 }				t_column;
-
-typedef enum	e_rain
-{
-	RAIN_FALSE,
-	NEED_STOP_PRINT_FOR_RAIN,
-	RAIN_ACTIVATE,
-}				t_rain;
 
 typedef enum	e_form
 {
@@ -326,10 +313,10 @@ void	ft_rotate_xyz_around_v(t_oxyz *oxyz, t_dpoint *v, double ang);
 */
 void	ft_create_new_water_in_cell(void *param, int j, int i, int k);
 void	ft_del_part(t_part **begin);
-t_part	*ft_new_part(t_dpoint *p, int type);
-t_part	*ft_add_part(void *ptr, t_dpoint *p, int type);
+t_part	*ft_new_part(t_dpoint *p, t_fluids type);
+t_part	*ft_add_part(void *ptr, t_dpoint *p, t_fluids type);
 t_arr	*ft_init_all_clear_parts(void);
-void	ft_create_new_area_of_water(t_arr *parts, t_point *start, t_point *end, int type);
+void	ft_create_new_area_of_water(t_arr *parts, t_point *start, t_point *end, t_fluids type);
 void	ft_fill_interface(t_arr *parts, t_arr *iparts);
 int		ft_del_unused_part(void *elem, void *param);
 /*

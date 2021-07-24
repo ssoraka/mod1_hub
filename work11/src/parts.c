@@ -27,18 +27,17 @@ t_arr	*ft_init_all_clear_parts(void)
 	return (parts);
 }
 
-void	ft_fill_part(t_part *part, t_dpoint *p, int type)
+void	ft_fill_part(t_part *part, t_dpoint *p, t_fluids type)
 {
 	if (!part || !p)
 		return ;
 	ft_fill_point(&(part->jik), (int)p->y + 0, (int)p->x + 0, (int)p->z + 0);
 	ft_fill_dpoint(&(part->pos), p->y, p->x, p->z);
 	part->type = type;
-	part->speed.y = g_param[part->type][F_Y_SPEED];
 }
 
 
-void	ft_create_new_water_in_area(t_arr *p_arr, t_dpoint *start, t_point *end, int type)
+void	ft_create_new_water_in_area(t_arr *p_arr, t_dpoint *start, t_point *end, t_fluids type)
 {
 	REAL i;
 	REAL k;
@@ -66,7 +65,7 @@ void	ft_create_new_water_in_area(t_arr *p_arr, t_dpoint *start, t_point *end, in
 }
 
 
-void	ft_create_new_area_of_water(t_arr *parts, t_point *start, t_point *end, int type)
+void	ft_create_new_area_of_water(t_arr *parts, t_point *start, t_point *end, t_fluids type)
 {
 	t_dpoint tmp;
 	int n;

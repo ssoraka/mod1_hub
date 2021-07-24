@@ -12,7 +12,6 @@
 
 #include "./includes/ft_cl.h"
 
-t_dpoint	ft_len(t_dpoint pos1, t_dpoint pos2);
 int			ft_get_cell_index(int j, int i, int k);
 REAL		ft_kernel_function(REAL h, REAL r);
 REAL		ft_derivative_kernel_function(REAL h, REAL r);
@@ -91,14 +90,6 @@ void		ft_find_neighbor_in_cell(__global t_part *p, __global t_neighs *n, int i, 
 	n[i].count++;
 }
 
-t_dpoint		ft_len(t_dpoint pos1, t_dpoint pos2)
-{
-	t_dpoint v;
-
-	v = (t_dpoint){pos1.y - pos2.y, pos1.x - pos2.x, pos1.z - pos2.z};
-	return (v);
-}
-
 __kernel	void find_neighbors(__global t_part *part, __global t_cell_map *cell, __global t_neighs *neigh)
 {
 	// получаем текущий id.
@@ -130,7 +121,7 @@ __kernel	void find_neighbors(__global t_part *part, __global t_cell_map *cell, _
 			while (k <= pos.z + 1)
 			{
 				c_gid = ft_get_cell_index(j, i, k);
-				if (cell[c_gid].obstacle == 0 && cell[c_gid].full == 1)
+				if (cell[c_gid].full == 1)
 				{
 					n = 0;
 					while ((j_gid = cell[c_gid].index[n]) != -1)

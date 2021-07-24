@@ -29,9 +29,9 @@ int		ft_get_arr_index(t_dpoint pos)
 	int i;
 	int k;
 
-	j = (int)((pos.y - (int)pos.y) / 0.35);
-	i = (int)((pos.x - (int)pos.x) / 0.35);
-	k = (int)((pos.z - (int)pos.z) / 0.35);
+	j = (int)((pos.y - (int)pos.y) / 0.334);
+	i = (int)((pos.x - (int)pos.x) / 0.334);
+	k = (int)((pos.z - (int)pos.z) / 0.334);
 
 	return (j * (3 * 3) + i * (3) + k);
 }

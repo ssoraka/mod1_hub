@@ -12,7 +12,7 @@
 
 #include "./includes/ft_cl.h"
 
-__kernel	void delta_speed(__global t_part *p, __global t_neighs *n)
+__kernel	void delta_speed(__global t_part *p, __global t_neighs *n, __global t_cl_prop *params)
 {
 	int i;
 	int j;
@@ -23,16 +23,20 @@ __kernel	void delta_speed(__global t_part *p, __global t_neighs *n)
 	REAL mu_ij;
 	REAL h_ij;
 	REAL tmp;
+	REAL m_j;
 	t_dpoint speed;
 	t_dpoint r_ij;
 	t_dpoint u_ij;
 	t_dpoint a;
+	t_dpoint g;
+	REAL viscosity;
 
 
 	i = get_global_id(0);
 
 	//определяем ускорение
 
+	viscosity = params->f[p[i].type].vis;
 	a = (t_dpoint){0.0, 0.0, 0.0};
 	num = 0;
 	while (num < n[i].count)
@@ -48,7 +52,7 @@ __kernel	void delta_speed(__global t_part *p, __global t_neighs *n)
 			(r_ij.y * r_ij.y + r_ij.x * r_ij.x + r_ij.z * r_ij.z +
 			CONST_E * CONST_E * h_ij * h_ij);
 
-		tmp = 4 * VISCOSITY * mu_ij / (p[i].density + p[j].density);
+		tmp = 4 * viscosity * mu_ij / (p[i].density + p[j].density);
 
 		press_ij = (p[i].press + p[j].press) * 0.5;
 		if (press_ij > 0.0)
@@ -64,18 +68,20 @@ __kernel	void delta_speed(__global t_part *p, __global t_neighs *n)
 
 		}
 
-		a.y += PART_MASS_0 * tmp * n[i].j[num].nabla_w_ij.y;
-		a.x += PART_MASS_0 * tmp * n[i].j[num].nabla_w_ij.x;
-		a.z += PART_MASS_0 * tmp * n[i].j[num].nabla_w_ij.z;
+		m_j = params->f[p[j].type].m;
+		a.y += m_j * tmp * n[i].j[num].nabla_w_ij.y;
+		a.x += m_j * tmp * n[i].j[num].nabla_w_ij.x;
+		a.z += m_j * tmp * n[i].j[num].nabla_w_ij.z;
 
 		num++;
 	}
 
+	g = params->g;
 	//определяем новую скорость
 	speed = p[i].speed;
-	speed.y += (a.y + CONST_GY) * D_TIME;
-	speed.x += (a.x + CONST_GX) * D_TIME;
-	speed.z += (a.z + CONST_GZ) * D_TIME;
+	speed.y += (a.y + g.y) * D_TIME;
+	speed.x += (a.x + g.x) * D_TIME;
+	speed.z += (a.z + g.z) * D_TIME;
 
 	tmp = 0.10 * SPEED_OF_SOUND_C / sqrt(speed.y * speed.y + speed.x * speed.x + speed.z * speed.z);
 	if (tmp < 1.0)

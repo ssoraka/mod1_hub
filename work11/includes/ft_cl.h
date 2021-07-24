@@ -60,6 +60,14 @@
 //коэффициент влияния
 #define CONST_EP 0.3
 
+typedef enum	e_fluids
+{
+	NOTHING,
+	WATER,
+	MAGMA,
+	FLUIDS
+}				t_fluids;
+
 typedef double REAL;
 
 typedef struct		s_point
@@ -85,7 +93,6 @@ typedef struct		s_neigh
 	struct s_dpoint	r_ij;
 	struct s_dpoint	u_ij;
 	struct s_dpoint	nabla_w_ij;
-	//struct s_part	*part_j;
 }					t_neigh;
 
 typedef struct		s_neighs
@@ -107,21 +114,40 @@ typedef struct		s_part
 
 typedef struct		s_cell_map
 {
-	int				obstacle;
-	int				full;
+	short			obstacle;
+	short			full;
 	int				index[CELL_MAP_SIZE];
 }					t_cell_map;
 
 typedef struct		s_cell
 {
-	int				obstacle;
-	int				water;
+	char			obstacle;
+	char			water;
 }					t_cell;
 
 typedef struct		s_ipart
 {
-	int				type;
+	short			type;
+	short			is_surface;
 	struct s_dpoint	pos;
 }					t_ipart;
+
+typedef struct		s_fluid
+{
+	int				color;
+	int				size;
+	REAL			h;
+	REAL			c;
+	REAL			m;
+	REAL			p;
+	REAL			dens;
+	REAL			vis;
+}					t_fluid;
+
+typedef struct		s_cl_prop
+{
+	struct s_fluid	f[FLUIDS];
+	struct s_dpoint	g;
+}					t_cl_prop;
 
 #endif
