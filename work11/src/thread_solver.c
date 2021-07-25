@@ -42,9 +42,6 @@ void	ft_add_new_water(t_open_cl *cl, t_param *param)
 	//создаем новую воду
 	if (!ft_read_buffers(cl, PARTS, CL_TRUE))
 		ft_del_all("read error\n");
-	//для удаления застрявших частиц
-	//ft_del_elems_if(cl->buff[PARTS].arr, &ft_del_unused_part, NULL);
-	//создаем новую воду
 	p = param->water;
 	brush = param->brush;
 	ft_fill_point(&start, p.y - brush, p.x - brush, p.z - brush);
@@ -90,24 +87,3 @@ void	*ft_solver(void *param)
 	pthread_exit(0);
 	return (NULL);
 }
-
-
-
-/*
- *
- * clear_cell time 2869 global ws 5746
- * find_neighbors time 4034 global ws 8026
- * find_neighbors time 10144 global ws 8026
- * delta_speed time 1736 global ws 8026
- * delta_coord time 2418 global ws 8026
- * find_neighbors time 2591 global ws 8026
- * find_neighbors time 3411 global ws 8026
- * find_neighbors time 9578 global ws 8026
- * clear_cell time 2410 global ws 8026
- * delta_speed time 4546 global ws 8026
- * find_neighbors time 10160 global ws 8026
- * density_press time 10104 global ws 8026
- * find_neighbors time 5118 global ws 8026
- *
- * up_part_in_cell time 6877 global ws 124848
- */

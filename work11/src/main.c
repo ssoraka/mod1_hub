@@ -12,12 +12,6 @@
 
 #include "../includes/ft_mod1.h"
 
-
-//
-// надо в сигнатуру ft_print_plgn(t_plgn *plgn, t_pict *pic, int grad, REAL cos)
-// с углом нормали к свету
-//
-
 t_mut	g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 t_prog    g_compile[PROGRAMS_COUNT + 10] =
@@ -33,29 +27,6 @@ t_prog    g_compile[PROGRAMS_COUNT + 10] =
 	{"./cl/print_parts.cl", "print_parts", 2, {PARTS, -1, -1}}, //надо бы это в сунуть в другую функцию...
 	{"", "", 0, {-1, -1, -1}}
 };
-
-//REAL	g_param[FLUIDS][COLUMN_COUNT] =
-//{
-//	{FLUID, F_H, F_C, F_MASS, F_PRESS, F_DENS, F_VIS, F_Y_SPEED},
-//	{WATER, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0000.0, 00.0},
-//	{WATER2, PART_H, 120.0, PART_MASS_0 * 0.50, 22000.0, 500.0, 0000.0, 00.0},
-//	{MAGMA, PART_H, 120.0, PART_MASS_0 * 1.0, 220000000.0, 1000.0, 00.0, -10.0},
-//	{MAGMA2, PART_H, 120.0, PART_MASS_0 * 10.0, 2200000000.0, 10000.0, 2000.0, 0.0},
-//	{BLOB, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0.0, -20.0},
-//	{OBSTCL, PART_H, 120.0, PART_MASS_0, 220000000.0, 1000.0, 0000.0, 00.0}
-//};
-//
-//int	g_color[FLUIDS][COLUMN_COUNT2] =
-//{
-//	{FLUID, COLOR, RADIUS2},
-//	{WATER, WATER_COLOR, 3},
-//	{WATER2, 0xFFFFFF, 3},
-//	{MAGMA, 0xFF0000, 5},
-//	{MAGMA2, OBSTACLES_TOP_COLOR, 5},
-//	{BLOB, 0xFFFFFF, 3},
-//	{OBSTCL, OBSTACLES_TOP_COLOR, 5},
-//};
-
 
 /*
  * todo сделать сериаализацию
@@ -91,7 +62,6 @@ void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start
 		j += delta.y;
 	}
 }
-
 
 void	ft_fill_picture(t_pict *pict, int color)
 {
@@ -216,6 +186,8 @@ void	ft_prepare_one_buffer(t_buff *buff)
 
 void	ft_init_buffers(t_buff *buff, t_arr *arr)
 {
+	if (!arr->elems_used)
+		arr->elems_used = 1;
 	buff->arr = arr;
 	buff->g_work_size = &(arr->elems_used);
 	ft_prepare_one_buffer(buff);
@@ -254,28 +226,9 @@ int loop_hook(void *parameters)
 	if (!ft_copy_arrs(g_iparts_copy, g_cl->buff[INTERFACE].arr))
 		ft_del_all("read error\n");
 	pthread_mutex_unlock(&g_mutex);
-
 	ft_refresh_picture(vis);
-
-//	printf("%ld\n", clock() - g_clock);
-//	g_clock = clock();
 	return (0);
 }
-
-
-
-
-
-void	ft_fill_heighbors(t_arr *parts, t_arr *neighs)
-{
-	t_neighs n;
-	int i;
-
-	i = 0;
-	while (neighs->elems_used < parts->elems_used)
-		ft_arr_add(neighs, (void *)&n);
-}
-
 
 
 int main(int ac, char **av)
@@ -305,23 +258,14 @@ int main(int ac, char **av)
 	//ft_create_relief(vis, comlex_ground);
 	ft_create_relief2(g_earth, comlex_ground);
 	//ft_create_points_in_cells(vis);
-	//ft_del_all("exit\n");
 
 	t_part part;
 	ft_bzero(&part, sizeof(t_part));
 	ft_arr_add(g_parts, (void *)&part);
-	//ft_create_new_area_of_water(g_parts, &((t_point){99, 99, 98}), &((t_point){99, 99, 99}), WATER);
-
-//	ft_create_new_area_of_water(g_parts, &((t_point){2, 2, 2}), &((t_point){JMAX - 20, 11, KMAX - 1}), WATER);
-//	ft_create_new_area_of_water(g_parts, &((t_point){2, IMAX - 11, 2}), &((t_point){JMAX - 20, IMAX - 1, KMAX - 1}), MAGMA);
 
 
-	//ft_create_new_area_of_water(g_parts, &((t_point){JMAX - 12, IMAX / 2 - 7, KMAX / 2 - 7}), &((t_point){JMAX - 1, IMAX / 2 + 7, KMAX / 2 + 7}), MAGMA);
-	//ft_create_new_area_of_water(g_parts, &((t_point){1, 2, 2}), &((t_point){7, IMAX - 1, KMAX - 1}), WATER);
-
-
-	ft_fill_interface(g_parts, g_iparts);
-	ft_fill_heighbors(g_parts, g_neighs);
+//	ft_fill_interface(g_parts, g_iparts);
+//	ft_fill_heighbors(g_parts, g_neighs);
 
 
 	//создаем буферы и копируем в них инфу
@@ -341,9 +285,7 @@ int main(int ac, char **av)
 	if (!ft_set_kernel_arg(g_cl, g_compile))
 		ft_del_all("set error\n");
 
-
 	ft_create_thread_for_solver(&solver, g_cl, &(vis->param), g_compile);
-	//g_clock = clock();
 
 	ft_init_hooks(vis);
 	mlx_loop(vis->mlx);

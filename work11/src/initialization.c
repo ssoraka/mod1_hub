@@ -38,13 +38,13 @@ void	ft_init_parts_arr_and_cell(void)
 	ft_bzero((void *)&solver, sizeof(t_solver));
 	if (!(vis = ft_create_mlx(CONST_WIDTH, CONST_HEINTH, "mod1")))
 		ft_del_all(NULL);
-	if (!(g_parts = ft_init_all_clear_parts()))
+	if (!(g_parts = ft_create_arr(sizeof(t_part), 16, NULL)))
 		ft_del_all(NULL);
-	if (!(g_neighs = ft_create_arr(sizeof(t_neighs), g_parts->elems_count, NULL)))
+	if (!(g_neighs = ft_create_arr(sizeof(t_neighs), 16, NULL)))
 		ft_del_all(NULL);
-	if (!(g_iparts = ft_create_arr(sizeof(t_ipart), g_parts->elems_count, NULL)))
+	if (!(g_iparts = ft_create_arr(sizeof(t_ipart), 16, NULL)))
 		ft_del_all(NULL);
-	if (!(g_iparts_copy = ft_create_arr(sizeof(t_ipart), g_parts->elems_count, NULL)))
+	if (!(g_iparts_copy = ft_create_arr(sizeof(t_ipart), 16, NULL)))
 		ft_del_all(NULL);
 	if (!(g_cell = ft_create_arr(sizeof(t_cell), CELL_COUNT, NULL)))
 		ft_del_all(NULL);

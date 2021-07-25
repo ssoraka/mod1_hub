@@ -61,9 +61,6 @@ int		ft_find_point(t_map *map, char **args)
 	return (TRUE);
 }
 
-
-
-
 int		ft_find_points(t_map *map, char **arr)
 {
 	char	**tmp;
@@ -85,8 +82,6 @@ int		ft_find_points(t_map *map, char **arr)
 	return (TRUE);
 }
 
-
-
 void	ft_create_first_and_last_points(t_map *map)
 {
 	int delta_y;
@@ -107,8 +102,6 @@ void	ft_create_first_and_last_points(t_map *map)
 	((map->p_min.z + map->p_max.z) - delta * (KMAX + K0)) / 2);
 }
 
-
-
 REAL	ft_sigmoida(int i, int k)
 {
 	REAL answer;
@@ -122,6 +115,10 @@ REAL	ft_sigmoida(int i, int k)
 	return (answer);
 }
 
+/*
+** 	2.0 - отвечает за пологость, 0,8 - защита от касания гор потолка
+*/
+
 void	ft_superposition2(t_map *map, int i, int k)
 {
 	double e;
@@ -133,7 +130,6 @@ void	ft_superposition2(t_map *map, int i, int k)
 	e = 0;
 	all_dist = 0;
 	num = 0;
-	//2.0 - отвечает за пологость, 0,8 - защита от касания гор потолка
 	sigma = map->delta * map->delta * ft_max(IMAX, KMAX);
 	while (num < map->count)
 	{
@@ -146,7 +142,6 @@ void	ft_superposition2(t_map *map, int i, int k)
 	map->arr[k][i] += (int)((e * ft_sigmoida(i, k)) * MAP_HEIGTH2
 	/ all_dist / (map->p_max.y - map->p_min.y));
 }
-
 
 void	ft_fill_map_arr(t_map *map)
 {
@@ -168,7 +163,6 @@ void	ft_fill_map_arr(t_map *map)
 	}
 }
 
-
 int		**ft_create_map(t_map *map)
 {
 	map->arr = NULL;
@@ -178,7 +172,6 @@ int		**ft_create_map(t_map *map)
 	ft_fill_map_arr(map);
 	return (map->arr);
 }
-
 
 int		**ft_read_ground_from_file3(char *name)
 {

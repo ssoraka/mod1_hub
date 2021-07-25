@@ -21,7 +21,6 @@
 
 #define MAX_BRUSH (IMAX / 2)
 
-
 int		ft_rotate_and_csale(t_param *param, int key)
 {
 	if ((key == KEY_PLUS || key == 69) && param->len < MAX_SCALE)
@@ -129,12 +128,11 @@ int		deal_key(int key, void *parameters)
 	else if (key == KEY_I)
 	{
 		param->is_need_print_obstacles = !param->is_need_print_obstacles;
-		if (param->is_need_print_obstacles) //возможно следует изменить эту херь
-			param->need_refresh = TRUE;
+		param->need_refresh = TRUE;
 	}
 	else if (key == KEY_G)
 		param->grad = !param->grad;
-	printf("\n%d\n", key);
+	printf("%d\n", key);
 	return (0);
 }
 

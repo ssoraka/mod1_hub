@@ -51,7 +51,7 @@ FILES = grathics/color_interpolation.c	grathics/picture.c \
 		open_cl/open_cl_buffers.c open_cl/open_cl_free.c \
 		open_cl/open_cl_init.c open_cl/open_cl_read_build_run.c \
 		ground.c initialization.c \
-		 main.c map.c parts.c \
+		main.c map.c parts.c \
 		rotate.c cells.c thread_solver.c earth.c
 
 SRC		= $(addprefix $(PATH_SRC)/,$(FILES))

@@ -15,18 +15,6 @@
 # define MAX_NEIGHBORS 32
 # define DELTA_H 0.78
 
-
-
-t_arr	*ft_init_all_clear_parts(void)
-{
-	t_arr *parts;
-
-	parts = ft_create_arr(sizeof(t_part), 16, NULL);
-	if (!parts)
-		ft_del_all("need more memory");
-	return (parts);
-}
-
 void	ft_fill_part(t_part *part, t_dpoint *p, t_fluids type)
 {
 	if (!part || !p)
@@ -35,7 +23,6 @@ void	ft_fill_part(t_part *part, t_dpoint *p, t_fluids type)
 	ft_fill_dpoint(&(part->pos), p->y, p->x, p->z);
 	part->type = type;
 }
-
 
 void	ft_create_new_water_in_area(t_arr *p_arr, t_dpoint *start, t_point *end, t_fluids type)
 {
@@ -64,7 +51,6 @@ void	ft_create_new_water_in_area(t_arr *p_arr, t_dpoint *start, t_point *end, t_
 	}
 }
 
-
 void	ft_create_new_area_of_water(t_arr *parts, t_point *start, t_point *end, t_fluids type)
 {
 	t_dpoint tmp;
@@ -82,26 +68,4 @@ void	ft_create_new_area_of_water(t_arr *parts, t_point *start, t_point *end, t_f
 		tmp.y += DELTA_H;
 		n++;
 	}
-}
-
-void	ft_fill_interface(t_arr *parts, t_arr *iparts)
-{
-	t_part *p;
-	t_ipart ip;
-	t_iter iter;
-
-	iter = get_arr_iter(parts);
-	while ((p = (t_part *)iter.get_next_elem(&iter)))
-	{
-		ip.pos = p->pos;
-		ip.type = p->type;
-		ft_arr_add(iparts, (void *)&ip);
-	}
-}
-
-int		ft_del_unused_part(void *elem, void *param)
-{
-	if (((t_part *)elem)->type == 0)
-		return (TRUE);
-	return (FALSE);
 }

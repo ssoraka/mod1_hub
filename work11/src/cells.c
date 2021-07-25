@@ -49,15 +49,8 @@ int		ft_is_cell_obstacle(int **ground, int cell_number)
 	k = cell.z;
 	if (j == J0 || i == IMAX || i == I0 || k == K0 || k == KMAX)
 		return (OBSTACLE);
-
-	// if (j == J0 + 1 && i == I0 + 1 && k == K0 + 1)
-	// 	return (OBSTACLE);
-	// return (FALSE);
-
 	if (j < J0 || j > JMAX || i > IMAX || i < I0 || k < K0 || k > KMAX)
 		return (FALSE);
-	//хотел исправить ground[k - 1][i - 1] на ground[k][i],
-	//но надо модуль map.c переписать
 	#ifdef EMPTY_MAP
 	if (j <= (int)ft_return_heigth(ground[k][i]))
 		return (OBSTACLE);
@@ -66,8 +59,6 @@ int		ft_is_cell_obstacle(int **ground, int cell_number)
 		return (DYNAMIC_OBSTACLE);
 	return (FALSE);
 }
-
-
 
 void	ft_fill_cells_from_ground(t_arr *cells, int **ground)
 {
@@ -110,7 +101,6 @@ int		ft_is_need_print_cell(t_arr *cells, int j, int i, int k)
 	return (TRUE);
 }
 
-
 void	ft_print_one_edge(t_vektr **p, t_pict *pic, t_prop prop, t_plgn *plgn)
 {
 	if (ft_vekt_cos(plgn->rot_n, (t_dpoint){0.0, 0.0, 1.0}) <= 0.0)
@@ -128,36 +118,28 @@ void	ft_print_one_edge(t_vektr **p, t_pict *pic, t_prop prop, t_plgn *plgn)
 	ft_print_plgn(plgn, pic, prop);
 }
 
-
-
 void	ft_fill_points_cell3(t_vektr *p8, t_vektr **p)
 {
 	p[0] = &p8[0];
 	p[1] = &p8[3];
 	p[2] = &p8[2];
 	p[3] = &p8[1];
-
 	p[4] = &p8[4];
 	p[5] = &p8[7];
 	p[6] = &p8[3];
 	p[7] = &p8[0];
-
 	p[8] = &p8[0];
 	p[9] = &p8[1];
 	p[10] = &p8[5];
 	p[11] = &p8[4];
-
 	p[12] = &p8[4];
 	p[13] = &p8[5];
 	p[14] = &p8[6];
 	p[15] = &p8[7];
-
-
 	p[16] = &p8[1];
 	p[17] = &p8[2];
 	p[18] = &p8[6];
 	p[19] = &p8[5];
-
 	p[20] = &p8[3];
 	p[21] = &p8[7];
 	p[22] = &p8[6];
@@ -174,7 +156,6 @@ void	ft_fill_points_cell2(t_point cell, t_vektr *p, t_param *param)
 	ft_fill_dpoint(&p[5].abs, cell.y, cell.x + 1, cell.z + 1);
 	ft_fill_dpoint(&p[6].abs, cell.y + 1, cell.x + 1, cell.z + 1);
 	ft_fill_dpoint(&p[7].abs, cell.y + 1, cell.x, cell.z + 1);
-
 	p[0].color = ft_grad_color(p[0].abs.y, JMAX - J0, COLOR_UP, COLOR_DOWN);
 	p[1].color = p[0].color;
 	p[2].color = ft_grad_color(p[2].abs.y, JMAX - J0, COLOR_UP, COLOR_DOWN);
@@ -183,7 +164,6 @@ void	ft_fill_points_cell2(t_point cell, t_vektr *p, t_param *param)
 	p[5].color = p[0].color;
 	p[6].color = p[2].color;
 	p[7].color = p[2].color;
-
 	ft_rotate_point_around_point(param, &p[0]);
 	ft_rotate_point_around_point(param, &p[1]);
 	ft_rotate_point_around_point(param, &p[2]);
