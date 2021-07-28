@@ -72,6 +72,7 @@ void	ft_init_hooks(t_vis *vis)
 
 	param = (void *)&vis->param;
 	win = vis->win;
+//	mlx_hook(win, 17, 0, deal_key, param); //закрытие окна
 	mlx_hook(win, KEY_PRESS, KEY_PRESS_MASK, deal_key, param);
 	mlx_hook(win, MOTION_NOTIFY, POINTER_MOTION_MASK, ft_mouse_move,
 			 (void *)vis);

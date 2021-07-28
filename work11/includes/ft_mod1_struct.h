@@ -98,6 +98,7 @@ typedef struct		s_param
 	int				is_water_change;
 	int				is_need_print_water;
 	int				need_refresh;
+	int				is_rotated;
 	int				grad;
 	double			len;
 
@@ -114,6 +115,7 @@ typedef struct		s_param
 	int				active_id;
 	struct s_vektr	centr;
 
+	struct s_dpoint	g;
 	struct s_dpoint	light;
 	struct s_dpoint	ang;
 	struct s_dpoint	cos;

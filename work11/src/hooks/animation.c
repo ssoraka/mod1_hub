@@ -59,8 +59,9 @@ int		ft_auto_rotate(t_param *param)
 	{
 		(param->rounds)--;
 		ft_fill_dpoint(&v, -param->rot_pos.x, param->rot_pos.y, 0.0);
-		ft_rotate_xyz_around_v(&param->oxyz, &v, ROTATE_ANGLE);
-		calc_light(param);
+//		ft_rotate_xyz_around_v(&param->oxyz, &v, ROTATE_ANGLE);
+//		calc_light(param);
+		ft_rotate_oxyz_around_v(param, &v, ROTATE_ANGLE);
 		return (TRUE);
 	}
 	return (FALSE);

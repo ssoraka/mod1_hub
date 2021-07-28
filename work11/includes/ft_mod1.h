@@ -52,7 +52,7 @@
 /*
 **	добавляем по 2 вершины между вершинами расчетной модели для сплайна
 */
-#define ADD_POINT 1
+#define ADD_POINT 4
 
 #define MAP_KOEF 0.7
 #define HEIGTH_KOEF 0.9
@@ -256,7 +256,8 @@ t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz);
 void	ft_ret_zoom_xyz(t_vektr *ox, t_param *vis);
 void	ft_change_points5(t_param *param, t_vektr *p);
 void	ft_rotate_point_around_point(t_param *param, t_vektr *p);
-void	calc_light(t_param *param);
+//void	calc_light(t_param *param);
+void	ft_rotate_oxyz_around_v(t_param *param, t_dpoint *v, REAL ang);
 
 /*
 **	images.c

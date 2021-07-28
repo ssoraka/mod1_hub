@@ -28,20 +28,26 @@ int		ft_rotate_and_csale(t_param *param, int key)
 	else if ((key == KEY_MINUS || key == 78) && param->len > MIN_SCALE)
 		param->len /= CAM_SCALE;
 	else if (key == KEY_Q)
-		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oz, M_PI / CAM_ROTATE);
+//		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oz, M_PI / CAM_ROTATE);
+		ft_rotate_oxyz_around_v(param, &param->oxyz.oz, M_PI / CAM_ROTATE);
 	else if (key == KEY_A)
-		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oz, -M_PI / CAM_ROTATE);
+		ft_rotate_oxyz_around_v(param, &param->oxyz.oz, -M_PI / CAM_ROTATE);
+//		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oz, -M_PI / CAM_ROTATE);
 	else if (key == KEY_W)
-		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oy, M_PI / CAM_ROTATE);
+		ft_rotate_oxyz_around_v(param, &param->oxyz.oy, M_PI / CAM_ROTATE);
+//		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oy, M_PI / CAM_ROTATE);
 	else if (key == KEY_S)
-		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oy, -M_PI / CAM_ROTATE);
+		ft_rotate_oxyz_around_v(param, &param->oxyz.oy, -M_PI / CAM_ROTATE);
+//		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oy, -M_PI / CAM_ROTATE);
 	else if (key == KEY_E)
-		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.ox, M_PI / CAM_ROTATE);
+		ft_rotate_oxyz_around_v(param, &param->oxyz.ox, M_PI / CAM_ROTATE);
+//		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.ox, M_PI / CAM_ROTATE);
 	else if (key == KEY_D)
-		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.ox, -M_PI / CAM_ROTATE);
+		ft_rotate_oxyz_around_v(param, &param->oxyz.ox, -M_PI / CAM_ROTATE);
+//		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.ox, -M_PI / CAM_ROTATE);
 	else
 		return (FALSE);
-	calc_light(param);
+//	calc_light(param);
 	return (TRUE);
 }
 

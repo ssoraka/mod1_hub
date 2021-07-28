@@ -32,6 +32,16 @@ void	ft_after_change_relief(t_open_cl *cl, t_param *param)
 	param->is_relief_changed = FALSE;
 }
 
+t_bool	del_elem(void *elem, void *param)
+{
+	t_part	*p;
+
+	(void)param;
+	p = (t_part *)elem;
+	return (p->pos.x < I0 || p->pos.y < J0 || p->pos.z < K0 ||
+			p->pos.x > IMAX || p->pos.y > JMAX || p->pos.z > KMAX);
+}
+
 void	ft_add_new_water(t_open_cl *cl, t_param *param)
 {
 	t_point start;
@@ -42,11 +52,13 @@ void	ft_add_new_water(t_open_cl *cl, t_param *param)
 	//создаем новую воду
 	if (!ft_read_buffers(cl, PARTS, CL_TRUE))
 		ft_del_all("read error\n");
+	ft_del_elems_if(cl->buff[PARTS].arr, &del_elem, NULL);
 	p = param->water;
 	brush = param->brush;
 	ft_fill_point(&start, p.y - brush, p.x - brush, p.z - brush);
 	ft_fill_point(&end, p.y + brush, p.x + brush, p.z + brush);
 	ft_create_new_area_of_water(cl->buff[PARTS].arr, &start, &end, param->rain);
+	ft_prepare_one_buffer(&(cl->buff[PARTS]));
 	//скопировать содержимое буфера в структуру
 	//уничтожить буфер
 
@@ -65,6 +77,12 @@ void	*ft_solver(void *param)
 	s = (t_solver *)param;
 	while (!s->param->exit)
 	{
+		if (s->param->is_rotated)
+		{
+			((t_cl_prop *)(s->cl->buff[PARAMS].arr->elems))->g = s->param->g;
+			ft_write_buffers(s->cl, PARAMS, CL_TRUE);
+			s->param->is_rotated = FALSE;
+		}
 		if (s->param->rain)
 		{
 			ft_add_new_water(s->cl, s->param);

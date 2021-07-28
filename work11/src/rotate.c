@@ -40,7 +40,6 @@ void	ft_rotate_vek_around_vek_by_ang(t_dpoint *ox, t_dpoint *oy, double ang)
 	ox->x = temp_x;
 	ox->y = temp_y;
 	ox->z = temp_z;
-	ft_normalize_vektor(ox);
 }
 
 t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz)
@@ -80,4 +79,20 @@ void	calc_light(t_param *param)
 	param->cos.y = ft_vekt_cos(param->oxyz.oy, param->light);
 	param->cos.x = ft_vekt_cos(param->oxyz.ox, param->light);
 	param->cos.z = ft_vekt_cos(param->oxyz.oz, param->light);
+}
+
+void	ft_rotate_oxyz_around_v(t_param *param, t_dpoint *v, REAL ang)
+{
+	t_dpoint g;
+	t_oxyz *oxyz;
+
+	oxyz = &param->oxyz;
+	ft_rotate_xyz_around_v(oxyz, v, ang);
+	ft_fill_dpoint(&g, CONST_G, 0, 0);
+	ft_fill_dpoint(&param->g,
+					ft_vekt_cos(oxyz->oy, g) * CONST_G,
+					ft_vekt_cos(oxyz->ox, g) * CONST_G,
+					ft_vekt_cos(oxyz->oz, g) * CONST_G);
+	calc_light(param);
+	param->is_rotated = TRUE;
 }

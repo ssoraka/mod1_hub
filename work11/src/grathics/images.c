@@ -36,8 +36,7 @@ void	ft_init_params(t_param *param)
 	ft_create_xyz(&(param->oxyz));
 	param->centr.zoom = (t_point){.x = CAM_X, .y = CAM_Y, .z = 0};
 	param->centr.abs = (t_dpoint){.x = IMAX / 2, .y = JMAX / 2, .z = KMAX / 2};
-	ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oz, M_PI);
-	calc_light(param);
+	ft_rotate_oxyz_around_v(param, &param->oxyz.oz, M_PI);
 	param->need_refresh = TRUE;
 }
 

@@ -53,6 +53,7 @@
 //коэффициент линнейной искусственной вязкости (0.02 - 0.03)
 #define CONST_A 0.00
 
+#define CONST_G 10.0
 #define CONST_GY -10.0
 #define CONST_GX 0.0
 #define CONST_GZ 0.0

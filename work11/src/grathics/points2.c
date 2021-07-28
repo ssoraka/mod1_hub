@@ -41,8 +41,11 @@ void		ft_get_perp_vekt_from_two(t_dpoint *answ, t_dpoint *a, t_dpoint *b)
 void		ft_rotate_xyz_around_v(t_oxyz *oxyz, t_dpoint *v, double ang)
 {
 	ft_rotate_vek_around_vek_by_ang(&(oxyz->oy), v, ang);
+	ft_normalize_vektor(&(oxyz->oy));
 	ft_rotate_vek_around_vek_by_ang(&(oxyz->ox), v, ang);
+	ft_normalize_vektor(&(oxyz->ox));
 	ft_rotate_vek_around_vek_by_ang(&(oxyz->oz), v, ang);
+	ft_normalize_vektor(&(oxyz->oz));
 	ft_get_perp_vekt_from_two(&(oxyz->oz), &(oxyz->ox), &(oxyz->oy));
 	ft_get_perp_vekt_from_two(&(oxyz->oy), &(oxyz->oz), &(oxyz->ox));
 }
