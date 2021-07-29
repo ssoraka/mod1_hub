@@ -12,8 +12,6 @@
 
 #include "../includes/ft_mod1.h"
 
-#define CUBE_LEN 9
-
 void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param, t_prog *compile)
 {
 	solver->cl = cl;
@@ -23,31 +21,12 @@ void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param
 	pthread_create(&(solver->tid), &(solver->attr), ft_solver, (void *)solver);
 }
 
-void	ft_after_change_relief(t_open_cl *cl, t_param *param)
-{
-	if (!param->is_relief_changed)
-		return ;
-	if (!ft_write_buffers(cl, CELLS, CL_TRUE))
-		ft_del_all("write in buffer error\n");
-	param->is_relief_changed = FALSE;
-}
-
-t_bool	del_elem(void *elem, void *param)
-{
-	t_part	*p;
-
-	(void)param;
-	p = (t_part *)elem;
-	return (p->pos.x < I0 || p->pos.y < J0 || p->pos.z < K0 ||
-			p->pos.x > IMAX || p->pos.y > JMAX || p->pos.z > KMAX);
-}
-
 void	ft_add_new_water(t_open_cl *cl, t_param *param)
 {
-	t_point start;
-	t_point end;
-	t_point p;
-	int brush;
+	t_point	start;
+	t_point	end;
+	t_point	p;
+	int	brush;
 
 	//создаем новую воду
 	if (!ft_read_buffers(cl, PARTS, CL_TRUE))
@@ -70,9 +49,26 @@ void	ft_add_new_water(t_open_cl *cl, t_param *param)
 		ft_del_all("recreate buffer error\n");
 }
 
+void	ft_change_map(t_open_cl *cl, t_param *param, t_prog *compile)
+{
+	if (param->rain)
+	{
+		ft_add_new_water(cl, param);
+		if (!ft_set_kernel_arg(cl, compile))
+			ft_del_all("set error\n");
+		param->rain = NOTHING;
+	}
+	if (param->is_relief_changed)
+	{
+		if (!ft_write_buffers(cl, CELLS, CL_TRUE))
+			ft_del_all("write in buffer error\n");
+		param->is_relief_changed = FALSE;
+	}
+}
+
 void	*ft_solver(void *param)
 {
-	t_solver *s;
+	t_solver	*s;
 
 	s = (t_solver *)param;
 	while (!s->param->exit)
@@ -83,16 +79,9 @@ void	*ft_solver(void *param)
 			ft_write_buffers(s->cl, PARAMS, CL_TRUE);
 			s->param->is_rotated = FALSE;
 		}
-		if (s->param->rain)
-		{
-			ft_add_new_water(s->cl, s->param);
-			if (!ft_set_kernel_arg(s->cl, s->compile))
-				ft_del_all("set error\n");
-			s->param->rain = NOTHING;
-		}
+		ft_change_map(s->cl, s->param, s->compile);
 		if (!s->param->pause)
 		{
-			ft_after_change_relief(s->cl, s->param);
 			if (!ft_run_kernels(s->cl))
 				ft_del_all("run error\n");
 			pthread_mutex_lock(&g_mutex);

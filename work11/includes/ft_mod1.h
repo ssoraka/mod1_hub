@@ -469,5 +469,6 @@ int		ft_mouse_get_new_pos(int x, int y, t_param *param);
 void	ft_prepare_one_buffer(t_buff *buff);
 void	ft_init_buffers(t_buff *buff, t_arr *arr);
 t_bool	ft_copy_arrs(t_arr *dst, t_arr *src);
+t_bool	del_elem(void *elem, void *param);
 
 #endif

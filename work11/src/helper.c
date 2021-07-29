@@ -35,3 +35,13 @@ t_bool	ft_copy_arrs(t_arr *dst, t_arr *src)
 	ft_memcpy8(dst->elems, src->elems, dst->elem_size * dst->elems_used);
 	return (TRUE);
 }
+
+t_bool	del_elem(void *elem, void *param)
+{
+	t_part	*p;
+
+	(void)param;
+	p = (t_part *)elem;
+	return (p->pos.x < I0 || p->pos.y < J0 || p->pos.z < K0 ||
+	p->pos.x > IMAX || p->pos.y > JMAX || p->pos.z > KMAX);
+}
