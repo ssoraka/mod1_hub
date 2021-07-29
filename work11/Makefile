@@ -47,6 +47,8 @@ FILES = grathics/color_interpolation.c	grathics/picture.c \
 		grathics/points.c	grathics/points2.c	grathics/print_shapes.c \
 		grathics/images.c	grathics/lines_vektrs.c \
 		grathics/polygons.c	grathics/polygons2.c \
+		grathics/sprite.c	\
+		helper.c \
 		hooks/animation.c	hooks/mouse.c	hooks/keys.c	hooks/hooks.c \
 		open_cl/open_cl_buffers.c open_cl/open_cl_free.c \
 		open_cl/open_cl_init.c open_cl/open_cl_read_build_run.c \

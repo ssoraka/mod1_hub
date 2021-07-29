@@ -12,8 +12,6 @@
 
 #include "../includes/ft_mod1.h"
 
-t_mut	g_mutex = PTHREAD_MUTEX_INITIALIZER;
-
 t_prog    g_compile[PROGRAMS_COUNT + 10] =
 {
 	{"./cl/clear_cell.cl", "clear_cell", 2, {CELL_MAPS, CELLS, -1}},
@@ -29,10 +27,8 @@ t_prog    g_compile[PROGRAMS_COUNT + 10] =
 };
 
 /*
- * todo сделать сериаализацию
  * todo разобрать баг с замедлением (хз, что-то с размером группы или буффера)
  * todo попробовать сделать дождь и волны (на это забью)
- * todo сделать изменение осей гравитации
  */
 
 void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start, t_point *end)
@@ -63,65 +59,13 @@ void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start
 	}
 }
 
-void	ft_fill_picture(t_pict *pict, int color)
-{
-	int radius;
-	int x;
-	int y;
-	REAL len;
-
-	radius = pict->size_line / 2;
-	if (!radius)
-		radius++;
-	y = 0;
-	while (y < pict->size_line)
-	{
-		x = 0;
-		while (x < pict->size_line)
-		{
-			len = sqrt((radius - x) * (radius - x) + (radius - y) * (radius - y));
-			if (len <= radius)
-				pict->addr[y * pict->size_line + x] = ft_grad_color(radius - len, radius, color, 0);
-			x++;
-		}
-		y++;
-	}
-}
-
-void ft_init_picture(t_pict *pict, int diameter, int color)
-{
-	ft_bzero((void *)pict, sizeof(t_pict));
-
-	if (!(diameter % 2))
-		diameter++;
-	pict->size_line = diameter;
-	pict->addr = ft_memalloc(4 * diameter * (diameter + 1));
-	ft_fill_picture(pict, color);
-}
-
-//void	ft_print_all_water2(void *ptr, void *param)
-//{
-//	t_ipart *ipart;
-//	t_vis *vis;
-//	t_vektr vektr;
-//
-//	vis = (t_vis *)param;
-//	ipart = (t_ipart *)ptr;
-//	if (ipart->type >= FLUIDS)
-//		return ;
-//	ft_bzero((void *)&vektr, sizeof(t_vektr));
-//	ft_fill_dpoint(&vektr.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
-//	ft_rotate_point_around_point(&(vis->param), &vektr);
-//	ft_print_rect2(&(vis->pic), &(vektr.zoom), g_color[ipart->type][RADIUS2], g_color[ipart->type][COLOR]);
-//}
-
 void	print_img_as_water(t_arr *ipoints, t_vis *vis, t_pict *from)
 {
-	t_iter iter;
-	t_ipart *ipart;
-	t_shape printer;
-	t_pict *to;
-	t_vektr v;
+	t_iter	iter;
+	t_ipart	*ipart;
+	t_shape	printer;
+	t_pict	*to;
+	t_vektr	v;
 
 	ft_bzero((void *)&v, sizeof(t_vektr));
 	ft_init_shape(&printer, IMAGE, set_param(DEFAULT_IMAGE, DEFAULT_INDEX, WATER_COLOR));
@@ -138,69 +82,64 @@ void	print_img_as_water(t_arr *ipoints, t_vis *vis, t_pict *from)
 	}
 }
 
+// todo исправить смену цвета для магмы
+// todo добавить изменеие режима отображения для воды в виде точек
+// todo добавить включение и отключение изменения осей
+void	print_rect_as_water(t_arr *ipoints, t_vis *vis)
+{
+	t_iter	iter;
+	t_ipart	*ipart;
+	t_shape	printer;
+	t_pict	*to;
+	t_vektr	v;
+
+	ft_bzero((void *)&v, sizeof(t_vektr));
+	ft_init_shape(&printer, RECTANGLE, set_param(DEFAULT_IMAGE, WATER, WATER_COLOR));
+	printer.len = 3;
+	to = &vis->pic;
+	iter = get_arr_iter(ipoints);
+	while ((ipart = (t_ipart *)iter.get_next_elem(&iter)))
+	{
+		ft_fill_dpoint(&v.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
+		ft_rotate_point_around_point(&(vis->param), &v);
+		printer.params.color = (ipart->type == WATER) * WATER_COLOR | (ipart->type == MAGMA) * MAGMA_COLOR;
+		if (printer.params.index != NOTHING)
+			printer.print(to, &v.zoom, &printer);
+	}
+}
 
 void	ft_refresh_picture(t_vis *vis)
 {
 	mlx_clear_window(vis->mlx, vis->win);
 	ft_clear_image(&(vis->pic));
-
 	if (vis->param.is_water_change)
 	{
 		ft_move_water_cell(g_cell, &(vis->param));
 		vis->param.is_water_change = FALSE;
 	}
-
 	ft_print_relief(g_earth, g_cell, &(vis->pic), &(vis->param));
-
 	if (vis->param.is_need_print_water)
 		ft_print_water_cell(g_cell, &(vis->pic), &(vis->param));
-
-	//todo исправить это говно с буфферами
-	ft_init_picture(vis->fluids + WATER, vis->param.len, WATER_COLOR);
-	ft_init_picture(vis->fluids + MAGMA, vis->param.len, MAGMA_COLOR);
-//	ft_for_each_elem(g_iparts, print_img_to_img, (void *)vis);
+	if (vis->param.print_sprite == FALSE)
+	{
+		print_rect_as_water(g_iparts_copy, vis);
+		mlx_put_image_to_window(vis->mlx, vis->win, vis->pic.img, 0, 0);
+		return ;
+	}
+	if (!ft_init_picture(vis->fluids + WATER, vis->param.len, WATER_COLOR)
+	|| !ft_init_picture(vis->fluids + MAGMA, vis->param.len, MAGMA_COLOR))
+	{
+		ft_memdel((void **)&vis->fluids[WATER].addr);
+		ft_memdel((void **)&vis->fluids[MAGMA].addr);
+		ft_del_all("malloc error\n");
+	}
 	print_img_as_water(g_iparts_copy, vis, vis->fluids);
-	free((void *)vis->fluids[WATER].addr);
-	free((void *)vis->fluids[MAGMA].addr);
-
-	//ft_for_each_elem(g_iparts, ft_print_all_water2, (void *)vis);
-
+	ft_memdel((void **)&vis->fluids[WATER].addr);
+	ft_memdel((void **)&vis->fluids[MAGMA].addr);
 
 //	ft_memcpy((void *)vis->pic.addr, (void *)vis->pic.index, vis->pic.count_byte);
 
 	mlx_put_image_to_window(vis->mlx, vis->win, vis->pic.img, 0, 0);
-}
-
-void	ft_prepare_one_buffer(t_buff *buff)
-{
-	buff->work_size = buff->arr->elems_used;
-	buff->buff_used = buff->work_size * buff->arr->elem_size;
-
-	ft_putnbr(buff->arr->elem_size);
-	ft_putchar('\n');
-	ft_putnbr(buff->work_size);
-	ft_putchar('\n');
-	ft_putnbr(buff->buff_used);
-	ft_putchar('\n');
-}
-
-void	ft_init_buffers(t_buff *buff, t_arr *arr)
-{
-	if (!arr->elems_used)
-		arr->elems_used = 1;
-	buff->arr = arr;
-	buff->g_work_size = &(arr->elems_used);
-	ft_prepare_one_buffer(buff);
-}
-
-
-t_bool	ft_copy_arrs(t_arr *dst, t_arr *src)
-{
-	if (!ft_realloc_arr(dst, src->elems_used))
-		return (FALSE);
-	dst->elems_used = src->elems_used;
-	ft_memcpy8(dst->elems, src->elems, dst->elem_size * dst->elems_used);
-	return (TRUE);
 }
 
 int loop_hook(void *parameters)
@@ -230,64 +169,36 @@ int loop_hook(void *parameters)
 	return (0);
 }
 
-
 int main(int ac, char **av)
 {
 
-	if (!(ground = ft_read_ground_from_file3("demo.txt")))
+	if (!(g_ground = ft_read_ground_from_file3("demo.txt")))
 		return(0);
-
-	int **comlex_ground = ft_create_complex_ground_from_simple(ground);
-
-
+	g_comlex_ground = ft_create_complex_ground_from_simple(g_ground);
 	ft_initialization_of_global_variable();
 
-	//создаем все массивы, проставляем начальные значения скоростей и давления
-	//инициализируем все глобальные переменные
-
-
 	//заполняем 3д карту с 2д рельефа
-	ft_fill_cells_from_ground(g_cell, ground);
+	ft_fill_cells_from_ground(g_cell, g_ground);
 
-	//создаем модель для 3д карты
-	//ft_create_points_in_cells(vis);
-
-
-
-
-	//ft_create_relief(vis, comlex_ground);
-	ft_create_relief2(g_earth, comlex_ground);
-	//ft_create_points_in_cells(vis);
-
-	t_part part;
-	ft_bzero(&part, sizeof(t_part));
-	ft_arr_add(g_parts, (void *)&part);
-
-
-//	ft_fill_interface(g_parts, g_iparts);
-//	ft_fill_heighbors(g_parts, g_neighs);
-
+	if (!ft_create_relief2(g_earth, g_comlex_ground))
+		ft_del_all("some problem with ground\n");
 
 	//создаем буферы и копируем в них инфу
-
 	ft_init_buffers(&(g_cl->buff[PARTS]), g_parts);
 	ft_init_buffers(&(g_cl->buff[CELLS]), g_cell);
 	ft_init_buffers(&(g_cl->buff[INTERFACE]), g_iparts);
 	ft_init_buffers(&(g_cl->buff[CELL_MAPS]), g_cell_map);
 	ft_init_buffers(&(g_cl->buff[NEIGHS]), g_neighs);
 	ft_init_buffers(&(g_cl->buff[PARAMS]), g_cl_prop);
-
 	ft_create_all_buffers(g_cl);
 
-
 	//привязываем аргументы к программам
-	//ft_prepare_to_compile(g_cl, g_compile, g_buff);
 	if (!ft_set_kernel_arg(g_cl, g_compile))
 		ft_del_all("set error\n");
 
-	ft_create_thread_for_solver(&solver, g_cl, &(vis->param), g_compile);
+	ft_create_thread_for_solver(&g_solver, g_cl, &(g_vis->param), g_compile);
 
-	ft_init_hooks(vis);
-	mlx_loop(vis->mlx);
+	ft_init_hooks(g_vis);
+	mlx_loop(g_vis->mlx);
 	return (0);
 }

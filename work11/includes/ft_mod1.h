@@ -120,7 +120,8 @@
 #define SLEEP1
 
 
-int		**ground;
+int		**g_ground;
+int		**g_comlex_ground;
 
 typedef pthread_mutex_t	t_mut;
 t_mut	g_mutex;
@@ -143,9 +144,9 @@ long g_clock;
 long g_clock2;
 long g_tmp;
 
-t_vis *vis;
+t_vis *g_vis;
 
-t_solver solver;
+t_solver g_solver;
 
 
 #define PIXEL 2
@@ -217,7 +218,7 @@ void	ft_print_water_in_cell(void *param, int j, int i, int k);
 void	ft_print_all_water(t_vis *vis);
 void	ft_refresh_picture(t_vis *vis);
 void	ft_print_int(void *param, int j, int i, int k);
-void	ft_print_char(void *param, int j, int i, int k);
+//void	ft_print_char(void *param, int j, int i, int k);
 void	ft_print_real(void *param, int j, int i, int k);
 void	ft_print_arr(void *arr, void (*f)(void *, int, int, int), int k);
 int		loop_hook(void *param);
@@ -269,6 +270,11 @@ void	ft_clear_image(t_pict *pic);
 void	ft_save_image(t_pict *pic);
 void	ft_return_image(t_pict *pic);
 t_vis	*ft_destroy_mlx(t_vis **vis);
+
+/*
+**	sprite.c
+*/
+t_bool	ft_init_picture(t_pict *pict, int diameter, int color);
 
 
 /*
@@ -456,5 +462,12 @@ void	ft_init_hooks(t_vis *vis);
 */
 int		ft_mouse_on_window(int x, int y);
 int		ft_mouse_get_new_pos(int x, int y, t_param *param);
+
+/*
+** helper.c
+*/
+void	ft_prepare_one_buffer(t_buff *buff);
+void	ft_init_buffers(t_buff *buff, t_arr *arr);
+t_bool	ft_copy_arrs(t_arr *dst, t_arr *src);
 
 #endif

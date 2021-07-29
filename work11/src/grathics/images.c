@@ -12,10 +12,6 @@
 
 #include "../../includes/ft_mod1.h"
 
-/*
-** надо пачку защит маллока наставить ...
-*/
-
 void	ft_init_params(t_param *param)
 {
 	param->cam_x = CAM_X;
@@ -38,6 +34,7 @@ void	ft_init_params(t_param *param)
 	param->centr.abs = (t_dpoint){.x = IMAX / 2, .y = JMAX / 2, .z = KMAX / 2};
 	ft_rotate_oxyz_around_v(param, &param->oxyz.oz, M_PI);
 	param->need_refresh = TRUE;
+	param->print_sprite = TRUE;
 }
 
 int		ft_create_img(t_pict *pic, void *mlx, int width, int heigth)

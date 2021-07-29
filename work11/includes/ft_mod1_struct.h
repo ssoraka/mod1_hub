@@ -99,6 +99,7 @@ typedef struct		s_param
 	int				is_need_print_water;
 	int				need_refresh;
 	int				is_rotated;
+	int				print_sprite;
 	int				grad;
 	double			len;
 
