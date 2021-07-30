@@ -42,9 +42,9 @@ REAL	ft_vektr_len(t_dpoint *a)
 
 REAL	ft_vekt_cos(t_dpoint a, t_dpoint b)
 {
-	REAL cos;
+	REAL	cos;
 
-	cos = ft_dot_dpoints(&a, &b) /
-	sqrt(ft_dot_dpoints(&a, &a) * ft_dot_dpoints(&b, &b));
+	cos = ft_dot_dpoints(&a, &b) / sqrt(
+			ft_dot_dpoints(&a, &a) * ft_dot_dpoints(&b, &b));
 	return (cos);
 }

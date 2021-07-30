@@ -18,7 +18,6 @@
 делим сплитом по пробелам
 делим по запятым
 наполняем
-
 */
 
 REAL	ft_return_heigth(REAL value)
@@ -26,7 +25,6 @@ REAL	ft_return_heigth(REAL value)
 	value = value * (JMAX - J0) * HEIGTH_KOEF / (MAP_HEIGTH2) + 1;
 	return (value);
 }
-
 
 char	*ft_read_string_from_file(char *name)
 {
@@ -41,11 +39,14 @@ char	*ft_read_string_from_file(char *name)
 	return (str);
 }
 
+/*
+** тут надо сделать проверку точек на интовые значения...
+*/
 
-int		ft_find_point(t_map *map, char **args)
+int	ft_find_point(t_map *map, char **args)
 {
-	int i;
-	//тут надо сделать проверку точек на интовые значения...
+	int	i;
+
 	if (args[0][0] != '(' || args[2][ft_strlen(args[2]) - 1] != ')')
 		return (FALSE);
 	i = map->count;
@@ -61,7 +62,7 @@ int		ft_find_point(t_map *map, char **args)
 	return (TRUE);
 }
 
-int		ft_find_points(t_map *map, char **arr)
+int	ft_find_points(t_map *map, char **arr)
 {
 	char	**tmp;
 	int		valid;
@@ -84,10 +85,10 @@ int		ft_find_points(t_map *map, char **arr)
 
 void	ft_create_first_and_last_points(t_map *map)
 {
-	int delta_y;
-	int delta_x;
-	int delta_z;
-	int delta;
+	int	delta_y;
+	int	delta_x;
+	int	delta_z;
+	int	delta;
 
 	delta_y = (map->p_max.y - map->p_min.y) / ((JMAX + J0) * MAP_KOEF);
 	delta_x = (map->p_max.x - map->p_min.x) / ((IMAX + I0) * MAP_KOEF);
@@ -104,8 +105,8 @@ void	ft_create_first_and_last_points(t_map *map)
 
 REAL	ft_sigmoida(int i, int k)
 {
-	REAL answer;
-	int x;
+	REAL	answer;
+	int		x;
 
 	x = ft_min(i - I0, IMAX - i);
 	x = ft_min(x, KMAX - k);
@@ -121,11 +122,11 @@ REAL	ft_sigmoida(int i, int k)
 
 void	ft_superposition2(t_map *map, int i, int k)
 {
-	double e;
-	double dist;
-	double all_dist;
-	double sigma;
-	int num;
+	double	e;
+	double	dist;
+	double	all_dist;
+	double	sigma;
+	int		num;
 
 	e = 0;
 	all_dist = 0;
@@ -145,8 +146,8 @@ void	ft_superposition2(t_map *map, int i, int k)
 
 void	ft_fill_map_arr(t_map *map)
 {
-	int i;
-	int k;
+	int	i;
+	int	k;
 
 	k = 0;
 	while (k <= KMAX + 1)
@@ -163,7 +164,7 @@ void	ft_fill_map_arr(t_map *map)
 	}
 }
 
-int		**ft_create_map(t_map *map)
+int	**ft_create_map(t_map *map)
 {
 	map->arr = NULL;
 	ft_create_first_and_last_points(map);
@@ -173,7 +174,7 @@ int		**ft_create_map(t_map *map)
 	return (map->arr);
 }
 
-int		**ft_read_ground_from_file3(char *name)
+int	**ft_read_ground_from_file3(char *name)
 {
 	char	*str;
 	char	**arr;

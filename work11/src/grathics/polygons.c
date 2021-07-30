@@ -28,7 +28,7 @@ int	ft_change_points_colors(t_plgn *plgn, int color)
 	plgn->p[2]->color = ft_grad_color((int)(1024 * plgn->cos),
 			1024, plgn->p[2]->color, 0);
 	return (ft_grad_color((int)(1024 * plgn->cos),
-			1024, color, 0));
+		1024, color, 0));
 }
 
 void	ft_recovery_points_colors(t_plgn *plgn, int *colors)
@@ -38,7 +38,7 @@ void	ft_recovery_points_colors(t_plgn *plgn, int *colors)
 	plgn->p[2]->color = colors[2];
 }
 
-int		ft_need_print_traing(t_vektr **p)
+int	ft_need_print_traing(t_vektr **p)
 {
 	if (p[0]->zoom.y < 0 && p[1]->zoom.y < 0 && p[2]->zoom.y < 0)
 		return (FALSE);

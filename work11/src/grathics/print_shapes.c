@@ -22,12 +22,13 @@ t_bool	ft_put_pixel_to_img(t_pict *pic, t_point *p, int color)
 
 t_bool	ft_put_pixel_to_img2(t_pict *pic, t_point *p, t_shape *shape)
 {
-	size_t params;
+	size_t	params;
 
 	if (p->x < 0 || p->y < 0 || p->x >= CONST_WIDTH || p->y >= CONST_HEINTH)
 		return (FALSE);
 	params = shape->params.params;
-	if (params & CHECK_Z_BUFFER && pic->z_buffer[p->y * CONST_WIDTH + p->x] > p->z)
+	if (params & CHECK_Z_BUFFER
+		&& pic->z_buffer[p->y * CONST_WIDTH + p->x] > p->z)
 		return (FALSE);
 	if (params & MARK_Z_BUFFER)
 		pic->z_buffer[p->y * CONST_WIDTH + p->x] = p->z;
@@ -38,29 +39,12 @@ t_bool	ft_put_pixel_to_img2(t_pict *pic, t_point *p, t_shape *shape)
 	return (TRUE);
 }
 
-//t_bool	ft_put_pixel_to_img2(t_pict *pic, t_point *p, t_shape *shape)
-//{
-//	if (p->x < 0 || p->y < 0 || p->x >= CONST_WIDTH || p->y >= CONST_HEINTH)
-//		return (FALSE);
-//	if (!shape->is_particles)
-//	{
-//		if (pic->z_buffer[p->y * CONST_WIDTH + p->x] > p->z)
-//			return (FALSE);
-//		pic->index[p->y * CONST_WIDTH + p->x] = shape->index;
-//		if (shape->only_index)
-//			return (TRUE);
-//		pic->z_buffer[p->y * CONST_WIDTH + p->x] = p->z;
-//	}
-//	pic->addr[p->y * CONST_WIDTH + p->x] = shape->color;
-//	return (TRUE);
-//}
-
 t_bool	ft_print_rect2(t_pict *pic, t_point *center, t_shape *shape)
 {
-	int i;
-	int j;
-	int shift;
-	t_point p;
+	int		i;
+	int		j;
+	int		shift;
+	t_point	p;
 
 	j = 0;
 	shift = -shape->len / 2;
@@ -70,7 +54,7 @@ t_bool	ft_print_rect2(t_pict *pic, t_point *center, t_shape *shape)
 		while (i <= shape->len)
 		{
 			ft_fill_point(&p, center->y + j + shift,
-						  center->x + i + shift, center->z);
+				center->x + i + shift, center->z);
 			ft_put_pixel_to_img2(pic, &p, shape);
 			i++;
 		}
@@ -79,11 +63,9 @@ t_bool	ft_print_rect2(t_pict *pic, t_point *center, t_shape *shape)
 	return (TRUE);
 }
 
-
-/* Вспомогательная функция, печатает точки, определяющие окружность */
 void	plot_circle(t_pict *pic, t_point *p, t_point *center, t_shape *shape)
 {
-	t_point point;
+	t_point	point;
 
 	ft_fill_point(&point, center->y + p->y, center->x + p->x, center->z);
 	ft_put_pixel_to_img2(pic, &point, shape);
@@ -143,23 +125,19 @@ t_bool	print_img_to_img(t_pict *pic, t_point *center, t_shape *shape)
 		{
 			shape->color = from->addr[y * from->size_line + x];
 			if (shape->color)
-			{
-				ft_fill_point(&p, center->y - shift + y, center->x - shift + x, center->z);
+				ft_fill_point(&p, center->y - shift + y,
+					center->x - shift + x, center->z);
+			if (shape->color)
 				shape->print(pic, &p, shape);
-			}
 		}
 	}
 	ft_init_shape(shape, IMAGE, shape->params);
 	return (TRUE);
 }
 
-/*
- * todo сделать структуру параметров для текущего принта
- */
-
 t_prop	set_param(size_t params, size_t index, int color)
 {
-	t_prop print;
+	t_prop	print;
 
 	print.color = color;
 	print.params = params;

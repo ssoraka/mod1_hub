@@ -18,7 +18,6 @@
 
 void	ft_clear_image(t_pict *pic)
 {
-//	ft_memset8((void *)pic->index, DEFAULT_INDEX, pic->count_byte);
 	ft_memset8((void *)pic->addr, BACKGROUND_COLOR, pic->count_byte);
 	ft_memset8((void *)pic->z_buffer, MIN_INTEGER, pic->count_byte);
 }
@@ -27,12 +26,12 @@ void	ft_return_image(t_pict *pic)
 {
 	ft_memcpy8((void *)pic->addr, (void *)pic->addr_copy, pic->count_byte);
 	ft_memcpy8((void *)pic->z_buffer, (void *)pic->z_buffer_copy,
-			pic->count_byte);
+		pic->count_byte);
 }
 
 void	ft_save_image(t_pict *pic)
 {
 	ft_memcpy8((void *)pic->addr_copy, (void *)pic->addr, pic->count_byte);
 	ft_memcpy8((void *)pic->z_buffer_copy, (void *)pic->z_buffer,
-			pic->count_byte);
+		pic->count_byte);
 }

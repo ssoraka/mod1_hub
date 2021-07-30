@@ -26,11 +26,11 @@ void	ft_fill_part(t_part *part, t_dpoint *p, t_fluids type)
 
 void	ft_create_new_water_in_area(t_arr *p_arr, t_dpoint *start, t_point *end, t_fluids type)
 {
-	REAL i;
-	REAL k;
-	t_part part;
-	t_dpoint pos;
-	t_cell *cell;
+	REAL		i;
+	REAL		k;
+	t_part		part;
+	t_dpoint	pos;
+	t_cell		*cell;
 
 	i = start->x;
 	while (i < end->x + 1 && i < IMAX + 1)
@@ -53,8 +53,8 @@ void	ft_create_new_water_in_area(t_arr *p_arr, t_dpoint *start, t_point *end, t_
 
 void	ft_create_new_area_of_water(t_arr *parts, t_point *start, t_point *end, t_fluids type)
 {
-	t_dpoint tmp;
-	int n;
+	t_dpoint	tmp;
+	int			n;
 
 	n = 0;
 	tmp.y = start->y + 0.5;

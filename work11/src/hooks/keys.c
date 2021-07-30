@@ -19,40 +19,30 @@
 #define MIN_SCALE 0.01
 #define MAX_SCALE 1000.0
 
-#define MAX_BRUSH (IMAX / 2)
-
-int		ft_rotate_and_csale(t_param *param, int key)
+int	ft_rotate_and_csale(t_param *param, int key)
 {
-	if ((key == KEY_PLUS || key == 69) && param->len < MAX_SCALE)
+	if ((key == KEY_PLUS) && param->len < MAX_SCALE)
 		param->len *= CAM_SCALE;
-	else if ((key == KEY_MINUS || key == 78) && param->len > MIN_SCALE)
+	else if ((key == KEY_MINUS) && param->len > MIN_SCALE)
 		param->len /= CAM_SCALE;
 	else if (key == KEY_Q)
-//		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oz, M_PI / CAM_ROTATE);
 		ft_rotate_oxyz_around_v(param, &param->oxyz.oz, M_PI / CAM_ROTATE);
 	else if (key == KEY_A)
 		ft_rotate_oxyz_around_v(param, &param->oxyz.oz, -M_PI / CAM_ROTATE);
-//		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oz, -M_PI / CAM_ROTATE);
 	else if (key == KEY_W)
 		ft_rotate_oxyz_around_v(param, &param->oxyz.oy, M_PI / CAM_ROTATE);
-//		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oy, M_PI / CAM_ROTATE);
 	else if (key == KEY_S)
 		ft_rotate_oxyz_around_v(param, &param->oxyz.oy, -M_PI / CAM_ROTATE);
-//		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.oy, -M_PI / CAM_ROTATE);
 	else if (key == KEY_E)
 		ft_rotate_oxyz_around_v(param, &param->oxyz.ox, M_PI / CAM_ROTATE);
-//		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.ox, M_PI / CAM_ROTATE);
 	else if (key == KEY_D)
 		ft_rotate_oxyz_around_v(param, &param->oxyz.ox, -M_PI / CAM_ROTATE);
-//		ft_rotate_xyz_around_v(&param->oxyz, &param->oxyz.ox, -M_PI / CAM_ROTATE);
 	else
 		return (FALSE);
-//	calc_light(param);
 	return (TRUE);
 }
 
-
-int		ft_shift(t_param *param, int key)
+int	ft_shift(t_param *param, int key)
 {
 	if (key == KEY_RIGHT)
 		param->target_x += CAM_SHIFT;
@@ -67,14 +57,7 @@ int		ft_shift(t_param *param, int key)
 	return (TRUE);
 }
 
-#define MOVE_LEFT 86
-#define MOVE_RIGHT 88
-#define MOVE_UP 91
-#define MOVE_DOWN 87
-#define MOVE_FORW 83
-#define MOVE_BACKW 84
-
-int		ft_is_water_cell_shift(t_param *param, int key)
+int	ft_is_water_cell_shift(t_param *param, int key)
 {
 	t_point	dir;
 
@@ -94,15 +77,15 @@ int		ft_is_water_cell_shift(t_param *param, int key)
 	else
 		return (FALSE);
 	if (dir.x <= I0 || dir.x >= IMAX || dir.y <= J0 || dir.y >= JMAX
-	|| dir.z <= K0 || dir.z >= KMAX)
+		|| dir.z <= K0 || dir.z >= KMAX)
 		return (FALSE);
 	param->water = dir;
 	return (TRUE);
 }
 
-int		ft_change_brush(t_param *param, int key)
+int	ft_change_brush(t_param *param, int key)
 {
-	if (key == KEY_K && param->brush < MAX_BRUSH)
+	if (key == KEY_K && param->brush < IMAX / 2)
 		param->brush++;
 	else if (key == KEY_L && param->brush > 1)
 		param->brush--;
@@ -111,15 +94,15 @@ int		ft_change_brush(t_param *param, int key)
 	return (TRUE);
 }
 
-int		deal_key(int key, void *parameters)
+int	deal_key(int key, void *parameters)
 {
-	t_param *param;
+	t_param	*param;
 
 	param = (t_param *)parameters;
 	param->is_water_change = ft_change_brush(param, key)
-	+ ft_is_water_cell_shift(param, key);
+		+ ft_is_water_cell_shift(param, key);
 	if (ft_rotate_and_csale(param, key) || ft_shift(param, key) || key == KEY_O
-	|| key == KEY_G)
+		|| key == KEY_G || key == KEY_I)
 		param->need_refresh = TRUE;
 	if (key == KEY_ESC)
 		ft_del_all(NULL);
@@ -132,17 +115,14 @@ int		deal_key(int key, void *parameters)
 	else if (key == KEY_O)
 		param->is_smooth_relief = !param->is_smooth_relief;
 	else if (key == KEY_I)
-	{
 		param->is_need_print_obstacles = !param->is_need_print_obstacles;
-		param->need_refresh = TRUE;
-	}
 	else if (key == KEY_G)
 		param->grad = !param->grad;
 	printf("%d\n", key);
-	return (0);
+	return (TRUE);
 }
 
-int		ft_csale_picture(t_param *param, int button, t_point *mouse)
+int	ft_csale_picture(t_param *param, int button, t_point *mouse)
 {
 	if (button == MIDDLE_FORW_BUTTON && param->len < MAX_SCALE)
 		param->len *= CAM_SCALE;

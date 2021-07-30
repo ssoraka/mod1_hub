@@ -22,36 +22,39 @@ void	ft_init_params(t_param *param)
 	param->pause = 1;
 	param->is_need_print_obstacles = TRUE;
 	param->brush = 1;
-	param->light.x = 0.5;
-	param->light.y = -1;
-	param->light.z = 1;
-	param->water.x = I0 + 1;
-	param->water.y = J0 + 1;
-	param->water.z = K0 + 1;
+	ft_fill_dpoint(&param->light, -1.0, 0.5, 1.0);
+	ft_fill_point(&param->water, JMAX - 1, I0 + 1, K0 + 1);
 	param->is_need_print_water = TRUE;
 	ft_create_xyz(&(param->oxyz));
-	param->centr.zoom = (t_point){.x = CAM_X, .y = CAM_Y, .z = 0};
-	param->centr.abs = (t_dpoint){.x = IMAX / 2, .y = JMAX / 2, .z = KMAX / 2};
+	ft_fill_point(&param->centr.zoom, CAM_Y, CAM_X, 0.0);
+	ft_fill_dpoint(&param->centr.abs, JMAX / 2, IMAX / 2, KMAX / 2);
 	ft_rotate_oxyz_around_v(param, &param->oxyz.oz, M_PI);
 	param->need_refresh = TRUE;
 	param->print_sprite = TRUE;
 }
 
-int		ft_create_img(t_pict *pic, void *mlx, int width, int heigth)
+int	ft_create_img(t_pict *pic, void *mlx, int width, int heigth)
 {
-	if (!(pic->img = mlx_new_image(mlx, width, heigth)))
+	pic->img = mlx_new_image(mlx, width, heigth);
+	if (!pic->img)
 		return (FALSE);
-	if (!(pic->addr = (int *)mlx_get_data_addr(pic->img, &(pic->bits_per_pixel), &(pic->size_line), &(pic->endian))))
+	pic->addr = (int *)mlx_get_data_addr(pic->img, &(pic->bits_per_pixel),
+			&(pic->size_line), &(pic->endian));
+	if (!pic->addr)
 		return (FALSE);
 	pic->count_line = heigth;
 	pic->count_byte = width * heigth * sizeof(int);
-	if (!(pic->z_buffer = (int *)ft_memalloc(pic->count_byte)))
+	pic->z_buffer = (int *)ft_memalloc(pic->count_byte);
+	if (!pic->z_buffer)
 		return (FALSE);
-	if (!(pic->addr_copy = (int *)ft_memalloc(pic->count_byte)))
+	pic->addr_copy = (int *)ft_memalloc(pic->count_byte);
+	if (!pic->addr_copy)
 		return (FALSE);
-	if (!(pic->z_buffer_copy = (int *)ft_memalloc(pic->count_byte)))
+	pic->z_buffer_copy = (int *)ft_memalloc(pic->count_byte);
+	if (!pic->z_buffer_copy)
 		return (FALSE);
-	if (!(pic->index = (int *)ft_memalloc(pic->count_byte)))
+	pic->index = (int *)ft_memalloc(pic->count_byte);
+	if (!pic->index)
 		return (FALSE);
 	return (TRUE);
 }
@@ -66,13 +69,16 @@ void	ft_destroy_img(t_pict *pic)
 
 t_vis	*ft_create_mlx(int width, int heigth, char *name)
 {
-	t_vis *vis;
+	t_vis	*vis;
 
-	if (!(vis = ft_memalloc(sizeof(t_vis))))
+	vis = ft_memalloc(sizeof(t_vis));
+	if (!vis)
 		return (NULL);
-	if (!(vis->mlx = mlx_init()))
+	vis->mlx = mlx_init();
+	if (!vis->mlx)
 		return (ft_destroy_mlx(&vis));
-	if (!(vis->win = mlx_new_window(vis->mlx, width, heigth, name)))
+	vis->win = mlx_new_window(vis->mlx, width, heigth, name);
+	if (!vis->win)
 		return (ft_destroy_mlx(&vis));
 	if (!(ft_create_img(&(vis->pic), vis->mlx, width, heigth)))
 		return (ft_destroy_mlx(&vis));

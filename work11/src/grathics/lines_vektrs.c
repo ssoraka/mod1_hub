@@ -31,8 +31,8 @@ void	draw_line_img_lower(t_line *line, t_pict *pic, int grad, t_shape *shape)
 			error.y = error.y - line->delta.x;
 		}
 		p.z = ft_int_interpolation(p.x - line->p1->zoom.x,
-								line->p2->zoom.x - line->p1->zoom.x,
-								line->p1->zoom.z, line->p2->zoom.z);
+				line->p2->zoom.x - line->p1->zoom.x,
+				line->p1->zoom.z, line->p2->zoom.z);
 		p.x += line->dir.x;
 	}
 	if (grad)
@@ -59,8 +59,8 @@ void	draw_line_img_over(t_line *line, t_pict *pic, int grad, t_shape *shape)
 			error.x = error.x - line->delta.y;
 		}
 		p.z = ft_int_interpolation(p.y - line->p1->zoom.y,
-								line->p2->zoom.y - line->p1->zoom.y,
-								line->p1->zoom.z, line->p2->zoom.z);
+				line->p2->zoom.y - line->p1->zoom.y,
+				line->p1->zoom.z, line->p2->zoom.z);
 		p.y += line->dir.y;
 	}
 	if (grad)
@@ -68,7 +68,7 @@ void	draw_line_img_over(t_line *line, t_pict *pic, int grad, t_shape *shape)
 	shape->print(pic, &(line->p2->zoom), shape);
 }
 
-int		ft_not_need_print(t_line *line)
+int	ft_not_need_print(t_line *line)
 {
 	if (line->p1->zoom.y <= 0 && line->p2->zoom.y <= 0)
 		return (TRUE);
@@ -84,7 +84,7 @@ int		ft_not_need_print(t_line *line)
 void	draw_line_img(t_line *line, t_pict *pic, t_prop prop)
 {
 	t_point	p;
-	t_shape shape;
+	t_shape	shape;
 
 	if (ft_not_need_print(line))
 		return ;
@@ -93,12 +93,9 @@ void	draw_line_img(t_line *line, t_pict *pic, t_prop prop)
 	line->dir.x = ft_znak(line->p2->zoom.x - p.x);
 	line->dir.z = ft_znak(line->p2->zoom.z - p.z);
 	ft_init_shape(&shape, POINT, prop);
-//	if (!line->dir.y && !line->dir.x)
-//		return;
 	line->delta.y = line->dir.y * (line->p2->zoom.y - p.y);
 	line->delta.x = line->dir.x * (line->p2->zoom.x - p.x);
 	line->delta.z = line->dir.z * (line->p2->zoom.z - p.z);
-
 	if (line->delta.x >= line->delta.y)
 		draw_line_img_lower(line, pic, prop.params & GRADIENT, &shape);
 	else

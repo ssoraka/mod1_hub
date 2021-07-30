@@ -12,13 +12,13 @@
 
 #include "../../includes/ft_mod1.h"
 
-int		ft_grad_color(int delta1, int delta2, int color1, int color2)
+int	ft_grad_color(int delta1, int delta2, int color1, int color2)
 {
-	int	color;
-	int	grad;
-	int	tmp;
+	int				color;
+	int				grad;
+	int				tmp;
+	int				i;
 	unsigned char	*ptr[3];
-	int	i;
 
 	ptr[0] = (unsigned char *)&color;
 	ptr[1] = (unsigned char *)&color1;
@@ -36,7 +36,7 @@ int		ft_grad_color(int delta1, int delta2, int color1, int color2)
 	return (color);
 }
 
-int		ft_set_color_to_point(t_line *line, t_point *p, int lower_45)
+int	ft_set_color_to_point(t_line *line, t_point *p, int lower_45)
 {
 	int	delta1;
 	int	delta2;
@@ -56,8 +56,7 @@ int		ft_set_color_to_point(t_line *line, t_point *p, int lower_45)
 	return (color);
 }
 
-
-int		ft_int_interpolation(int y, int delta_y, int x1, int x2)
+int	ft_int_interpolation(int y, int delta_y, int x1, int x2)
 {
 	int	x;
 	int	delta_x;

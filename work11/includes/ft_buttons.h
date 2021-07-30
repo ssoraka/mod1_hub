@@ -34,6 +34,7 @@
 #  define BUTTON_PRESS 		4
 #  define BUTTON_RELEASE 		5
 #  define MOTION_NOTIFY 		6
+#  define DESTROY 				17
 # endif
 
 # if defined(__linux__)
@@ -103,6 +104,8 @@
 #  define KEY_Z 6
 #  define KEY_X 7
 
+#  define KEY_SPACE 49
+
 #  define LEFT_BUTTON 1
 #  define RIGHT_BUTTON 2
 #  define MIDDLE_BUTTON 3
@@ -112,6 +115,13 @@
 #  define KEY_1 18
 #  define KEY_2 19
 #  define KEY_3 20
+
+#  define MOVE_LEFT 86
+#  define MOVE_RIGHT 88
+#  define MOVE_UP 91
+#  define MOVE_DOWN 87
+#  define MOVE_FORW 83
+#  define MOVE_BACKW 84
 
 # endif
 #endif

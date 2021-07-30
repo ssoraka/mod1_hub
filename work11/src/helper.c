@@ -42,6 +42,6 @@ t_bool	del_elem(void *elem, void *param)
 
 	(void)param;
 	p = (t_part *)elem;
-	return (p->pos.x < I0 || p->pos.y < J0 || p->pos.z < K0 ||
-	p->pos.x > IMAX || p->pos.y > JMAX || p->pos.z > KMAX);
+	return (p->pos.x < I0 || p->pos.y < J0 || p->pos.z < K0
+		|| p->pos.x > IMAX || p->pos.y > JMAX || p->pos.z > KMAX);
 }

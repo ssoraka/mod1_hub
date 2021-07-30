@@ -58,7 +58,7 @@ t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz)
 	return (rot_v);
 }
 
-void		ft_rotate_point_around_point(t_param *param, t_vektr *p)
+void	ft_rotate_point_around_point(t_param *param, t_vektr *p)
 {
 	t_dpoint	rot_p;
 	t_point		center;
@@ -90,9 +90,9 @@ void	ft_rotate_oxyz_around_v(t_param *param, t_dpoint *v, REAL ang)
 	ft_rotate_xyz_around_v(oxyz, v, ang);
 	ft_fill_dpoint(&g, CONST_G, 0, 0);
 	ft_fill_dpoint(&param->g,
-					ft_vekt_cos(oxyz->oy, g) * CONST_G,
-					ft_vekt_cos(oxyz->ox, g) * CONST_G,
-					ft_vekt_cos(oxyz->oz, g) * CONST_G);
+		ft_vekt_cos(oxyz->oy, g) * CONST_G,
+		ft_vekt_cos(oxyz->ox, g) * CONST_G,
+		ft_vekt_cos(oxyz->oz, g) * CONST_G);
 	calc_light(param);
 	param->is_rotated = TRUE;
 }

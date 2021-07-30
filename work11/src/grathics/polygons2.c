@@ -14,7 +14,7 @@
 
 void	ft_swap_ptr(void **ptr1, void **ptr2)
 {
-	void *tmp;
+	void	*tmp;
 
 	tmp = *ptr1;
 	*ptr1 = *ptr2;
@@ -34,8 +34,8 @@ void	ft_sort_points_by_y(t_vektr **p)
 void	ft_vektr_interpolation_by_y(t_vektr *p, t_vektr *p1, t_vektr *p2,
 									int grad)
 {
-	int delta_y;
-	int y;
+	int	delta_y;
+	int	y;
 
 	delta_y = p1->zoom.y - p2->zoom.y;
 	y = p->zoom.y - p2->zoom.y;

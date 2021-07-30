@@ -12,14 +12,7 @@
 
 #include "../includes/ft_mod1.h"
 
-#define OBSTACLE 1
-#define DYNAMIC_OBSTACLE 2
-
-#define KEY_SPACE 49
-#define RIGHT_MOUSE 2
-#define LEFT_MOUSE 1
-
-int		ft_get_index(int j, int i, int k)
+int	ft_get_index(int j, int i, int k)
 {
 	if (i < I0 || i > IMAX || j < J0 || j > JMAX || k < K0 || k > KMAX)
 		return (0);
@@ -28,7 +21,7 @@ int		ft_get_index(int j, int i, int k)
 
 t_point	ft_get_index_d3(int cell_number)
 {
-	t_point cell;
+	t_point	cell;
 
 	cell.y = cell_number / ((IMAX + 2) * (KMAX + 2));
 	cell.x = cell_number % ((IMAX + 2) * (KMAX + 2)) / (KMAX + 2);
@@ -36,12 +29,12 @@ t_point	ft_get_index_d3(int cell_number)
 	return (cell);
 }
 
-int		ft_is_cell_obstacle(int **ground, int cell_number)
+int	ft_is_cell_obstacle(int **ground, int cell_number)
 {
-	t_point cell;
-	int j;
-	int i;
-	int k;
+	t_point	cell;
+	int		j;
+	int		i;
+	int		k;
 
 	cell = ft_get_index_d3(cell_number);
 	j = cell.y;
@@ -51,10 +44,8 @@ int		ft_is_cell_obstacle(int **ground, int cell_number)
 		return (OBSTACLE);
 	if (j < J0 || j > JMAX || i > IMAX || i < I0 || k < K0 || k > KMAX)
 		return (FALSE);
-	#ifdef EMPTY_MAP
 	if (j <= (int)ft_return_heigth(ground[k][i]))
 		return (OBSTACLE);
-	#endif
 	if (i == 25 && j < 7)
 		return (DYNAMIC_OBSTACLE);
 	return (FALSE);
@@ -64,39 +55,41 @@ void	ft_fill_cells_from_ground(t_arr *cells, int **ground)
 {
 	t_cell	*cell;
 	t_iter	iter;
-	int n;
+	int		n;
 
 	n = 0;
 	iter = get_arr_iter(cells);
-	while ((cell = (t_cell *)iter.get_next_elem(&iter)))
+	while (iter.get_next_elem(&iter))
 	{
+		cell = (t_cell *)iter.value;
 		cell->obstacle = ft_is_cell_obstacle(ground, n);
 		n++;
 	}
 }
 
-int		ft_is_need_print_cell(t_arr *cells, int j, int i, int k)
+int	ft_is_need_print_cell(t_arr *cells, int j, int i, int k)
 {
-	t_cell *cell;
+	t_cell	*cell;
 
 	cell = cells->elems;
 	if (j <= J0 || j >= JMAX || i <= I0 || i >= IMAX || k <= K0 || k >= KMAX)
 		return (FALSE);
-	if (j == JMAX - 1 || i == I0 + 1 || i == IMAX - 1 || k == K0 + 1 || k == KMAX - 1)
+	if (j == JMAX - 1 || i == I0 + 1 || i == IMAX - 1
+		|| k == K0 + 1 || k == KMAX - 1)
 		return (TRUE);
 	if (cell[ft_get_index(j + 1, i, k)].obstacle
-	&& cell[ft_get_index(j - 1, i, k)].obstacle
-	&& cell[ft_get_index(j, i + 1, k)].obstacle
-	&& cell[ft_get_index(j, i - 1, k)].obstacle
-	&& cell[ft_get_index(j, i, k + 1)].obstacle
-	&& cell[ft_get_index(j, i, k - 1)].obstacle)
+		&& cell[ft_get_index(j - 1, i, k)].obstacle
+		&& cell[ft_get_index(j, i + 1, k)].obstacle
+		&& cell[ft_get_index(j, i - 1, k)].obstacle
+		&& cell[ft_get_index(j, i, k + 1)].obstacle
+		&& cell[ft_get_index(j, i, k - 1)].obstacle)
 		return (FALSE);
 	if (cell[ft_get_index(j + 1, i, k)].water
-	&& cell[ft_get_index(j - 1, i, k)].water
-	&& cell[ft_get_index(j, i + 1, k)].water
-	&& cell[ft_get_index(j, i - 1, k)].water
-	&& cell[ft_get_index(j, i, k + 1)].water
-	&& cell[ft_get_index(j, i, k - 1)].water)
+		&& cell[ft_get_index(j - 1, i, k)].water
+		&& cell[ft_get_index(j, i + 1, k)].water
+		&& cell[ft_get_index(j, i - 1, k)].water
+		&& cell[ft_get_index(j, i, k + 1)].water
+		&& cell[ft_get_index(j, i, k - 1)].water)
 		return (FALSE);
 	return (TRUE);
 }
@@ -176,15 +169,14 @@ void	ft_fill_points_cell2(t_point cell, t_vektr *p, t_param *param)
 
 void	ft_fill_plgns_cell4(t_plgn *plgn, t_param *param)
 {
-	t_dpoint p;
+	t_dpoint	p;
 
-	plgn[0].cos = -param->cos.z > 0.0 ? -param->cos.z : 0.0;
-	plgn[1].cos = -param->cos.x > 0.0 ? -param->cos.x : 0.0;
-	plgn[2].cos = -param->cos.y > 0.0 ? -param->cos.y : 0.0;
-	plgn[3].cos = param->cos.z > 0.0 ? param->cos.z : 0.0;
-	plgn[4].cos = param->cos.x > 0.0 ? param->cos.x : 0.0;
-	plgn[5].cos = param->cos.y > 0.0 ? param->cos.y : 0.0;
-
+	plgn[0].cos = (-param->cos.z > 0.0) * -param->cos.z;
+	plgn[1].cos = (-param->cos.x > 0.0) * -param->cos.x;
+	plgn[2].cos = (-param->cos.y > 0.0) * -param->cos.y;
+	plgn[3].cos = (param->cos.z > 0.0) * param->cos.z;
+	plgn[4].cos = (param->cos.x > 0.0) * param->cos.x;
+	plgn[5].cos = (param->cos.y > 0.0) * param->cos.y;
 	p = param->oxyz.oz;
 	plgn[0].rot_n = (t_dpoint){-p.y, -p.x, -p.z};
 	plgn[3].rot_n = p;
@@ -196,11 +188,10 @@ void	ft_fill_plgns_cell4(t_plgn *plgn, t_param *param)
 	plgn[5].rot_n = p;
 }
 
-
 #define EDGE 4
 #define EDGE_COUNT 6
 
-void	ft_print_one_cell(t_point cell, t_pict *pic, t_param *param, t_prop prop)
+void	print_one_cell(t_point cell, t_pict *pic, t_param *param, t_prop prop)
 {
 	t_vektr	*p[EDGE * EDGE_COUNT];
 	t_vektr	p8[8];
@@ -228,16 +219,18 @@ void	ft_print_all_cell(t_arr *cells, t_pict *pic, t_param *param)
 
 	ft_memset((void *)pic->index, 0, pic->count_byte);
 	i = 0;
-	prop = set_param(DEFAULT_POINT | (GRADIENT * param->grad), i, OBSTACLES_FRONT_COLOR);
+	prop = set_param(DEFAULT_POINT | (GRADIENT * param->grad), i,
+			OBSTACLES_FRONT_COLOR);
 	iter = get_arr_iter(cells);
-	while ((cell = (t_cell *)iter.get_next_elem(&iter)))
+	while (iter.get_next_elem(&iter))
 	{
+		cell = (t_cell *)iter.value;
 		prop.index = i;
 		jik = ft_get_index_d3(i);
 		if (((cell->obstacle == 1 && !param->is_smooth_relief)
-		|| cell->obstacle == DYNAMIC_OBSTACLE)
-		&& ft_is_need_print_cell(cells, jik.y, jik.x, jik.z))
-			ft_print_one_cell(jik, pic, param, prop);
+				|| cell->obstacle == DYNAMIC_OBSTACLE)
+			&& ft_is_need_print_cell(cells, jik.y, jik.x, jik.z))
+			print_one_cell(jik, pic, param, prop);
 		i++;
 	}
 }
@@ -253,13 +246,14 @@ void	ft_print_water_cell(t_arr *cells, t_pict *pic, t_param *param)
 	i = 0;
 	prop = set_param(DEFAULT_POINT, 0, WATER_COLOR);
 	iter = get_arr_iter(cells);
-	while ((cell = (t_cell *)iter.get_next_elem(&iter)))
+	while (iter.get_next_elem(&iter))
 	{
+		cell = (t_cell *)iter.value;
 		if (cell->water)
 		{
 			jik = ft_get_index_d3(i);
 			if (ft_is_need_print_cell(cells, jik.y, jik.x, jik.z))
-				ft_print_one_cell(jik, pic, param, prop);
+				print_one_cell(jik, pic, param, prop);
 		}
 		i++;
 	}
@@ -267,8 +261,8 @@ void	ft_print_water_cell(t_arr *cells, t_pict *pic, t_param *param)
 
 void	ft_del_cell(void *ptr, int j, int i, int k)
 {
-	int cell_number;
-	t_cell *cell;
+	int		cell_number;
+	t_cell	*cell;
 
 	if (i == I0 || i == IMAX || j == J0 || j == JMAX || k == K0 || k == KMAX)
 		return ;
@@ -281,8 +275,8 @@ void	ft_del_cell(void *ptr, int j, int i, int k)
 
 void	ft_add_cell(void *ptr, int j, int i, int k)
 {
-	int cell_number;
-	t_cell *cell;
+	int		cell_number;
+	t_cell	*cell;
 
 	cell_number = ft_get_index(j, i, k);
 	if (!cell_number)
@@ -293,8 +287,8 @@ void	ft_add_cell(void *ptr, int j, int i, int k)
 
 void	ft_mark_cell_as_water(void *ptr, int j, int i, int k)
 {
-	int cell_number;
-	t_cell *cell;
+	int		cell_number;
+	t_cell	*cell;
 
 	cell_number = ft_get_index(j, i, k);
 	if (!cell_number)
@@ -304,18 +298,24 @@ void	ft_mark_cell_as_water(void *ptr, int j, int i, int k)
 		cell[cell_number].water = TRUE;
 }
 
-int		ft_change_obstacles(t_arr *cells, int cell_number, int button, t_param *param)
+int	ft_change_obstacles(t_arr *cells, int cell_numb, int button, t_param *param)
 {
-	t_point p;
-	t_point start;
-	t_point end;
+	t_point	p;
+	t_point	start;
+	t_point	end;
 
-	p = ft_get_index_d3(cell_number);
-	ft_fill_point(&start, p.y - param->brush, p.x - param->brush, p.z - param->brush);
-	ft_fill_point(&end, p.y + param->brush, p.x + param->brush, p.z + param->brush);
-	if (button == RIGHT_MOUSE)
+	p = ft_get_index_d3(cell_numb);
+	ft_fill_point(&start,
+		p.y - param->brush,
+		p.x - param->brush,
+		p.z - param->brush);
+	ft_fill_point(&end,
+		p.y + param->brush,
+		p.x + param->brush,
+		p.z + param->brush);
+	if (button == RIGHT_BUTTON)
 		ft_cycle_cube(cells->elems, ft_del_cell, &start, &end);
-	else if (button == LEFT_MOUSE)
+	else if (button == LEFT_BUTTON)
 		ft_cycle_cube(cells->elems, ft_add_cell, &start, &end);
 	else
 		return (FALSE);
@@ -331,10 +331,19 @@ void	ft_move_water_cell(t_arr *cells, t_param *param)
 	t_iter	iter;
 
 	p = param->water;
-	ft_fill_point(&start, p.y - param->brush, p.x - param->brush, p.z - param->brush);
-	ft_fill_point(&end, p.y + param->brush, p.x + param->brush, p.z + param->brush);
+	ft_fill_point(&start,
+		p.y - param->brush,
+		p.x - param->brush,
+		p.z - param->brush);
+	ft_fill_point(&end,
+		p.y + param->brush,
+		p.x + param->brush,
+		p.z + param->brush);
 	iter = get_arr_iter(cells);
-	while ((cell = (t_cell *)iter.get_next_elem(&iter)))
+	while (iter.get_next_elem(&iter))
+	{
+		cell = (t_cell *)iter.value;
 		cell->water = FALSE;
+	}
 	ft_cycle_cube(cells->elems, ft_mark_cell_as_water, &start, &end);
 }

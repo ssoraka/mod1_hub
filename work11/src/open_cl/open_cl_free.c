@@ -23,7 +23,8 @@ void	ft_free_open_cl(t_open_cl **open_cl)
 	t_open_cl	*cl;
 	int			i;
 
-	if (!(cl = *open_cl))
+	cl = *open_cl;
+	if (!cl)
 		return ;
 	if (cl->queue)
 	{

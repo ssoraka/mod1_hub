@@ -12,7 +12,7 @@
 
 #include "../../includes/ft_mod1.h"
 
-void		pfn_notify(const char *errinfo, const void *private_info, size_t cb,
+void	pfn_notify(const char *errinfo, const void *private_info, size_t cb,
 				void *user_data)
 {
 	(void)private_info;
@@ -21,7 +21,7 @@ void		pfn_notify(const char *errinfo, const void *private_info, size_t cb,
 	ft_putendl(errinfo);
 }
 
-void		ft_context_error(cl_int errcode_ret)
+void	ft_context_error(cl_int errcode_ret)
 {
 	if (errcode_ret == CL_INVALID_PLATFORM)
 		ft_putendl("CL_INVALID_PLATFORM");
@@ -39,7 +39,7 @@ void		ft_context_error(cl_int errcode_ret)
 		ft_putendl("CL_OUT_OF_HOST_MEMORY");
 }
 
-void		ft_queue_error(cl_int errcode_ret)
+void	ft_queue_error(cl_int errcode_ret)
 {
 	if (errcode_ret == CL_INVALID_CONTEXT)
 		ft_putendl("CL_INVALID_CONTEXT");
@@ -55,7 +55,7 @@ void		ft_queue_error(cl_int errcode_ret)
 		ft_putendl("CL_OUT_OF_HOST_MEMORY");
 }
 
-void		*ft_cl_error(t_open_cl *cl, char *message)
+void	*ft_cl_error(t_open_cl *cl, char *message)
 {
 	if (message)
 		ft_putstr_fd(message, 2);
@@ -65,25 +65,25 @@ void		*ft_cl_error(t_open_cl *cl, char *message)
 
 t_open_cl	*ft_init_open_cl(int device)
 {
-	t_open_cl *cl;
+	t_open_cl	*cl;
 
-	if (!(cl = ft_memalloc(sizeof(t_open_cl))))
+	if (is_null(ft_memalloc(sizeof(t_open_cl)), (void **)&cl))
 		return (ft_cl_error(cl, "malloc error!!!\n"));
 	if (clGetPlatformIDs(1, &cl->platform, &cl->num_platform) != CL_SUCCESS)
 		return (ft_cl_error(cl, "platform error!!!\n"));
 	cl->device_type = device;
 	if (clGetDeviceIDs(cl->platform, cl->device_type, 1, &cl->device,
-	&cl->num_devices) != CL_SUCCESS)
+			&cl->num_devices) != CL_SUCCESS)
 		return (ft_cl_error(cl, "device error!!!\n"));
 	cl->context = clCreateContext(NULL, cl->num_devices, &cl->device,
-								&pfn_notify, NULL, &cl->errcode_ret);
+			&pfn_notify, NULL, &cl->errcode_ret);
 	if (cl->errcode_ret != CL_SUCCESS)
 	{
 		ft_context_error(cl->errcode_ret);
 		return (ft_cl_error(cl, "context error!!!\n"));
 	}
 	cl->queue = clCreateCommandQueue(cl->context, cl->device, 0,
-								&cl->errcode_ret);
+			&cl->errcode_ret);
 	if (cl->errcode_ret != CL_SUCCESS)
 	{
 		ft_queue_error(cl->errcode_ret);

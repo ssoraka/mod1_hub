@@ -13,10 +13,6 @@
 #ifndef FT_MOD1_H
 # define FT_MOD1_H
 
-// в файле cells.c
-#define EMPTY_MAP
-#define CHANGE_FLUIDS1
-
 #include "../libft/libft.h"
 #include <math.h>
 #include <stdlib.h>
@@ -187,6 +183,11 @@ typedef enum	e_form
 	IMAGE
 }				t_form;
 
+typedef enum	e_obst
+{
+	OBSTACLE = 1,
+	DYNAMIC_OBSTACLE = 2
+}				t_obst;
 
 char *g_names[PROGRAMS_COUNT + 10];
 
@@ -200,14 +201,13 @@ t_prog    g_compile[PROGRAMS_COUNT + 10];
 // todo это надо убрать в структуру с параметрами
 #define DEFAULT_INDEX 0
 
-int		g_color[FLUIDS][COLUMN_COUNT2];
-REAL	g_param[FLUIDS][COLUMN_COUNT];
+//int		g_color[FLUIDS][COLUMN_COUNT2];
+//REAL	g_param[FLUIDS][COLUMN_COUNT];
 
 
 /*
 **	main.c
 */
-int		ft_znak(int num);
 void	ft_print_lines(t_vis *vis, t_line *line);
 void	ft_print_points2(t_vis *vis, t_vektr *points);
 void	ft_create_cube_poligons(t_plgn **plgn, t_vektr **p, int color);
@@ -235,7 +235,7 @@ void	ft_init_variable(void);
 void	ft_init_delta_xyz(void);
 void	ft_init_map_arrs(void);
 void	ft_initialization_of_global_variable(void);
-void	ft_del_all(char *message);
+int	ft_del_all(char *message);
 
 
 /*

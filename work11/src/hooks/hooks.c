@@ -12,7 +12,7 @@
 
 #include "../../includes/ft_mod1.h"
 
-int		ft_mouse_press(int button, int x, int y, void *parameters)
+int	ft_mouse_press(int button, int x, int y, void *parameters)
 {
 	t_vis	*vis;
 	int		cell_number;
@@ -33,7 +33,7 @@ int		ft_mouse_press(int button, int x, int y, void *parameters)
 	return (TRUE);
 }
 
-int		ft_mouse_release(int button, int x, int y, void *parameters)
+int	ft_mouse_release(int button, int x, int y, void *parameters)
 {
 	t_vis	*vis;
 	t_param	*param;
@@ -49,7 +49,7 @@ int		ft_mouse_release(int button, int x, int y, void *parameters)
 	return (0);
 }
 
-int		ft_mouse_move(int x, int y, void *parameters)
+int	ft_mouse_move(int x, int y, void *parameters)
 {
 	t_vis	*vis;
 	t_param	*param;
@@ -67,18 +67,18 @@ int		ft_mouse_move(int x, int y, void *parameters)
 
 void	ft_init_hooks(t_vis *vis)
 {
-	void *param;
-	void *win;
+	void	*param;
+	void	*win;
 
 	param = (void *)&vis->param;
 	win = vis->win;
-//	mlx_hook(win, 17, 0, deal_key, param); //закрытие окна
+	mlx_hook(win, DESTROY, 0, ft_del_all, NULL);
 	mlx_hook(win, KEY_PRESS, KEY_PRESS_MASK, deal_key, param);
 	mlx_hook(win, MOTION_NOTIFY, POINTER_MOTION_MASK, ft_mouse_move,
-			 (void *)vis);
+		 (void *)vis);
 	mlx_hook(win, BUTTON_PRESS, BUTTON_PRESS_MASK, ft_mouse_press,
-			 (void *)vis);
+		 (void *)vis);
 	mlx_hook(win, BUTTON_RELEASE, BUTTON_RELEASE_MASK, ft_mouse_release,
-			 (void *)vis);
+		 (void *)vis);
 	mlx_loop_hook(vis->mlx, loop_hook, (void *)vis);
 }
