@@ -88,11 +88,13 @@ void	ft_rotate_oxyz_around_v(t_param *param, t_dpoint *v, REAL ang)
 
 	oxyz = &param->oxyz;
 	ft_rotate_xyz_around_v(oxyz, v, ang);
+	calc_light(param);
 	ft_fill_dpoint(&g, CONST_G, 0, 0);
+	if (!param->update_mode)
+		return;
 	ft_fill_dpoint(&param->g,
 		ft_vekt_cos(oxyz->oy, g) * CONST_G,
 		ft_vekt_cos(oxyz->ox, g) * CONST_G,
 		ft_vekt_cos(oxyz->oz, g) * CONST_G);
-	calc_light(param);
-	param->is_rotated = TRUE;
+	param->update_status = NEED_UPDATE_PARAM_ON_CL;
 }

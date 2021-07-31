@@ -18,7 +18,7 @@ void	ft_init_params(t_param *param)
 	param->cam_y = CAM_Y;
 	param->target_x = CAM_X;
 	param->target_y = CAM_Y;
-	param->len = CONST_LEN;
+	param->len = (CONST_HEINTH / JMAX);
 	param->pause = 1;
 	param->is_need_print_obstacles = TRUE;
 	param->brush = 1;
@@ -28,6 +28,7 @@ void	ft_init_params(t_param *param)
 	ft_create_xyz(&(param->oxyz));
 	ft_fill_point(&param->centr.zoom, CAM_Y, CAM_X, 0.0);
 	ft_fill_dpoint(&param->centr.abs, JMAX / 2, IMAX / 2, KMAX / 2);
+	param->update_mode = FALSE;
 	ft_rotate_oxyz_around_v(param, &param->oxyz.oz, M_PI);
 	param->need_refresh = TRUE;
 	param->print_sprite = TRUE;

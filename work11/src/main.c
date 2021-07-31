@@ -12,7 +12,7 @@
 
 #include "../includes/ft_mod1.h"
 
-t_prog    g_compile[PROGRAMS_COUNT + 10] =
+t_prog	g_compile[PROGRAMS_COUNT + 2] =
 {
 	{"./cl/clear_cell.cl", "clear_cell", 2, {CELL_MAPS, CELLS, -1}},
 	{"./cl/add_part_in_cell.cl", "add_part_in_cell", 2, {PARTS, CELL_MAPS, -1}},
@@ -22,42 +22,9 @@ t_prog    g_compile[PROGRAMS_COUNT + 10] =
 	{"./cl/delta_speed.cl", "delta_speed", 3, {PARTS, NEIGHS, PARAMS}},
 	{"./cl/delta_coord.cl", "delta_coord", 3, {PARTS, NEIGHS, PARAMS}},
 	{"./cl/change_cell.cl", "change_cell", 3, {PARTS, CELLS, INTERFACE}},
-	{"./cl/print_parts.cl", "print_parts", 2, {PARTS, -1, -1}}, //надо бы это в сунуть в другую функцию...
+	{"./cl/print_parts.cl", "print_parts", 2, {PARTS, -1, -1}},
 	{"", "", 0, {-1, -1, -1}}
 };
-
-/*
- * todo разобрать баг с замедлением (хз, что-то с размером группы или буффера)
- * todo попробовать сделать дождь и волны (на это забью)
- */
-
-void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start, t_point *end)
-{
-	int k;
-	int j;
-	int i;
-	t_point delta;
-
-	delta.y = (end->y < start->y) ? -1 : 1;
-	delta.x = (end->x < start->x) ? -1 : 1;
-	delta.z = (end->z < start->z) ? -1 : 1;
-	j = start->y;
-	while (j != end->y + delta.y)
-	{
-		i = start->x;
-		while (i != end->x + delta.x)
-		{
-			k = start->z;
-			while (k != end->z + delta.z)
-			{
-				f(param, j, i, k);
-				k += delta.z;
-			}
-			i += delta.x;
-		}
-		j += delta.y;
-	}
-}
 
 void	print_img_as_water(t_arr *ipoints, t_vis *vis, t_pict *from)
 {
@@ -84,7 +51,6 @@ void	print_img_as_water(t_arr *ipoints, t_vis *vis, t_pict *from)
 
 // todo исправить смену цвета для магмы
 // todo добавить изменеие режима отображения для воды в виде точек
-// todo добавить включение и отключение изменения осей
 void	print_rect_as_water(t_arr *ipoints, t_vis *vis)
 {
 	t_iter	iter;
@@ -148,19 +114,16 @@ int loop_hook(void *parameters)
 	t_param *param;
 
 	vis = (t_vis *)parameters;
-
 	if (vis->param.exit)
 		return (0);
-
 	param = &vis->param;
-	if ((ft_move_camera(&vis->param) + ft_auto_rotate(&vis->param)))
+	if ((ft_move_camera(param) + ft_auto_rotate(param)))
 	{
 		ft_rotate_point_around_point(param, &param->centr);
 		param->centr.zoom.x = param->cam_x;
 		param->centr.zoom.y = param->cam_y;
 		param->need_refresh = TRUE;
 	}
-
 	pthread_mutex_lock(&g_mutex);
 	if (!ft_copy_arrs(g_iparts_copy, g_cl->buff[INTERFACE].arr))
 		ft_del_all("read error\n");
@@ -171,33 +134,27 @@ int loop_hook(void *parameters)
 
 int main(int ac, char **av)
 {
-
+	ft_init();
 	if (!(g_ground = ft_read_ground_from_file3("demo.txt")))
-		return(0);
+		ft_del_all("some problem with file\n");
 	g_comlex_ground = ft_create_complex_ground_from_simple(g_ground);
+	if (!g_comlex_ground)
+		ft_del_all("some problem with malloc in relief\n");
 	ft_initialization_of_global_variable();
-
-	//заполняем 3д карту с 2д рельефа
 	ft_fill_cells_from_ground(g_cell, g_ground);
-
 	if (!ft_create_relief2(g_earth, g_comlex_ground))
-		ft_del_all("some problem with ground\n");
-
-	//создаем буферы и копируем в них инфу
+		ft_del_all("some problem with malloc in ground\n");
 	ft_init_buffers(&(g_cl->buff[PARTS]), g_parts);
 	ft_init_buffers(&(g_cl->buff[CELLS]), g_cell);
 	ft_init_buffers(&(g_cl->buff[INTERFACE]), g_iparts);
 	ft_init_buffers(&(g_cl->buff[CELL_MAPS]), g_cell_map);
 	ft_init_buffers(&(g_cl->buff[NEIGHS]), g_neighs);
 	ft_init_buffers(&(g_cl->buff[PARAMS]), g_cl_prop);
-	ft_create_all_buffers(g_cl);
-
-	//привязываем аргументы к программам
+	if (!ft_create_all_buffers(g_cl))
+		ft_del_all("some problem with openCl buffers\n");
 	if (!ft_set_kernel_arg(g_cl, g_compile))
-		ft_del_all("set error\n");
-
+		ft_del_all("some problem with openCl arguments\n");
 	ft_create_thread_for_solver(&g_solver, g_cl, &(g_vis->param), g_compile);
-
 	ft_init_hooks(g_vis);
 	mlx_loop(g_vis->mlx);
 	return (0);

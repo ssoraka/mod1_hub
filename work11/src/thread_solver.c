@@ -48,6 +48,15 @@ void	ft_add_new_water(t_open_cl *cl, t_param *param)
 
 void	ft_change_map(t_open_cl *cl, t_param *param, t_prog *compile)
 {
+	if (param->update_mode || param->update_status == LAST_UPDATE_PARAM_ON_CL)
+	{
+		((t_cl_prop *)(cl->buff[PARAMS].arr->elems))->g = param->g;
+		ft_write_buffers(cl, PARAMS, CL_TRUE);
+		if (param->update_mode)
+			param->update_status = PARAM_UPDATED;
+		else
+			param->update_status = OFF_UPDATING_PARAM;
+	}
 	if (param->rain)
 	{
 		ft_add_new_water(cl, param);
@@ -70,12 +79,6 @@ void	*ft_solver(void *param)
 	s = (t_solver *)param;
 	while (!s->param->exit)
 	{
-		if (s->param->is_rotated)
-		{
-			((t_cl_prop *)(s->cl->buff[PARAMS].arr->elems))->g = s->param->g;
-			ft_write_buffers(s->cl, PARAMS, CL_TRUE);
-			s->param->is_rotated = FALSE;
-		}
 		ft_change_map(s->cl, s->param, s->compile);
 		if (!s->param->pause)
 		{

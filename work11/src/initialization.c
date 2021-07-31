@@ -17,7 +17,7 @@ void	init_cl_properties(void)
 	t_cl_prop	g_prop;
 	t_part		part;
 
-	g_prop.g = (t_dpoint){CONST_G, 0.0, 0.0};
+	g_prop.g = (t_dpoint){-CONST_G, 0.0, 0.0};
 	g_prop.f[WATER] = (t_fluid){WATER_COLOR, 3, PART_H, 120.0,
 		PART_MASS_0, 220000000.0, 1000.0, 0000.0};
 	g_prop.f[MAGMA] = (t_fluid){MAGMA_COLOR, 5, PART_H, 120.0,
@@ -27,11 +27,27 @@ void	init_cl_properties(void)
 	ft_arr_add(g_parts, (void *)&part);
 }
 
+void	ft_init(void)
+{
+	g_comlex_ground = NULL;
+	g_ground = NULL;
+	g_vis = NULL;
+	g_parts = NULL;
+	g_neighs = NULL;
+	g_vis = NULL;
+	g_parts = NULL;
+	g_neighs = NULL;
+	g_iparts = NULL;
+	g_iparts_copy = NULL;
+	g_cell = NULL;
+	g_cell_map = NULL;
+	g_earth = NULL;
+	g_cl_prop = NULL;
+	g_cl = NULL;
+}
+
 void	ft_initialization_of_global_variable(void)
 {
-	g_vis = ft_create_mlx(CONST_WIDTH, CONST_HEINTH, "mod1");
-	g_parts = ft_create_arr(sizeof(t_part), 16, NULL);
-	g_neighs = ft_create_arr(sizeof(t_neighs), 16, NULL);
 	g_vis = ft_create_mlx(CONST_WIDTH, CONST_HEINTH, "mod1");
 	g_parts = ft_create_arr(sizeof(t_part), 16, NULL);
 	g_neighs = ft_create_arr(sizeof(t_neighs), 16, NULL);
@@ -56,6 +72,8 @@ void	ft_initialization_of_global_variable(void)
 
 int	ft_del_all(char *message)
 {
+	ft_mem_arr_free((void ***)(&g_ground));
+	ft_mem_arr_free((void ***)(&g_comlex_ground));
 	if (g_vis)
 		g_vis->param.exit = TRUE;
 	pthread_join(g_solver.tid, NULL);
@@ -69,8 +87,6 @@ int	ft_del_all(char *message)
 	ft_del_arr(&g_cell_map);
 	ft_del_arr(&g_cl_prop);
 	ft_del_earth(&g_earth);
-	ft_mem_arr_free((void ***)(&g_ground));
-	ft_mem_arr_free((void ***)(&g_comlex_ground));
 	ft_free_open_cl(&g_cl);
 	ft_destroy_mlx(&g_vis);
 	exit(0);

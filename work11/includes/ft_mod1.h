@@ -30,21 +30,6 @@
 #include "ft_mod1_struct.h"
 #include "ft_buttons.h"
 
-#define ABS(nbr) ((nbr) >= 0 ? (nbr) : (-1) * (nbr))
-
-#define THREAD_COUNT 4
-
-#define T_INFINITY 10000000000.0
-#define P_CONST 0.0
-#define U_CONST 0.0
-#define W_CONST 1.7
-//#define CONST_RE 0.105
-#define CONST_RE 100.011
-#define T_END 5.0
-#define TAU 0.2
-#define MAX_ITERATIONS 50
-#define TOLERANCE 0.001
-
 /*
 **	добавляем по 2 вершины между вершинами расчетной модели для сплайна
 */
@@ -52,55 +37,17 @@
 
 #define MAP_KOEF 0.7
 #define HEIGTH_KOEF 0.9
-//перевести на даблы и избавиться
 #define MAP_HEIGTH2 ((JMAX + J0) * 100)
 #define COLOR_UP 0xFFFFFF
 #define COLOR_DOWN 0x704214
-//#define MAX_POINT 50
 
 
-#define DELTA_X DELTA
-#define DELTA_Y DELTA
-#define DELTA_Z DELTA
-
-#define EMPTY ' '
-#define OBSTACLES '#'
-#define PARTS_COUNT 1
-#define TEST_WATER_LEVEL (0)
-#define TEST_WATER_WALL 0
-//#define MAP_HEIGTH 50
 #define WATER_COLOR 0xFFFF
 #define MAGMA_COLOR 0xFF0000
-#define OBSTACLES_TOP_COLOR 0x704214
 #define OBSTACLES_FRONT_COLOR 0x5b432d
-//#define OBSTACLES_RIGHT_COLOR 0xFF
-#define OBSTACLES_RIGHT_COLOR 0x654321
 
 #define MSG_ERROR1 "Malloc error\n"
 
-
-
-#define DIR_X 1
-#define DIR_Y 2
-#define DIR_Z 4
-#define SCALAR (DIR_X + DIR_Y + DIR_Z)
-
-
-//ускорение свободного падения
-#define FG CONST_GY
-
-
-//масса сферы одной частицы
-//#define PART_MASS_0 (DENSITY_0 * DELTA * DELTA * DELTA *0.99 / PARTS_COUNT / PARTS_COUNT / PARTS_COUNT)
-
-//Постоянна Куранта для расчета времени 0-1 для расчета промежутка времени
-#define CONST_CUR 0.5
-//для итерирования по окружению
-#define COUNT_NEAR_CELL_IN_ONE_DIMENSION 3
-#define COUNT_NEAR_CELL 9
-
-//#define SIGMA 5000000.0000000
-#define SIGMA 0000000.0000000
 /*
 **	images
 */
@@ -109,11 +56,8 @@
 #define CONST_HEINTH 1360
 #define CAM_X 1000
 #define CAM_Y 680
-//#define RADIUS (DELTA * CONST_LEN * 0.7)
+
 #define RADIUS 3
-#define CONST_LEN (CONST_HEINTH / JMAX)
-#define KOEFF (1.0 / (DELTA_XY))
-#define SLEEP1
 
 
 int		**g_ground;
@@ -144,6 +88,7 @@ t_vis *g_vis;
 
 t_solver g_solver;
 
+#define DEFAULT_INDEX 0
 
 #define PIXEL 2
 #define INDEX 4
@@ -189,54 +134,35 @@ typedef enum	e_obst
 	DYNAMIC_OBSTACLE = 2
 }				t_obst;
 
-char *g_names[PROGRAMS_COUNT + 10];
+typedef enum	e_stat_g
+{
+	OFF_UPDATING_PARAM,
+	NEED_STOP_UPDATING,
+	ON_UPDATING_PARAM,
+	LAST_UPDATE_PARAM_ON_CL,
+	NEED_UPDATE_PARAM_ON_CL,
+	PARAM_UPDATED
+}				t_stat_g;
 
-char *g_kernel[PROGRAMS_COUNT + 10];
-
-t_prog    g_compile[PROGRAMS_COUNT + 10];
-
+t_prog    g_compile[PROGRAMS_COUNT + 2];
 
 #define PROGRAMM_SIZE 5000
-
-// todo это надо убрать в структуру с параметрами
-#define DEFAULT_INDEX 0
-
-//int		g_color[FLUIDS][COLUMN_COUNT2];
-//REAL	g_param[FLUIDS][COLUMN_COUNT];
 
 
 /*
 **	main.c
 */
-void	ft_print_lines(t_vis *vis, t_line *line);
-void	ft_print_points2(t_vis *vis, t_vektr *points);
-void	ft_create_cube_poligons(t_plgn **plgn, t_vektr **p, int color);
-void	ft_create_obstacles(void *ptr, int j, int i, int k);
-void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start, t_point *end);
-void	ft_create_points_in_cells(t_vis *vis);
-void	ft_print_water_in_cell(void *param, int j, int i, int k);
-void	ft_print_all_water(t_vis *vis);
 void	ft_refresh_picture(t_vis *vis);
-void	ft_print_int(void *param, int j, int i, int k);
-//void	ft_print_char(void *param, int j, int i, int k);
-void	ft_print_real(void *param, int j, int i, int k);
-void	ft_print_arr(void *arr, void (*f)(void *, int, int, int), int k);
 int		loop_hook(void *param);
-void	ft_del_each_parts(void *param, int j, int i, int k);
-void	ft_create_stable_level_of_water(void *param, int j, int i, int k);
-void	ft_create_first_water(void);
 void	ft_prepare_one_buffer(t_buff *buff);
+
 
 /*
 ** initialization.c
 */
-void	***ft_cube_arr(int jmax, int imax, int kmax, int size);
-void	ft_init_variable(void);
-void	ft_init_delta_xyz(void);
-void	ft_init_map_arrs(void);
 void	ft_initialization_of_global_variable(void);
 int	ft_del_all(char *message);
-
+void	ft_init(void);
 
 /*
 **	color_interpolation.c
@@ -257,7 +183,6 @@ t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz);
 void	ft_ret_zoom_xyz(t_vektr *ox, t_param *vis);
 void	ft_change_points5(t_param *param, t_vektr *p);
 void	ft_rotate_point_around_point(t_param *param, t_vektr *p);
-//void	calc_light(t_param *param);
 void	ft_rotate_oxyz_around_v(t_param *param, t_dpoint *v, REAL ang);
 
 /*
@@ -373,29 +298,6 @@ void	ft_move_water_cell(t_arr *cells, t_param *param);
 */
 int		is_read_programm(char *buffer, char *filename);
 
-
-
-///*
-//** open_cl.c
-//*/
-//void	*ft_error(t_open_cl *cl, char *message);
-//void	pfn_notify2(cl_program program, void *user_data);
-//void	pfn_notify(const char *errinfo, const void *private_info, size_t cb, void *user_data);
-//void	ft_context_error(cl_int errcode_ret);
-//void	ft_queue_error(cl_int errcode_ret);
-//t_open_cl	*ft_init_open_cl(void);
-//int		ft_read_and_build_programs(t_open_cl *cl, t_prog *compile);
-//void	ft_prepare_to_compile(t_open_cl *cl, t_prog *compile, t_buff *buff);
-//void	ft_free_open_cl(t_open_cl **open_cl);
-//int		ft_create_buffers(t_open_cl *cl, int num, int need_wait);
-//int		recreate_buffers(t_open_cl *cl, int num, int need_wait, size_t new_elem_count, int need_write);
-//int		ft_read_buffers(t_open_cl *cl, int num, int need_wait);
-//int		ft_write_buffers(t_open_cl *cl, int num, int need_wait);
-//void	ft_create_all_buffers(t_open_cl *cl);
-//int		ft_run_kernels(t_open_cl *cl);
-//int		ft_set_kernel_arg(t_open_cl *cl, t_prog *compile);
-//void	ft_stop_cl(t_open_cl *cl);
-
 /*
 **	open_cl_buffers.c
 */
@@ -470,5 +372,6 @@ void	ft_prepare_one_buffer(t_buff *buff);
 void	ft_init_buffers(t_buff *buff, t_arr *arr);
 t_bool	ft_copy_arrs(t_arr *dst, t_arr *src);
 t_bool	del_elem(void *elem, void *param);
+void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start, t_point *end);
 
 #endif

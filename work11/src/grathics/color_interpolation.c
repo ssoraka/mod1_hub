@@ -44,12 +44,12 @@ int	ft_set_color_to_point(t_line *line, t_point *p, int lower_45)
 
 	if (lower_45)
 	{
-		delta1 = ABS(line->p2->zoom.x - p->x);
+		delta1 = ft_abs(line->p2->zoom.x - p->x);
 		delta2 = line->delta.x;
 	}
 	else
 	{
-		delta1 = ABS(line->p2->zoom.y - p->y);
+		delta1 = ft_abs(line->p2->zoom.y - p->y);
 		delta2 = line->delta.y;
 	}
 	color = ft_grad_color(delta1, delta2, line->p1->color, line->p2->color);

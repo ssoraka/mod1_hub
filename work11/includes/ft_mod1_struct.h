@@ -98,7 +98,8 @@ typedef struct		s_param
 	int				is_water_change;
 	int				is_need_print_water;
 	int				need_refresh;
-	int				is_rotated;
+	int				update_mode;
+	int				update_status;
 	int				print_sprite;
 	int				grad;
 	double			len;

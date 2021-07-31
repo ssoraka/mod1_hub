@@ -21,9 +21,9 @@
 
 int	ft_rotate_and_csale(t_param *param, int key)
 {
-	if ((key == KEY_PLUS) && param->len < MAX_SCALE)
+	if ((key == KEY_1) && param->len < MAX_SCALE)
 		param->len *= CAM_SCALE;
-	else if ((key == KEY_MINUS) && param->len > MIN_SCALE)
+	else if ((key == KEY_2) && param->len > MIN_SCALE)
 		param->len /= CAM_SCALE;
 	else if (key == KEY_Q)
 		ft_rotate_oxyz_around_v(param, &param->oxyz.oz, M_PI / CAM_ROTATE);
@@ -85,13 +85,27 @@ int	ft_is_water_cell_shift(t_param *param, int key)
 
 int	ft_change_brush(t_param *param, int key)
 {
-	if (key == KEY_K && param->brush < IMAX / 2)
+	if (key == KEY_PLUS && param->brush < IMAX / 2)
 		param->brush++;
-	else if (key == KEY_L && param->brush > 1)
+	else if (key == KEY_MINUS && param->brush > 1)
 		param->brush--;
 	else
 		return (FALSE);
 	return (TRUE);
+}
+
+void	change_gravity(t_param *param)
+{
+	param->update_mode = !param->update_mode;
+	if (!param->update_mode)
+	{
+		ft_fill_dpoint(&param->g, -CONST_G, 0, 0);
+		param->update_status = LAST_UPDATE_PARAM_ON_CL;
+	}
+	else
+	{
+
+	}
 }
 
 int	deal_key(int key, void *parameters)
@@ -101,23 +115,25 @@ int	deal_key(int key, void *parameters)
 	param = (t_param *)parameters;
 	param->is_water_change = ft_change_brush(param, key)
 		+ ft_is_water_cell_shift(param, key);
-	if (ft_rotate_and_csale(param, key) || ft_shift(param, key) || key == KEY_O
-		|| key == KEY_G || key == KEY_I)
+	if (ft_rotate_and_csale(param, key) || ft_shift(param, key) || key == KEY_Z
+		|| key == KEY_C || key == KEY_X || key == KEY_G)
 		param->need_refresh = TRUE;
 	if (key == KEY_ESC)
 		ft_del_all(NULL);
-	else if (key == KEY_P)
+	else if (key == KEY_SPACE)
 		param->pause = !param->pause;
 	else if (key == KEY_R)
 		param->rain = WATER;
 	else if (key == KEY_T)
 		param->rain = MAGMA;
-	else if (key == KEY_O)
+	else if (key == KEY_Z)
 		param->is_smooth_relief = !param->is_smooth_relief;
-	else if (key == KEY_I)
+	else if (key == KEY_X)
 		param->is_need_print_obstacles = !param->is_need_print_obstacles;
-	else if (key == KEY_G)
+	else if (key == KEY_C)
 		param->grad = !param->grad;
+	else if (key == KEY_G)
+		change_gravity(param);
 	printf("%d\n", key);
 	return (TRUE);
 }

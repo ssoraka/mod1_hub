@@ -45,3 +45,32 @@ t_bool	del_elem(void *elem, void *param)
 	return (p->pos.x < I0 || p->pos.y < J0 || p->pos.z < K0
 		|| p->pos.x > IMAX || p->pos.y > JMAX || p->pos.z > KMAX);
 }
+
+void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int),
+						t_point *start, t_point *end)
+{
+	int		k;
+	int		j;
+	int		i;
+	t_point	delta;
+
+	delta.y = 1 + (end->y < start->y) * -2;
+	delta.x = 1 + (end->x < start->x) * -2;
+	delta.z = 1 + (end->z < start->z) * -2;
+	j = start->y;
+	while (j != end->y + delta.y)
+	{
+		i = start->x;
+		while (i != end->x + delta.x)
+		{
+			k = start->z;
+			while (k != end->z + delta.z)
+			{
+				f(param, j, i, k);
+				k += delta.z;
+			}
+			i += delta.x;
+		}
+		j += delta.y;
+	}
+}
