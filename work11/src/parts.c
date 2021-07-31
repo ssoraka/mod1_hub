@@ -12,8 +12,8 @@
 
 #include "../includes/ft_mod1.h"
 
-# define MAX_NEIGHBORS 32
-# define DELTA_H 0.78
+#define MAX_NEIGHBORS 32
+#define DELTA_H 0.78
 
 void	ft_fill_part(t_part *part, t_dpoint *p, t_fluids type)
 {
@@ -24,7 +24,8 @@ void	ft_fill_part(t_part *part, t_dpoint *p, t_fluids type)
 	part->type = type;
 }
 
-void	ft_create_new_water_in_area(t_arr *p_arr, t_dpoint *start, t_point *end, t_fluids type)
+void	ft_create_new_water_in_area(t_arr *p_arr, t_dpoint *start, t_point *end,
+									t_fluids type)
 {
 	REAL		i;
 	REAL		k;
@@ -38,8 +39,10 @@ void	ft_create_new_water_in_area(t_arr *p_arr, t_dpoint *start, t_point *end, t_
 		k = start->z;
 		while (k < end->z + 1 && k < KMAX + 1)
 		{
-			cell = ft_arr_get(g_cell, ft_get_index((int)(start->y), (int)i, (int)k));
-			if (ft_get_index((int)(start->y), (int)i, (int)k) && !cell->obstacle)
+			cell = (t_cell *)ft_arr_get(g_cell, ft_get_index((int)(start->y),
+						(int)i, (int)k));
+			if (ft_get_index((int)(start->y), (int)i, (int)k)
+				&& !cell->obstacle)
 			{
 				ft_fill_dpoint(&pos, start->y, i, k);
 				ft_fill_part(&part, &pos, type);
@@ -51,7 +54,8 @@ void	ft_create_new_water_in_area(t_arr *p_arr, t_dpoint *start, t_point *end, t_
 	}
 }
 
-void	ft_create_new_area_of_water(t_arr *parts, t_point *start, t_point *end, t_fluids type)
+void	ft_create_new_area_of_water(t_arr *parts, t_point *start, t_point *end,
+									t_fluids type)
 {
 	t_dpoint	tmp;
 	int			n;

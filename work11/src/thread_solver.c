@@ -12,7 +12,8 @@
 
 #include "../includes/ft_mod1.h"
 
-void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param, t_prog *compile)
+void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl,
+									t_param *param, t_prog *compile)
 {
 	solver->cl = cl;
 	solver->param = param;
@@ -26,9 +27,8 @@ void	ft_add_new_water(t_open_cl *cl, t_param *param)
 	t_point	start;
 	t_point	end;
 	t_point	p;
-	int	brush;
+	int		brush;
 
-	//создаем новую воду
 	if (!ft_read_buffers(cl, PARTS, CL_TRUE))
 		ft_del_all("read error\n");
 	ft_del_elems_if(cl->buff[PARTS].arr, &del_elem, NULL);
@@ -38,14 +38,11 @@ void	ft_add_new_water(t_open_cl *cl, t_param *param)
 	ft_fill_point(&end, p.y + brush, p.x + brush, p.z + brush);
 	ft_create_new_area_of_water(cl->buff[PARTS].arr, &start, &end, param->rain);
 	ft_prepare_one_buffer(&(cl->buff[PARTS]));
-	//скопировать содержимое буфера в структуру
-	//уничтожить буфер
-
-	if (!ft_recreate_buffers(cl, PARTS, *(cl->buff[PARTS].g_work_size), TRUE))
+	if (!recreate_buffers(cl, PARTS, *(cl->buff[PARTS].g_work_size), TRUE))
 		ft_del_all("recreate buffer error\n");
-	if (!ft_recreate_buffers(cl, INTERFACE, *(cl->buff[PARTS].g_work_size), TRUE))
+	if (!recreate_buffers(cl, INTERFACE, *(cl->buff[PARTS].g_work_size), TRUE))
 		ft_del_all("recreate buffer error\n");
-	if (!ft_recreate_buffers(cl, NEIGHS, *(cl->buff[PARTS].g_work_size), FALSE))
+	if (!recreate_buffers(cl, NEIGHS, *(cl->buff[PARTS].g_work_size), FALSE))
 		ft_del_all("recreate buffer error\n");
 }
 

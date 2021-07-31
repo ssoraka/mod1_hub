@@ -18,11 +18,11 @@
 
 void	ft_rotate_vek_around_vek_by_ang(t_dpoint *ox, t_dpoint *oy, double ang)
 {
-	double cosa;
-	double sina;
-	double temp_x;
-	double temp_y;
-	double temp_z;
+	double	cosa;
+	double	sina;
+	double	temp_x;
+	double	temp_y;
+	double	temp_z;
 
 	if (ang == 0.0 || !ox || !oy || ox == oy)
 		return ;
@@ -44,10 +44,10 @@ void	ft_rotate_vek_around_vek_by_ang(t_dpoint *ox, t_dpoint *oy, double ang)
 
 t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz)
 {
-	t_dpoint rot_v;
-	t_dpoint *ox;
-	t_dpoint *oy;
-	t_dpoint *oz;
+	t_dpoint	rot_v;
+	t_dpoint	*ox;
+	t_dpoint	*oy;
+	t_dpoint	*oz;
 
 	ox = &(oxyz->ox);
 	oy = &(oxyz->oy);
@@ -67,7 +67,7 @@ void	ft_rotate_point_around_point(t_param *param, t_vektr *p)
 	zero = &param->centr.abs;
 	center = param->centr.zoom;
 	ft_fill_dpoint(&rot_p, p->abs.y - zero->y, p->abs.x - zero->x,
-			p->abs.z - zero->z);
+		p->abs.z - zero->z);
 	rot_p = ft_rot_dpoint(&rot_p, &param->oxyz);
 	p->zoom.x = (int)(rot_p.x * param->len) + center.x;
 	p->zoom.y = (int)(rot_p.y * param->len) + center.y;
@@ -83,8 +83,8 @@ void	calc_light(t_param *param)
 
 void	ft_rotate_oxyz_around_v(t_param *param, t_dpoint *v, REAL ang)
 {
-	t_dpoint g;
-	t_oxyz *oxyz;
+	t_dpoint	g;
+	t_oxyz		*oxyz;
 
 	oxyz = &param->oxyz;
 	ft_rotate_xyz_around_v(oxyz, v, ang);

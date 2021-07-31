@@ -59,7 +59,7 @@ int	ft_create_all_buffers(t_open_cl *cl)
 	return (TRUE);
 }
 
-int	ft_recreate_buffers(t_open_cl *cl, int num,
+int	recreate_buffers(t_open_cl *cl, int num,
 						size_t new_elem_count, int need_write)
 {
 	if (!ft_realloc_arr(cl->buff[num].arr, new_elem_count))

@@ -45,16 +45,10 @@ int	ft_create_img(t_pict *pic, void *mlx, int width, int heigth)
 	pic->count_line = heigth;
 	pic->count_byte = width * heigth * sizeof(int);
 	pic->z_buffer = (int *)ft_memalloc(pic->count_byte);
-	if (!pic->z_buffer)
-		return (FALSE);
 	pic->addr_copy = (int *)ft_memalloc(pic->count_byte);
-	if (!pic->addr_copy)
-		return (FALSE);
 	pic->z_buffer_copy = (int *)ft_memalloc(pic->count_byte);
-	if (!pic->z_buffer_copy)
-		return (FALSE);
 	pic->index = (int *)ft_memalloc(pic->count_byte);
-	if (!pic->index)
+	if (!pic->z_buffer || !pic->addr_copy || !pic->z_buffer_copy || !pic->index)
 		return (FALSE);
 	return (TRUE);
 }

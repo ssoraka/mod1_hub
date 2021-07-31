@@ -388,7 +388,7 @@ int		is_read_programm(char *buffer, char *filename);
 //void	ft_prepare_to_compile(t_open_cl *cl, t_prog *compile, t_buff *buff);
 //void	ft_free_open_cl(t_open_cl **open_cl);
 //int		ft_create_buffers(t_open_cl *cl, int num, int need_wait);
-//int		ft_recreate_buffers(t_open_cl *cl, int num, int need_wait, size_t new_elem_count, int need_write);
+//int		recreate_buffers(t_open_cl *cl, int num, int need_wait, size_t new_elem_count, int need_write);
 //int		ft_read_buffers(t_open_cl *cl, int num, int need_wait);
 //int		ft_write_buffers(t_open_cl *cl, int num, int need_wait);
 //void	ft_create_all_buffers(t_open_cl *cl);
@@ -403,7 +403,7 @@ int		ft_create_all_buffers(t_open_cl *cl);
 int		ft_create_buffers(t_open_cl *cl, int num);
 int		ft_write_buffers(t_open_cl *cl, int num, int need_wait);
 int		ft_read_buffers(t_open_cl *cl, int num, int need_wait);
-int		ft_recreate_buffers(t_open_cl *cl, int num, size_t new_elem_count, int need_write);
+int		recreate_buffers(t_open_cl *cl, int num, size_t new_elem_count, int need_write);
 
 /*
 **	open_cl_read_build_run.c

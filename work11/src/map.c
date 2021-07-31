@@ -13,13 +13,6 @@
 #include "../includes/ft_mod1.h"
 #include <math.h>
 
-/*
-считываем текстовый документ
-делим сплитом по пробелам
-делим по запятым
-наполняем
-*/
-
 REAL	ft_return_heigth(REAL value)
 {
 	value = value * (JMAX - J0) * HEIGTH_KOEF / (MAP_HEIGTH2) + 1;
@@ -32,7 +25,8 @@ char	*ft_read_string_from_file(char *name)
 	char	*str;
 
 	str = NULL;
-	if ((fd = open(name, O_RDWR)) == -1)
+	fd = open(name, O_RDWR);
+	if (fd == -1)
 		return (NULL);
 	get_next_line(fd, &str);
 	close(fd);
@@ -50,7 +44,7 @@ int	ft_find_point(t_map *map, char **args)
 	if (args[0][0] != '(' || args[2][ft_strlen(args[2]) - 1] != ')')
 		return (FALSE);
 	i = map->count;
-	map->p[i].y = ft_atoi(args[2]);//высота
+	map->p[i].y = ft_atoi(args[2]);
 	map->p[i].x = ft_atoi(args[0] + 1);
 	map->p[i].z = ft_atoi(args[1]);
 	map->p_max.y = ft_max(map->p_max.y, map->p[i].y);
@@ -73,7 +67,7 @@ int	ft_find_points(t_map *map, char **arr)
 		valid = FALSE;
 		tmp = ft_strsplit(arr[map->count], ',');
 		if (tmp && tmp[0] && tmp[1] && tmp[2] && !tmp[3]
-		&& ft_find_point(map, tmp))
+			&& ft_find_point(map, tmp))
 			valid = TRUE;
 		ft_mem_arr_free((void ***)&tmp);
 		if (!valid)
@@ -98,9 +92,9 @@ void	ft_create_first_and_last_points(t_map *map)
 	delta = ft_max(delta, 1);
 	map->delta = delta;
 	ft_fill_point(&(map->first),
-	((map->p_min.y + map->p_max.y) - delta * (JMAX + J0)) / 2,
-	((map->p_min.x + map->p_max.x) - delta * (IMAX + I0)) / 2,
-	((map->p_min.z + map->p_max.z) - delta * (KMAX + K0)) / 2);
+		((map->p_min.y + map->p_max.y) - delta * (JMAX + J0)) / 2,
+		((map->p_min.x + map->p_max.x) - delta * (IMAX + I0)) / 2,
+		((map->p_min.z + map->p_max.z) - delta * (KMAX + K0)) / 2);
 }
 
 REAL	ft_sigmoida(int i, int k)
@@ -135,13 +129,13 @@ void	ft_superposition2(t_map *map, int i, int k)
 	while (num < map->count)
 	{
 		dist = ft_power(map->p[num].x - (map->first.x + map->delta * i), 2)
-		+ ft_power(map->p[num].z - (map->first.z + map->delta * k), 2);
+			+ ft_power(map->p[num].z - (map->first.z + map->delta * k), 2);
 		all_dist += 1.0 / (1.0 + dist);
-		e += exp2(-dist / (sigma * 2.0)) * map->p[num].y / (1.0 + dist) ;
+		e += exp2(-dist / (sigma * 2.0)) * map->p[num].y / (1.0 + dist);
 		num++;
 	}
 	map->arr[k][i] += (int)((e * ft_sigmoida(i, k)) * MAP_HEIGTH2
-	/ all_dist / (map->p_max.y - map->p_min.y));
+			/ all_dist / (map->p_max.y - map->p_min.y));
 }
 
 void	ft_fill_map_arr(t_map *map)
@@ -155,7 +149,8 @@ void	ft_fill_map_arr(t_map *map)
 		i = 0;
 		while (i <= IMAX + 1)
 		{
-			map->arr[k][i] = -map->p_min.y * MAP_HEIGTH2 / (map->p_max.y - map->p_min.y);
+			map->arr[k][i] = -map->p_min.y * MAP_HEIGTH2
+				/ (map->p_max.y - map->p_min.y);
 			if (k > K0 && k < KMAX && i > I0 && i < IMAX)
 				ft_superposition2(map, i, k);
 			i++;
@@ -168,7 +163,8 @@ int	**ft_create_map(t_map *map)
 {
 	map->arr = NULL;
 	ft_create_first_and_last_points(map);
-	if (!(map->arr = (int **)ft_mem_arr_new(KMAX + 2, IMAX + 2, sizeof(int))))
+	map->arr = (int **)ft_mem_arr_new(KMAX + 2, IMAX + 2, sizeof(int));
+	if (!map->arr)
 		return (NULL);
 	ft_fill_map_arr(map);
 	return (map->arr);
@@ -186,11 +182,12 @@ int	**ft_read_ground_from_file3(char *name)
 	arr = NULL;
 	ft_bzero((void *)&map, sizeof(t_map));
 	ft_fill_point(&(map.p_min), 0, 0x7FFFFFFF, 0x7FFFFFFF);
-	if ((str = ft_read_string_from_file(name))
-	&& (arr = ft_strsplit(str, ' '))
-	&& ft_find_points(&map, arr))
-		ground = ft_create_map(&map);
+	str = ft_read_string_from_file(name);
+	if (str)
+		arr = ft_strsplit(str, ' ');
 	free(str);
+	if (arr && ft_find_points(&map, arr))
+		ground = ft_create_map(&map);
 	ft_mem_arr_free((void ***)&arr);
 	return (ground);
 }
