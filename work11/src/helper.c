@@ -43,7 +43,8 @@ t_bool	del_elem(void *elem, void *param)
 	(void)param;
 	p = (t_part *)elem;
 	return (p->pos.x < I0 || p->pos.y < J0 || p->pos.z < K0
-		|| p->pos.x > IMAX || p->pos.y > JMAX || p->pos.z > KMAX);
+		|| p->pos.x > IMAX || p->pos.y > JMAX || p->pos.z > KMAX
+		|| p->type == NOTHING);
 }
 
 void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int),

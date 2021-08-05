@@ -83,4 +83,5 @@ __kernel void change_cell(__global t_part *part, __global t_cell *cell, __global
 
 	ipart[gid].pos = part[gid].pos;
 	ipart[gid].type = part[gid].type;
+	ipart[gid].is_surface = part[gid].not_empty_near_cell < 21;
 }

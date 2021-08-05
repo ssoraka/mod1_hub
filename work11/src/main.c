@@ -35,22 +35,22 @@ void	print_img_as_water(t_arr *ipoints, t_vis *vis, t_pict *from)
 	t_vektr	v;
 
 	ft_bzero((void *)&v, sizeof(t_vektr));
-	ft_init_shape(&printer, IMAGE, set_param(DEFAULT_IMAGE, DEFAULT_INDEX, WATER_COLOR));
+	ft_init_shape(&printer, IMAGE,
+		set_param(DEFAULT_IMAGE, DEFAULT_INDEX, WATER_COLOR));
 	printer.pic = from;
 	to = &vis->pic;
 	iter = get_arr_iter(ipoints);
-	while ((ipart = (t_ipart *)iter.get_next_elem(&iter)))
+	while (iter.get_next_elem(&iter))
 	{
+		ipart = (t_ipart *)iter.value;
 		ft_fill_dpoint(&v.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
 		ft_rotate_point_around_point(&(vis->param), &v);
 		printer.params.index = ipart->type;
-		if (printer.params.index != NOTHING)
+		if (printer.params.index != NOTHING && ipart->is_surface)
 			printer.print(to, &v.zoom, &printer);
 	}
 }
 
-// todo исправить смену цвета для магмы
-// todo добавить изменеие режима отображения для воды в виде точек
 void	print_rect_as_water(t_arr *ipoints, t_vis *vis)
 {
 	t_iter	iter;
@@ -60,18 +60,40 @@ void	print_rect_as_water(t_arr *ipoints, t_vis *vis)
 	t_vektr	v;
 
 	ft_bzero((void *)&v, sizeof(t_vektr));
-	ft_init_shape(&printer, RECTANGLE, set_param(DEFAULT_IMAGE, WATER, WATER_COLOR));
+	ft_init_shape(&printer, RECTANGLE,
+		set_param(DEFAULT_IMAGE, WATER, WATER_COLOR));
 	printer.len = 3;
 	to = &vis->pic;
 	iter = get_arr_iter(ipoints);
-	while ((ipart = (t_ipart *)iter.get_next_elem(&iter)))
+	while (iter.get_next_elem(&iter))
 	{
+		ipart = (t_ipart *)iter.value;
 		ft_fill_dpoint(&v.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
 		ft_rotate_point_around_point(&(vis->param), &v);
-		printer.params.color = (ipart->type == WATER) * WATER_COLOR | (ipart->type == MAGMA) * MAGMA_COLOR;
-		if (printer.params.index != NOTHING)
+		printer.color = (ipart->type == WATER) * WATER_COLOR
+			+ (ipart->type == MAGMA) * MAGMA_COLOR;
+		if (printer.params.index != NOTHING && ipart->is_surface)
 			printer.print(to, &v.zoom, &printer);
 	}
+}
+
+void	ft_print_water(t_arr *iparts, t_vis *vis)
+{
+	if (vis->param.print_sprite == FALSE)
+	{
+		print_rect_as_water(iparts, vis);
+		return ;
+	}
+	if (!ft_init_picture(vis->fluids + WATER, vis->param.len, WATER_COLOR)
+		|| !ft_init_picture(vis->fluids + MAGMA, vis->param.len, MAGMA_COLOR))
+	{
+		ft_memdel((void **)&vis->fluids[WATER].addr);
+		ft_memdel((void **)&vis->fluids[MAGMA].addr);
+		ft_del_all("malloc error\n");
+	}
+	print_img_as_water(iparts, vis, vis->fluids);
+	ft_memdel((void **)&vis->fluids[WATER].addr);
+	ft_memdel((void **)&vis->fluids[MAGMA].addr);
 }
 
 void	ft_refresh_picture(t_vis *vis)
@@ -86,32 +108,14 @@ void	ft_refresh_picture(t_vis *vis)
 	ft_print_relief(g_earth, g_cell, &(vis->pic), &(vis->param));
 	if (vis->param.is_need_print_water)
 		ft_print_water_cell(g_cell, &(vis->pic), &(vis->param));
-	if (vis->param.print_sprite == FALSE)
-	{
-		print_rect_as_water(g_iparts_copy, vis);
-		mlx_put_image_to_window(vis->mlx, vis->win, vis->pic.img, 0, 0);
-		return ;
-	}
-	if (!ft_init_picture(vis->fluids + WATER, vis->param.len, WATER_COLOR)
-	|| !ft_init_picture(vis->fluids + MAGMA, vis->param.len, MAGMA_COLOR))
-	{
-		ft_memdel((void **)&vis->fluids[WATER].addr);
-		ft_memdel((void **)&vis->fluids[MAGMA].addr);
-		ft_del_all("malloc error\n");
-	}
-	print_img_as_water(g_iparts_copy, vis, vis->fluids);
-	ft_memdel((void **)&vis->fluids[WATER].addr);
-	ft_memdel((void **)&vis->fluids[MAGMA].addr);
-
-//	ft_memcpy((void *)vis->pic.addr, (void *)vis->pic.index, vis->pic.count_byte);
-
+	ft_print_water(g_iparts_copy, vis);
 	mlx_put_image_to_window(vis->mlx, vis->win, vis->pic.img, 0, 0);
 }
 
-int loop_hook(void *parameters)
+int	loop_hook(void *parameters)
 {
-	t_vis *vis;
-	t_param *param;
+	t_vis	*vis;
+	t_param	*param;
 
 	vis = (t_vis *)parameters;
 	if (vis->param.exit)
@@ -132,10 +136,11 @@ int loop_hook(void *parameters)
 	return (0);
 }
 
-int main(int ac, char **av)
+int	main(int ac, char **av)
 {
 	ft_init();
-	if (!(g_ground = ft_read_ground_from_file3("demo.txt")))
+	g_ground = ft_read_ground_from_file3("demo.txt");
+	if (!g_ground)
 		ft_del_all("some problem with file\n");
 	g_comlex_ground = ft_create_complex_ground_from_simple(g_ground);
 	if (!g_comlex_ground)

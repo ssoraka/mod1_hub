@@ -107,6 +107,7 @@ __kernel	void find_neighbors(__global t_part *part, __global t_cell_map *cell, _
 	pos = part[gid].jik;
 
 	neigh[gid].count = 0;
+	part[gid].not_empty_near_cell = 0;
 
 	if (ft_get_cell_index(pos.y, pos.x, pos.z) == 0)
 		return ;
@@ -121,6 +122,7 @@ __kernel	void find_neighbors(__global t_part *part, __global t_cell_map *cell, _
 			while (k <= pos.z + 1)
 			{
 				c_gid = ft_get_cell_index(j, i, k);
+				part[gid].not_empty_near_cell += cell[c_gid].full | cell[c_gid].obstacle;
 				if (cell[c_gid].full == 1)
 				{
 					n = 0;

@@ -75,18 +75,16 @@ t_arr	*g_neighs;
 t_arr	*g_cl_prop;
 
 t_open_cl	*g_cl;
-t_earth *g_earth;
-
-t_dpoint g;
+t_earth	*g_earth;
 
 
-long g_clock;
-long g_clock2;
-long g_tmp;
+long	g_clock;
+long	g_clock2;
+long	g_tmp;
 
-t_vis *g_vis;
+t_vis	*g_vis;
 
-t_solver g_solver;
+t_solver	g_solver;
 
 #define DEFAULT_INDEX 0
 
@@ -134,6 +132,13 @@ typedef enum	e_obst
 	DYNAMIC_OBSTACLE = 2
 }				t_obst;
 
+typedef enum	e_earth_view
+{
+	CUB_EARTH,
+	SMOOTH_EARTH,
+	COLORED_EARTH
+}				t_earth_view;
+
 typedef enum	e_stat_g
 {
 	OFF_UPDATING_PARAM,
@@ -144,7 +149,7 @@ typedef enum	e_stat_g
 	PARAM_UPDATED
 }				t_stat_g;
 
-t_prog    g_compile[PROGRAMS_COUNT + 2];
+t_prog	g_compile[PROGRAMS_COUNT + 2];
 
 #define PROGRAMM_SIZE 5000
 

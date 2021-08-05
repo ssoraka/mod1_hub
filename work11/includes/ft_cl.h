@@ -104,6 +104,7 @@ typedef struct		s_neighs
 
 typedef struct		s_part
 {
+	int				not_empty_near_cell;
 	int				type;
 	REAL			density;
 	REAL			press;
@@ -123,6 +124,7 @@ typedef struct		s_cell_map
 typedef struct		s_cell
 {
 	char			obstacle;
+	char			surface;
 	char			water;
 }					t_cell;
 

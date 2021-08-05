@@ -46,10 +46,10 @@ int	ft_is_cell_obstacle(int **ground, int cell_number)
 		return (FALSE);
 	if (j <= (int)ft_return_heigth(ground[k][i]))
 		return (OBSTACLE);
-	if (i == 25 && j < 7)
-		return (DYNAMIC_OBSTACLE);
 	return (FALSE);
 }
+
+void	ft_mark_extern_cell(void *ptr, int j, int i, int k);
 
 void	ft_fill_cells_from_ground(t_arr *cells, int **ground)
 {
@@ -65,6 +65,9 @@ void	ft_fill_cells_from_ground(t_arr *cells, int **ground)
 		cell->obstacle = ft_is_cell_obstacle(ground, n);
 		n++;
 	}
+	ft_cycle_cube(cells, ft_mark_extern_cell,
+		&((t_point){J0, I0, K0}),
+		&(t_point){JMAX, IMAX, KMAX});
 }
 
 int	ft_is_need_print_cell(t_arr *cells, int j, int i, int k)
@@ -72,7 +75,9 @@ int	ft_is_need_print_cell(t_arr *cells, int j, int i, int k)
 	t_cell	*cell;
 
 	cell = cells->elems;
-	if (j <= J0 || j >= JMAX || i <= I0 || i >= IMAX || k <= K0 || k >= KMAX)
+	if ((!cell[ft_get_index(j, i, k)].obstacle
+			&& !cell[ft_get_index(j, i, k)].water) || (j <= J0 || j >= JMAX
+			|| i <= I0 || i >= IMAX || k <= K0 || k >= KMAX))
 		return (FALSE);
 	if (j == JMAX - 1 || i == I0 + 1 || i == IMAX - 1
 		|| k == K0 + 1 || k == KMAX - 1)
@@ -227,7 +232,7 @@ void	ft_print_all_cell(t_arr *cells, t_pict *pic, t_param *param)
 		cell = (t_cell *)iter.value;
 		prop.index = i;
 		jik = ft_get_index_d3(i);
-		if (((cell->obstacle == 1 && !param->is_smooth_relief)
+		if (((cell->surface == 1 && param->is_smooth_relief != SMOOTH_EARTH)
 				|| cell->obstacle == DYNAMIC_OBSTACLE)
 			&& ft_is_need_print_cell(cells, jik.y, jik.x, jik.z))
 			print_one_cell(jik, pic, param, prop);
@@ -244,7 +249,7 @@ void	ft_print_water_cell(t_arr *cells, t_pict *pic, t_param *param)
 	t_prop	prop;
 
 	i = 0;
-	prop = set_param(DEFAULT_POINT, 0, WATER_COLOR);
+	prop = set_param(DEFAULT_IMAGE, 0, WATER_COLOR);
 	iter = get_arr_iter(cells);
 	while (iter.get_next_elem(&iter))
 	{
@@ -271,6 +276,7 @@ void	ft_del_cell(void *ptr, int j, int i, int k)
 		return ;
 	cell = (t_cell *)ptr;
 	cell[cell_number].obstacle = FALSE;
+	cell[cell_number].surface = FALSE;
 }
 
 void	ft_add_cell(void *ptr, int j, int i, int k)
@@ -283,6 +289,19 @@ void	ft_add_cell(void *ptr, int j, int i, int k)
 		return ;
 	cell = (t_cell *)ptr;
 	cell[cell_number].obstacle = DYNAMIC_OBSTACLE;
+}
+
+void	ft_mark_extern_cell(void *ptr, int j, int i, int k)
+{
+	int		cell_number;
+	t_arr	*cells;
+
+	cell_number = ft_get_index(j, i, k);
+	if (!cell_number)
+		return ;
+	cells = (t_arr *)ptr;
+	((t_cell *)ft_arr_get(cells, cell_number))->surface
+		= ft_is_need_print_cell(cells, j, i, k);
 }
 
 void	ft_mark_cell_as_water(void *ptr, int j, int i, int k)
@@ -319,6 +338,7 @@ int	ft_change_obstacles(t_arr *cells, int cell_numb, int button, t_param *param)
 		ft_cycle_cube(cells->elems, ft_add_cell, &start, &end);
 	else
 		return (FALSE);
+	ft_cycle_cube(cells, ft_mark_extern_cell, &start, &end);
 	return (TRUE);
 }
 

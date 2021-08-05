@@ -154,9 +154,11 @@ void	ft_print_relief(t_earth *earth, t_arr *cells, t_pict *pic,
 	if (param->need_refresh)
 	{
 		param->need_refresh = FALSE;
-		if (param->is_smooth_relief)
+		if (param->is_smooth_relief == SMOOTH_EARTH)
 			ft_print_smooth_relief(earth, pic, param);
 		ft_print_all_cell(cells, pic, param);
+		if (param->is_smooth_relief == COLORED_EARTH)
+			ft_memcpy((void *)pic->addr, (void *)pic->index, pic->count_byte);
 		ft_save_image(pic);
 	}
 	else

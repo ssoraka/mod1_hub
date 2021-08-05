@@ -24,7 +24,7 @@ PATH_LIB	= libft
 
 LIBFT = ./$(PATH_LIB)/libft.a
 
-HEADERS = ft_cl.h ft_cl_struct.h ft_mod1.h ft_mod1_struct.h
+HEADERS = ft_cl.h ft_buttons.h ft_cl_struct.h ft_mod1.h ft_mod1_struct.h
 PATH_HEADERS = $(addprefix ./$(PATH_INC)/,${HEADERS})
 COMPILE_HEADER = -I ./$(PATH_INC)
 
