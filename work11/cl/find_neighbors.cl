@@ -13,8 +13,8 @@
 #include "./includes/ft_cl.h"
 
 int			ft_get_cell_index(int j, int i, int k);
-REAL		ft_kernel_function(REAL h, REAL r);
-REAL		ft_derivative_kernel_function(REAL h, REAL r);
+t_real		ft_kernel_function(t_real h, t_real r);
+t_real		ft_derivative_kernel_function(t_real h, t_real r);
 void		ft_find_neighbor_in_cell(__global t_part *p, __global t_neighs *n, int i, int j);
 
 int			ft_get_cell_index(int j, int i, int k)
@@ -24,11 +24,11 @@ int			ft_get_cell_index(int j, int i, int k)
 	return (j * (IMAX + 2) * (KMAX + 2) + i * (KMAX + 2) + k);
 }
 
-REAL		ft_kernel_function(REAL h, REAL r)
+t_real		ft_kernel_function(t_real h, t_real r)
 {
-	REAL r_h;
-	REAL k;
-	REAL answer;
+	t_real r_h;
+	t_real k;
+	t_real answer;
 
 	r_h = r / h;
 	k = 1.0 / (PI * h * h * h);
@@ -40,11 +40,11 @@ REAL		ft_kernel_function(REAL h, REAL r)
 	return (answer);
 }
 
-REAL		ft_derivative_kernel_function(REAL h, REAL r)
+t_real		ft_derivative_kernel_function(t_real h, t_real r)
 {
-	REAL r_h;
-	REAL k;
-	REAL answer;
+	t_real r_h;
+	t_real k;
+	t_real answer;
 
 	r_h = r / h;
 	k = 1.0 / (PI * h * h * h * h);
@@ -59,8 +59,8 @@ REAL		ft_derivative_kernel_function(REAL h, REAL r)
 void		ft_find_neighbor_in_cell(__global t_part *p, __global t_neighs *n, int i, int j)
 {
 	t_neigh		tmp;
-	REAL		len;
-	REAL		tmp2;
+	t_real		len;
+	t_real		tmp2;
 
 	tmp.h_ij = PART_H;
 
@@ -126,7 +126,7 @@ __kernel	void find_neighbors(__global t_part *part, __global t_cell_map *cell, _
 				if (cell[c_gid].full == 1)
 				{
 					n = 0;
-					while ((j_gid = cell[c_gid].index[n]) != -1)
+					while ((j_gid = cell[c_gid].index[n]) != -1 && neigh[gid].count < MAX_NEIGH_COUNT)
 					{
 						ft_find_neighbor_in_cell(part, neigh, gid, j_gid);
 						n++;

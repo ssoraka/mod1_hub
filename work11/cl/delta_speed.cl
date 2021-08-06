@@ -17,19 +17,19 @@ __kernel	void delta_speed(__global t_part *p, __global t_neighs *n, __global t_c
 	int i;
 	int j;
 	int num;
-	REAL press_ij;
-	REAL c_ij;
-	REAL viscos;
-	REAL mu_ij;
-	REAL h_ij;
-	REAL tmp;
-	REAL m_j;
+	t_real press_ij;
+	t_real c_ij;
+	t_real viscos;
+	t_real mu_ij;
+	t_real h_ij;
+	t_real tmp;
+	t_real m_j;
 	t_dpoint speed;
 	t_dpoint r_ij;
 	t_dpoint u_ij;
 	t_dpoint a;
 	t_dpoint g;
-	REAL viscosity;
+	t_real viscosity;
 
 
 	i = get_global_id(0);

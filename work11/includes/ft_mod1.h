@@ -13,99 +13,95 @@
 #ifndef FT_MOD1_H
 # define FT_MOD1_H
 
-#include "../libft/libft.h"
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/uio.h>
-#include <OpenCL/opencl.h>
-#include <time.h>
-#include "../libs/minilibx_macos/mlx.h"
-#include "ft_cl.h"
-#include "ft_cl_struct.h"
-#include "ft_mod1_struct.h"
-#include "ft_buttons.h"
+# include "../libft/libft.h"
+# include <math.h>
+# include <stdlib.h>
+# include <stdio.h>
+# include <unistd.h>
+# include <pthread.h>
+# include <fcntl.h>
+# include <sys/types.h>
+# include <sys/uio.h>
+# include <OpenCL/opencl.h>
+# include <time.h>
+# include "../libs/minilibx_macos/mlx.h"
+# include "ft_cl.h"
+# include "ft_cl_struct.h"
+# include "ft_mod1_struct.h"
+# include "ft_buttons.h"
 
 /*
 **	добавляем по 2 вершины между вершинами расчетной модели для сплайна
 */
-#define ADD_POINT 4
+# define ADD_POINT 4
 
-#define MAP_KOEF 0.7
-#define HEIGTH_KOEF 0.9
-#define MAP_HEIGTH2 ((JMAX + J0) * 100)
-#define COLOR_UP 0xFFFFFF
-#define COLOR_DOWN 0x704214
+# define MAP_KOEF 0.7
+# define HEIGTH_KOEF 0.9
+//# define MAP_HEIGTH2 ((JMAX + J0) * 100)
+# define COLOR_UP 0xFFFFFF
+# define COLOR_DOWN 0x704214
 
+# define WATER_COLOR 0xFFFF
+# define MAGMA_COLOR 0xFF0000
+# define OBSTACLES_FRONT_COLOR 0x5b432d
 
-#define WATER_COLOR 0xFFFF
-#define MAGMA_COLOR 0xFF0000
-#define OBSTACLES_FRONT_COLOR 0x5b432d
+# define MSG_ERROR1 "Malloc error\n"
 
-#define MSG_ERROR1 "Malloc error\n"
+// 0.05 / 180.0
+# define ROTATE_ANGLE 0.0003
+# define CONST_WIDTH 2000
+# define CONST_HEINTH 1360
+# define CAM_X 1000
+# define CAM_Y 680
 
-/*
-**	images
-*/
-# define ROTATE_ANGLE 0.05 / 180.0
-#define CONST_WIDTH 2000
-#define CONST_HEINTH 1360
-#define CAM_X 1000
-#define CAM_Y 680
+# define RADIUS 3
 
-#define RADIUS 3
+# define DEFAULT_INDEX 0
 
+# define PIXEL 2
+# define INDEX 4
+# define CHECK_Z_BUFFER 8
+# define MARK_Z_BUFFER 16
+# define GRADIENT 32
 
-int		**g_ground;
-int		**g_comlex_ground;
+//# define PARTICLE		( PIXEL | CHECK_Z_BUFFER )
+//# define DEFAULT_POINT	( PIXEL | INDEX | CHECK_Z_BUFFER | MARK_Z_BUFFER )
+//# define DEFAULT_IMAGE	( PIXEL | CHECK_Z_BUFFER | MARK_Z_BUFFER )
+
+# define PARTICLE		0b001010
+# define DEFAULT_POINT	0b011110
+# define DEFAULT_IMAGE	0b011010
+
+# define PROGRAMM_SIZE 5000
 
 typedef pthread_mutex_t	t_mut;
-t_mut	g_mutex;
+typedef t_dpoint		t_dpnt;
+typedef t_open_cl		t_op_cl;
 
-t_arr	*g_cell;
-t_arr	*g_parts;
-t_arr	*g_iparts;
-t_arr	*g_iparts_copy;
-t_arr	*g_cell_map;
-t_arr	*g_neighs;
-t_arr	*g_cl_prop;
+int						**g_ground;
+int						**g_comlex_ground;
+t_mut					g_mutex;
+t_arr					*g_cell;
+t_arr					*g_parts;
+t_arr					*g_iparts;
+t_arr					*g_iparts_copy;
+t_arr					*g_cell_map;
+t_arr					*g_neighs;
+t_arr					*g_cl_prop;
+t_open_cl				*g_cl;
+t_earth					*g_earth;
+t_vis					*g_vis;
+t_solver				g_solver;
+t_prog					g_compile[PROGRAMS_COUNT + 2];
 
-t_open_cl	*g_cl;
-t_earth	*g_earth;
-
-
-long	g_clock;
-long	g_clock2;
-long	g_tmp;
-
-t_vis	*g_vis;
-
-t_solver	g_solver;
-
-#define DEFAULT_INDEX 0
-
-#define PIXEL 2
-#define INDEX 4
-#define CHECK_Z_BUFFER 8
-#define MARK_Z_BUFFER 16
-#define GRADIENT 32
-
-#define PARTICLE		( PIXEL | CHECK_Z_BUFFER )
-#define DEFAULT_POINT	( PIXEL | INDEX | CHECK_Z_BUFFER | MARK_Z_BUFFER )
-#define DEFAULT_IMAGE	( PIXEL | CHECK_Z_BUFFER | MARK_Z_BUFFER )
-
-typedef enum	e_print
+typedef enum e_print
 {
 	COLOR = 1,
 	RADIUS2,
 	COLUMN_COUNT2
 }				t_print;
 
-typedef enum	e_column
+typedef enum e_column
 {
 	FLUID = 0,
 	F_H,
@@ -118,7 +114,7 @@ typedef enum	e_column
 	COLUMN_COUNT
 }				t_column;
 
-typedef enum	e_form
+typedef enum e_form
 {
 	POINT,
 	RECTANGLE,
@@ -126,20 +122,20 @@ typedef enum	e_form
 	IMAGE
 }				t_form;
 
-typedef enum	e_obst
+typedef enum e_obst
 {
 	OBSTACLE = 1,
 	DYNAMIC_OBSTACLE = 2
 }				t_obst;
 
-typedef enum	e_earth_view
+typedef enum e_earth_view
 {
 	CUB_EARTH,
 	SMOOTH_EARTH,
 	COLORED_EARTH
 }				t_earth_view;
 
-typedef enum	e_stat_g
+typedef enum e_stat_g
 {
 	OFF_UPDATING_PARAM,
 	NEED_STOP_UPDATING,
@@ -149,11 +145,6 @@ typedef enum	e_stat_g
 	PARAM_UPDATED
 }				t_stat_g;
 
-t_prog	g_compile[PROGRAMS_COUNT + 2];
-
-#define PROGRAMM_SIZE 5000
-
-
 /*
 **	main.c
 */
@@ -161,12 +152,11 @@ void	ft_refresh_picture(t_vis *vis);
 int		loop_hook(void *param);
 void	ft_prepare_one_buffer(t_buff *buff);
 
-
 /*
 ** initialization.c
 */
 void	ft_initialization_of_global_variable(void);
-int	ft_del_all(char *message);
+int		ft_del_all(char *message);
 void	ft_init(void);
 
 /*
@@ -184,11 +174,11 @@ void	ft_normalize_vektor(t_dpoint *vek);
 void	ft_rotate_vek_around_vek_by_ang(t_dpoint *ox, t_dpoint *oy, double ang);
 void	ft_change_points4(t_param *vis, t_vektr *p);
 void	ft_rotate_xyz(t_oxyz *oxyz, t_dpoint *ang);
-t_dpoint	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz);
 void	ft_ret_zoom_xyz(t_vektr *ox, t_param *vis);
 void	ft_change_points5(t_param *param, t_vektr *p);
 void	ft_rotate_point_around_point(t_param *param, t_vektr *p);
-void	ft_rotate_oxyz_around_v(t_param *param, t_dpoint *v, REAL ang);
+void	ft_rotate_oxyz_around_v(t_param *param, t_dpoint *v, t_real ang);
+t_dpnt	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz);
 
 /*
 **	images.c
@@ -206,7 +196,6 @@ t_vis	*ft_destroy_mlx(t_vis **vis);
 */
 t_bool	ft_init_picture(t_pict *pict, int diameter, int color);
 
-
 /*
 **	lines_vektrs.c
 */
@@ -219,12 +208,15 @@ t_plgn	*ft_create_poligon(t_vektr *p1, t_vektr *p2, t_vektr *p3, int color);
 void	ft_del_poligines(t_plgn **begin);
 void	ft_swap_ptr(void **ptr1, void **ptr2);
 void	ft_sort_points_by_y(t_vektr **p);
-void	ft_vektr_interpolation_by_y(t_vektr *p, t_vektr *p1, t_vektr *p2, int grad);
+void	ft_vektr_interpolation_by_y(t_vektr *p, t_vektr *p1, t_vektr *p2,
+			int grad);
 int		ft_need_print_traing(t_vektr **p);
 void	ft_draw_traing(t_pict *pic, t_vektr **p, t_prop prop, int grad);
 void	ft_print_plgn(t_plgn *plgn, t_pict *pic, t_prop prop);
-void	ft_print_poligons(t_plgn *plgn, t_vektr *points, t_pict *pic, t_param *param);
+void	ft_print_poligons(t_plgn *plgn, t_vektr *points, t_pict *pic,
+			t_param *param);
 void	ft_prepare_plgn_for_printing(t_plgn *plgn, t_param *param);
+
 /*
 **	keys.c
 */
@@ -237,12 +229,12 @@ int		ft_csale_picture(t_param *param, int button, t_point *mouse);
 **	point.c
 */
 void	ft_fill_point(t_point *p, int y, int x, int z);
-void	ft_fill_dpoint(t_dpoint *p, REAL y, REAL x, REAL z);
+void	ft_fill_dpoint(t_dpoint *p, t_real y, t_real x, t_real z);
 void	ft_create_xyz(t_oxyz *oxyz);
-t_dpoint	ft_ret_norm(t_dpoint *a, t_dpoint *b, t_dpoint *c);
-REAL	ft_vekt_cos(t_dpoint a, t_dpoint b);
-REAL	ft_dot_dpoints(t_dpoint *a, t_dpoint *b);
-REAL	ft_vektr_len(t_dpoint *a);
+t_dpnt	ft_ret_norm(t_dpoint *a, t_dpoint *b, t_dpoint *c);
+t_real	ft_vekt_cos(t_dpoint a, t_dpoint b);
+t_real	ft_dot_dpoints(t_dpoint *a, t_dpoint *b);
+t_real	ft_vektr_len(t_dpoint *a);
 void	ft_rotate_xyz_around_v(t_oxyz *oxyz, t_dpoint *v, double ang);
 
 /*
@@ -253,13 +245,15 @@ void	ft_del_part(t_part **begin);
 t_part	*ft_new_part(t_dpoint *p, t_fluids type);
 t_part	*ft_add_part(void *ptr, t_dpoint *p, t_fluids type);
 t_arr	*ft_init_all_clear_parts(void);
-void	ft_create_new_area_of_water(t_arr *parts, t_point *start, t_point *end, t_fluids type);
+void	ft_create_new_area_of_water(t_arr *parts,
+			t_point *start, t_point *end, t_fluids type);
 void	ft_fill_interface(t_arr *parts, t_arr *iparts);
 int		ft_del_unused_part(void *elem, void *param);
+
 /*
 **	map.c
 */
-REAL	ft_return_heigth(REAL value);
+t_real	ft_return_heigth(t_real value);
 int		**ft_read_ground_from_file3(char *name);
 char	*ft_read_string_from_file(char *name);
 int		ft_find_points(t_map *map, char **arr);
@@ -268,29 +262,31 @@ void	ft_create_first_and_last_points(t_map *map);
 int		**ft_create_map(t_map *map);
 void	ft_fill_map_arr(t_map *map);
 void	ft_superposition(void *param, int j, int i, int k);
-REAL	ft_sigmoida(int i, int k);
+t_real	ft_sigmoida(int i, int k);
+
 /*
 **	ground.c
 */
-int		**ft_create_complex_ground_from_simple(int  **simple_ground);
+int		**ft_create_complex_ground_from_simple(int **simple_ground);
 void	ft_bicube_interpolate_y(void *param, int j, int i, int k);
 void	ft_bicube_interpolate_x(void *param, int j, int i, int k);
-int		ft_cube_interpolate (int *arr, REAL x);
+int		ft_cube_interpolate(int *arr, t_real x);
 
-int		ft_create_relief(t_vis *vis, int  **ground);
-t_vektr	*ft_create_points_of_relief(int  **ground, t_vektr **p);
+int		ft_create_relief(t_vis *vis, int **ground);
+t_vektr	*ft_create_points_of_relief(int **ground, t_vektr **p);
 int		ft_create_points_from_string(t_vektr **begin, int *ground, int k);
 void	ft_points_push_back(t_vektr *begin, t_vektr *last);
 int		ft_color_from_z(int value);
 t_plgn	*ft_create_poligons_of_relief(t_vektr **p_arr);
-int		ft_create_line_of_poligons_of_relief(t_plgn **plgn, t_vektr *p1, t_vektr *p2);
+int		ft_create_line_of_poligons_of_relief(t_plgn **plgn,
+			t_vektr *p1, t_vektr *p2);
 int		ft_create_rectang_poligon2(t_plgn **plgn, t_vektr **p, int color);
-
 
 /*
 **	cells.c
 */
-int		ft_change_obstacles(t_arr *cell, int cell_number, int button, t_param *param);
+int		ft_change_obstacles(t_arr *cell, int cell_number, int button,
+			t_param *param);
 int		ft_get_index(int j, int i, int k);
 int		ft_is_cell_obstacle(int **ground, int cell_number);
 void	ft_fill_cells_from_ground(t_arr *cells, int **ground);
@@ -310,7 +306,8 @@ int		ft_create_all_buffers(t_open_cl *cl);
 int		ft_create_buffers(t_open_cl *cl, int num);
 int		ft_write_buffers(t_open_cl *cl, int num, int need_wait);
 int		ft_read_buffers(t_open_cl *cl, int num, int need_wait);
-int		recreate_buffers(t_open_cl *cl, int num, size_t new_elem_count, int need_write);
+int		recreate_buffers(t_open_cl *cl, int num, size_t new_elem_count,
+			int need_write);
 
 /*
 **	open_cl_read_build_run.c
@@ -323,7 +320,7 @@ int		ft_set_kernel_arg(t_open_cl *cl, t_prog *compile);
 /*
 **	open_cl_init.c
 */
-t_open_cl	*ft_init_open_cl(int device);
+t_op_cl	*ft_init_open_cl(int device);
 
 /*
 **	open_cl_free.c
@@ -334,7 +331,8 @@ void	ft_stop_cl(t_open_cl *cl);
 /*
 **	thread_solver.c
 */
-void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl, t_param *param, t_prog *compile);
+void	ft_create_thread_for_solver(t_solver *solver, t_open_cl *cl,
+			t_param *param, t_prog *compile);
 void	*ft_solver(void *param);
 
 /*
@@ -342,8 +340,9 @@ void	*ft_solver(void *param);
 */
 t_earth	*ft_create_earth(void);
 void	ft_del_earth(t_earth **earth);
-int		ft_create_relief2(t_earth *earth, int  **ground);
-void	ft_print_relief(t_earth *earth, t_arr *cells, t_pict *pic, t_param *param);
+int		ft_create_relief2(t_earth *earth, int **ground);
+void	ft_print_relief(t_earth *earth, t_arr *cells,
+			t_pict *pic, t_param *param);
 
 /*
 **	print_shapes.c
@@ -377,6 +376,7 @@ void	ft_prepare_one_buffer(t_buff *buff);
 void	ft_init_buffers(t_buff *buff, t_arr *arr);
 t_bool	ft_copy_arrs(t_arr *dst, t_arr *src);
 t_bool	del_elem(void *elem, void *param);
-void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int), t_point *start, t_point *end);
+void	ft_cycle_cube(void *param, void (*f)(void *, int, int, int),
+			t_point *start, t_point *end);
 
 #endif

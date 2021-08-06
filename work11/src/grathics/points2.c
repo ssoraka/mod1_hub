@@ -14,7 +14,7 @@
 
 void	ft_normalize_vektor(t_dpoint *vek)
 {
-	REAL	summ;
+	t_real	summ;
 
 	summ = ft_vektr_len(vek);
 	vek->x = vek->x / summ;

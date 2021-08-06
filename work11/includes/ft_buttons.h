@@ -15,15 +15,16 @@
 
 # if defined(__linux__)
 #  include "X11/X.h"
-#  define KEY_PRESS_MASK KeyPressMask
-#  define POINTER_MOTION_MASK PointerMotionMask
-#  define BUTTON_PRESS_MASK ButtonPressMask
-#  define BUTTON_RELEASE_MASK ButtonReleaseMask
-#  define KEY_PRESS KeyPress
-#  define KEY_RELEASE KeyRelease
-#  define BUTTON_PRESS ButtonPress
-#  define BUTTON_RELEASE ButtonRelease
-#  define MOTION_NOTIFY MotionNotify
+
+//#  define KEY_PRESS_MASK KeyPressMask
+//#  define POINTER_MOTION_MASK PointerMotionMask
+//#  define BUTTON_PRESS_MASK ButtonPressMask
+//#  define BUTTON_RELEASE_MASK ButtonReleaseMask
+//#  define KEY_PRESS KeyPress
+//#  define KEY_RELEASE KeyRelease
+//#  define BUTTON_PRESS ButtonPress
+//#  define BUTTON_RELEASE ButtonRelease
+//#  define MOTION_NOTIFY MotionNotify
 # else
 #  define KEY_PRESS_MASK 0
 #  define POINTER_MOTION_MASK 0

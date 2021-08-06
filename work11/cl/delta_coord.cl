@@ -17,10 +17,10 @@ __kernel	void delta_coord(__global t_part *p, __global t_neighs *n, __global t_c
 	int i;
 	int j;
 	int num;
-	REAL tmp;
+	t_real tmp;
 	t_dpoint d_speed;
 	t_dpoint d_pos;
-	REAL m_j;
+	t_real m_j;
 
 
 	i = get_global_id(0);

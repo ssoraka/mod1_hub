@@ -16,9 +16,9 @@
 # define MAX_POINT 50
 # define MAX_NEIGHBORS1 50
 
-#include "ft_mod1.h"
+# include "ft_mod1.h"
 
-typedef struct		s_map
+typedef struct s_map
 {
 	int				count;
 	int				delta;
@@ -29,14 +29,14 @@ typedef struct		s_map
 	int				**arr;
 }					t_map;
 
-typedef struct		s_vektr
+typedef struct s_vektr
 {
 	int				color;
 	struct s_dpoint	abs;
 	struct s_point	zoom;
 }					t_vektr;
 
-typedef struct		s_line
+typedef struct s_line
 {
 	struct s_point	dir;
 	struct s_point	delta;
@@ -46,16 +46,15 @@ typedef struct		s_line
 	int				index;
 }					t_line;
 
-
-typedef struct		s_plgn
+typedef struct s_plgn
 {
 	struct s_vektr	*p[4];
 	struct s_dpoint	n;
 	struct s_dpoint	rot_n;
-	REAL cos;
+	t_real			cos;
 }					t_plgn;
 
-typedef struct		s_pict
+typedef struct s_pict
 {
 	void			*img;
 	int				*addr;
@@ -70,16 +69,14 @@ typedef struct		s_pict
 	int				endian;
 }					t_pict;
 
-
-typedef struct		s_oxyz
+typedef struct s_oxyz
 {
 	struct s_dpoint	oy;
 	struct s_dpoint	ox;
 	struct s_dpoint	oz;
 }					t_oxyz;
 
-
-typedef struct		s_param
+typedef struct s_param
 {
 	int				cam_x;
 	int				cam_y;
@@ -125,8 +122,7 @@ typedef struct		s_param
 	struct s_oxyz	oxyz;
 }					t_param;
 
-
-typedef struct		s_vis
+typedef struct s_vis
 {
 	struct s_param	param;
 	struct s_pict	pic;
@@ -135,7 +131,7 @@ typedef struct		s_vis
 	void			*win;
 }					t_vis;
 
-typedef struct		s_solver
+typedef struct s_solver
 {
 	pthread_t		tid;
 	pthread_attr_t	attr;
@@ -144,7 +140,7 @@ typedef struct		s_solver
 	t_param			*param;
 }					t_solver;
 
-typedef struct		s_earth
+typedef struct s_earth
 {
 	t_arr			*points;
 	t_arr			*poligons;
@@ -152,7 +148,7 @@ typedef struct		s_earth
 	int				columns;
 }					t_earth;
 
-typedef struct		s_prog
+typedef struct s_prog
 {
 	char			file[50];
 	char			kernel[50];
@@ -160,14 +156,14 @@ typedef struct		s_prog
 	unsigned int	arg[3];
 }					t_prog;
 
-typedef struct		s_prop
+typedef struct s_prop
 {
 	int				color;
 	int				index;
 	int				params;
 }					t_prop;
 
-typedef struct		s_shape
+typedef struct s_shape
 {
 	int				color;
 	int				len;

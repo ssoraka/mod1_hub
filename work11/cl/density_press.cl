@@ -17,11 +17,11 @@ __kernel	void density_press(__global t_part *p, __global t_neighs *n, __global t
 	int i;
 	int j;
 	int num;
-	REAL tmp;
-	REAL density;
-	REAL d_density;
+	t_real tmp;
+	t_real density;
+	t_real d_density;
 	t_dpoint d_speed;
-	REAL m_j;
+	t_real m_j;
 
 	i = get_global_id(0);
 
@@ -66,8 +66,8 @@ __kernel	void density_press(__global t_part *p, __global t_neighs *n, __global t
 	density += d_density * D_TIME;
 	p[i].density = density;
 
-	REAL density_0 = params->f[p[i].type].dens;
-	REAL press_g = params->f[p[i].type].p;
+	t_real density_0 = params->f[p[i].type].dens;
+	t_real press_g = params->f[p[i].type].p;
 	p[i].press = press_g * (pow(density / density_0, GAMMA) - 1.0);
 	if (p[i].press < 0.0)
 		p[i].press = 0.0;

@@ -17,7 +17,7 @@ void	ft_fill_picture(t_pict *pict, int color)
 	int		rad;
 	int		x;
 	int		y;
-	REAL	len;
+	t_real	len;
 
 	rad = pict->size_line / 2;
 	if (!rad)

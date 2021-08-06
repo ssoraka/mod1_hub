@@ -46,11 +46,12 @@ void	print_img_as_water(t_arr *ipoints, t_vis *vis, t_pict *from)
 		ft_fill_dpoint(&v.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
 		ft_rotate_point_around_point(&(vis->param), &v);
 		printer.params.index = ipart->type;
-		if (printer.params.index != NOTHING && ipart->is_surface)
+		if (printer.params.index != NOTHING)
 			printer.print(to, &v.zoom, &printer);
 	}
 }
 
+// todo ipart->is_surface fix
 void	print_rect_as_water(t_arr *ipoints, t_vis *vis)
 {
 	t_iter	iter;
@@ -62,7 +63,7 @@ void	print_rect_as_water(t_arr *ipoints, t_vis *vis)
 	ft_bzero((void *)&v, sizeof(t_vektr));
 	ft_init_shape(&printer, RECTANGLE,
 		set_param(DEFAULT_IMAGE, WATER, WATER_COLOR));
-	printer.len = 3;
+	printer.len = RADIUS;
 	to = &vis->pic;
 	iter = get_arr_iter(ipoints);
 	while (iter.get_next_elem(&iter))
@@ -72,7 +73,7 @@ void	print_rect_as_water(t_arr *ipoints, t_vis *vis)
 		ft_rotate_point_around_point(&(vis->param), &v);
 		printer.color = (ipart->type == WATER) * WATER_COLOR
 			+ (ipart->type == MAGMA) * MAGMA_COLOR;
-		if (printer.params.index != NOTHING && ipart->is_surface)
+		if (printer.params.index != NOTHING)
 			printer.print(to, &v.zoom, &printer);
 	}
 }

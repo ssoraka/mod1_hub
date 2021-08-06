@@ -46,6 +46,11 @@ void	ft_init(void)
 	g_cl = NULL;
 }
 
+static int	cell_count(void)
+{
+	return ((KMAX + 2) * (JMAX + 2) * (IMAX + 2));
+}
+
 void	ft_initialization_of_global_variable(void)
 {
 	g_vis = ft_create_mlx(CONST_WIDTH, CONST_HEINTH, "mod1");
@@ -53,8 +58,8 @@ void	ft_initialization_of_global_variable(void)
 	g_neighs = ft_create_arr(sizeof(t_neighs), 16, NULL);
 	g_iparts = ft_create_arr(sizeof(t_ipart), 16, NULL);
 	g_iparts_copy = ft_create_arr(sizeof(t_ipart), 16, NULL);
-	g_cell = ft_create_arr(sizeof(t_cell), CELL_COUNT, NULL);
-	g_cell_map = ft_create_arr(sizeof(t_cell_map), CELL_COUNT, NULL);
+	g_cell = ft_create_arr(sizeof(t_cell), cell_count(), NULL);
+	g_cell_map = ft_create_arr(sizeof(t_cell_map), cell_count(), NULL);
 	g_earth = ft_create_earth();
 	g_cl_prop = ft_create_arr(sizeof(t_cl_prop), 1, NULL);
 	g_cl = ft_init_open_cl(CL_DEVICE_TYPE_GPU);
@@ -63,8 +68,8 @@ void	ft_initialization_of_global_variable(void)
 		ft_del_all("malloc error\n");
 	if (!ft_read_and_build_programs(g_cl, g_compile))
 		ft_del_all("some error\n");
-	g_cell->elems_used = CELL_COUNT;
-	g_cell_map->elems_used = CELL_COUNT;
+	g_cell->elems_used = cell_count();
+	g_cell_map->elems_used = cell_count();
 	pthread_mutex_init(&g_mutex, NULL);
 	ft_bzero((void *)&g_solver, sizeof(t_solver));
 	init_cl_properties();

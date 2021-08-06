@@ -97,11 +97,11 @@ int	ft_create_points_of_relief2(t_earth *earth, int **ground)
 		while (i < earth->columns + I0 * (1 + ADD_POINT))
 		{
 			tmp.color = ft_grad_color(ground[k][i],
-					MAP_HEIGTH2, COLOR_UP, COLOR_DOWN);
+					(JMAX + J0) * 100, COLOR_UP, COLOR_DOWN);
 			ft_fill_dpoint(&tmp.abs,
 				ft_return_heigth(ground[k][i]),
-				(REAL)i / (1 + ADD_POINT) + 0.5,
-				(REAL)k / (1 + ADD_POINT) + 0.5);
+				(t_real)i / (1 + ADD_POINT) + 0.5,
+				(t_real)k / (1 + ADD_POINT) + 0.5);
 			if (!(ft_arr_add(earth->points, &tmp)))
 				return (FALSE);
 			i++;

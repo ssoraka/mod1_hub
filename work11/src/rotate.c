@@ -81,7 +81,7 @@ void	calc_light(t_param *param)
 	param->cos.z = ft_vekt_cos(param->oxyz.oz, param->light);
 }
 
-void	ft_rotate_oxyz_around_v(t_param *param, t_dpoint *v, REAL ang)
+void	ft_rotate_oxyz_around_v(t_param *param, t_dpoint *v, t_real ang)
 {
 	t_dpoint	g;
 	t_oxyz		*oxyz;

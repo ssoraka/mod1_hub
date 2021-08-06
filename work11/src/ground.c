@@ -18,9 +18,9 @@ typedef struct s_ground
 	int				**simple;
 }					t_ground;
 
-int	ft_cube_interpolate(int *arr, REAL x)
+int	ft_cube_interpolate(int *arr, t_real x)
 {
-	REAL	value;
+	t_real	value;
 
 	value = arr[1] + (-arr[0] + arr[2]) * (x / 2)
 		+ (2 * arr[0] - 5 * arr[1] + 4 * arr[2] - arr[3]) * x * (x / 2)
@@ -42,7 +42,7 @@ void	ft_bicube_interpolate_x2(void *param, int j, int i, int k)
 		if (i < IMAX)
 			gr->complex[k * (1 + ADD_POINT)][i * (1 + ADD_POINT) + n]
 				= ft_cube_interpolate(gr->simple[k] + i - 1,
-					((REAL)n / (1 + ADD_POINT)));
+					((t_real)n / (1 + ADD_POINT)));
 		else
 		{
 			tmp[0] = gr->simple[k][i - 1];
@@ -50,7 +50,7 @@ void	ft_bicube_interpolate_x2(void *param, int j, int i, int k)
 			tmp[2] = gr->simple[k][i + 1];
 			tmp[3] = gr->simple[k][i + 1];
 			gr->complex[k * (1 + ADD_POINT)][i * (1 + ADD_POINT) + n]
-				= ft_cube_interpolate(tmp, ((REAL)n / (1 + ADD_POINT)));
+				= ft_cube_interpolate(tmp, ((t_real)n / (1 + ADD_POINT)));
 		}
 		n++;
 	}
@@ -76,7 +76,7 @@ void	ft_bicube_interpolate_x(void *param, int j, int i, int k)
 		tmp[2] = gr->simple[k][i + 1];
 		tmp[3] = gr->simple[k][i + 1 + 1 * (i != IMAX)];
 		if (i > 0 && i < IMAX)
-			value = ft_cube_interpolate(tmp, ((REAL)n / (1 + ADD_POINT)));
+			value = ft_cube_interpolate(tmp, ((t_real)n / (1 + ADD_POINT)));
 		gr->complex[k * (1 + ADD_POINT)][i * (1 + ADD_POINT) + n] = value;
 		n++;
 	}
@@ -103,7 +103,7 @@ void	ft_bicube_interpolate_y(void *param, int j, int i, int k)
 	{
 		value = ground->simple[K0][I0];
 		if (k > 0 && k < KMAX)
-			value = ft_cube_interpolate(tmp, ((REAL)n / (1 + ADD_POINT)));
+			value = ft_cube_interpolate(tmp, ((t_real)n / (1 + ADD_POINT)));
 		ground->complex[k * (1 + ADD_POINT) + n][i] = value;
 		n++;
 	}

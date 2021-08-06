@@ -13,20 +13,27 @@
 #ifndef FT_CL_STRUCT_H
 # define FT_CL_STRUCT_H
 
-#include "ft_mod1.h"
+# include "ft_mod1.h"
 
-typedef enum	e_buf
+// буффер для клеток пространства
+// буфер хешмап
+// буффер для частиц
+// буфер для ответа с положением частиц
+// буфер хешмап
+// буфер глобальных параметров
+
+typedef enum e_buf
 {
-	CELLS = 0, //буффер для клеток пространства
-	CELL_MAPS, //буфер хешмап
-	PARTS, //буффер для частиц
-	INTERFACE, //буфер для ответа с положением частиц
-	NEIGHS, //буфер хешмап
-	PARAMS, //буфер глобальных параметров
+	CELLS = 0,
+	CELL_MAPS,
+	PARTS,
+	INTERFACE,
+	NEIGHS,
+	PARAMS,
 	BUFFER_COUNT
 }				t_buf;
 
-typedef struct		s_buff
+typedef struct s_buff
 {
 	cl_mem			buffer;
 	struct s_arr	*arr;
@@ -35,7 +42,7 @@ typedef struct		s_buff
 	size_t			buff_used;
 }					t_buff;
 
-typedef struct			s_open_cl
+typedef struct s_open_cl
 {
 	cl_platform_id		platform;
 	cl_uint				num_platform;

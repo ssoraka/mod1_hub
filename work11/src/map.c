@@ -13,9 +13,9 @@
 #include "../includes/ft_mod1.h"
 #include <math.h>
 
-REAL	ft_return_heigth(REAL value)
+t_real	ft_return_heigth(t_real value)
 {
-	value = value * (JMAX - J0) * HEIGTH_KOEF / (MAP_HEIGTH2) + 1;
+	value = value * (JMAX - J0) * HEIGTH_KOEF / ((JMAX + J0) * 100) + 1;
 	return (value);
 }
 
@@ -97,16 +97,16 @@ void	ft_create_first_and_last_points(t_map *map)
 		((map->p_min.z + map->p_max.z) - delta * (KMAX + K0)) / 2);
 }
 
-REAL	ft_sigmoida(int i, int k)
+t_real	ft_sigmoida(int i, int k)
 {
-	REAL	answer;
+	t_real	answer;
 	int		x;
 
 	x = ft_min(i - I0, IMAX - i);
 	x = ft_min(x, KMAX - k);
 	x = ft_min(x, k - K0);
 	x = -x * x;
-	answer = 1 - exp2((REAL)x);
+	answer = 1 - exp2((t_real)x);
 	return (answer);
 }
 
@@ -134,7 +134,7 @@ void	ft_superposition2(t_map *map, int i, int k)
 		e += exp2(-dist / (sigma * 2.0)) * map->p[num].y / (1.0 + dist);
 		num++;
 	}
-	map->arr[k][i] += (int)((e * ft_sigmoida(i, k)) * MAP_HEIGTH2
+	map->arr[k][i] += (int)((e * ft_sigmoida(i, k)) * ((JMAX + J0) * 100)
 			/ all_dist / (map->p_max.y - map->p_min.y));
 }
 
@@ -149,7 +149,7 @@ void	ft_fill_map_arr(t_map *map)
 		i = 0;
 		while (i <= IMAX + 1)
 		{
-			map->arr[k][i] = -map->p_min.y * MAP_HEIGTH2
+			map->arr[k][i] = -map->p_min.y * ((JMAX + J0) * 100)
 				/ (map->p_max.y - map->p_min.y);
 			if (k > K0 && k < KMAX && i > I0 && i < IMAX)
 				ft_superposition2(map, i, k);
