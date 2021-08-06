@@ -170,7 +170,6 @@ int		ft_int_interpolation(int y, int delta_y, int x1, int x2);
 /*
 **	rotate.c
 */
-void	ft_normalize_vektor(t_dpoint *vek);
 void	ft_rotate_vek_around_vek_by_ang(t_dpoint *ox, t_dpoint *oy, double ang);
 void	ft_change_points4(t_param *vis, t_vektr *p);
 void	ft_rotate_xyz(t_oxyz *oxyz, t_dpoint *ang);
@@ -186,10 +185,14 @@ t_dpnt	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz);
 int		ft_create_img(t_pict *pic, void *mlx, int width, int heigth);
 t_vis	*ft_create_mlx(int width, int heigth, char *name);
 void	ft_destroy_img(t_pict *pic);
+t_vis	*ft_destroy_mlx(t_vis **vis);
+
+/*
+**	picture.c
+*/
 void	ft_clear_image(t_pict *pic);
 void	ft_save_image(t_pict *pic);
 void	ft_return_image(t_pict *pic);
-t_vis	*ft_destroy_mlx(t_vis **vis);
 
 /*
 **	sprite.c
@@ -204,15 +207,16 @@ void	draw_line_img(t_line *line, t_pict *pic, t_prop prop);
 /*
 **	poligons.c
 */
-void	ft_swap_ptr(void **ptr1, void **ptr2);
 void	ft_sort_points_by_y(t_vektr **p);
 void	ft_vektr_interpolation_by_y(t_vektr *p, t_vektr *p1, t_vektr *p2,
 			int grad);
 int		ft_need_print_traing(t_vektr **p);
-void	ft_draw_traing(t_pict *pic, t_vektr **p, t_prop prop, int grad);
 void	ft_print_plgn(t_plgn *plgn, t_pict *pic, t_prop prop);
-void	ft_print_poligons(t_plgn *plgn, t_vektr *points, t_pict *pic,
-			t_param *param);
+
+/*
+**	poligons2.c
+*/
+void	ft_draw_traing(t_pict *pic, t_vektr **p, t_prop prop, int grad);
 void	ft_prepare_plgn_for_printing(t_plgn *plgn, t_param *param);
 
 /*
@@ -228,12 +232,17 @@ int		ft_csale_picture(t_param *param, int button, t_point *mouse);
 */
 void	ft_fill_point(t_point *p, int y, int x, int z);
 void	ft_fill_dpoint(t_dpoint *p, t_real y, t_real x, t_real z);
-void	ft_create_xyz(t_oxyz *oxyz);
-t_dpnt	ft_ret_norm(t_dpoint *a, t_dpoint *b, t_dpoint *c);
+t_real	ft_vektr_len(t_dpoint *a);
 t_real	ft_vekt_cos(t_dpoint a, t_dpoint b);
 t_real	ft_dot_dpoints(t_dpoint *a, t_dpoint *b);
-t_real	ft_vektr_len(t_dpoint *a);
+
+/*
+**	point2.c
+*/
+void	ft_normalize_vektor(t_dpoint *vek);
+void	ft_create_xyz(t_oxyz *oxyz);
 void	ft_rotate_xyz_around_v(t_oxyz *oxyz, t_dpoint *v, double ang);
+t_dpnt	ft_ret_norm(t_dpoint *a, t_dpoint *b, t_dpoint *c);
 
 /*
 **	parts.c
