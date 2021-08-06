@@ -204,8 +204,6 @@ void	draw_line_img(t_line *line, t_pict *pic, t_prop prop);
 /*
 **	poligons.c
 */
-t_plgn	*ft_create_poligon(t_vektr *p1, t_vektr *p2, t_vektr *p3, int color);
-void	ft_del_poligines(t_plgn **begin);
 void	ft_swap_ptr(void **ptr1, void **ptr2);
 void	ft_sort_points_by_y(t_vektr **p);
 void	ft_vektr_interpolation_by_y(t_vektr *p, t_vektr *p1, t_vektr *p2,
@@ -241,58 +239,58 @@ void	ft_rotate_xyz_around_v(t_oxyz *oxyz, t_dpoint *v, double ang);
 **	parts.c
 */
 void	ft_create_new_water_in_cell(void *param, int j, int i, int k);
-void	ft_del_part(t_part **begin);
-t_part	*ft_new_part(t_dpoint *p, t_fluids type);
-t_part	*ft_add_part(void *ptr, t_dpoint *p, t_fluids type);
 t_arr	*ft_init_all_clear_parts(void);
 void	ft_create_new_area_of_water(t_arr *parts,
 			t_point *start, t_point *end, t_fluids type);
-void	ft_fill_interface(t_arr *parts, t_arr *iparts);
-int		ft_del_unused_part(void *elem, void *param);
 
 /*
 **	map.c
 */
 t_real	ft_return_heigth(t_real value);
 int		**ft_read_ground_from_file3(char *name);
-char	*ft_read_string_from_file(char *name);
+
+/*
+** map_math.c
+*/
 int		ft_find_points(t_map *map, char **arr);
-int		ft_find_point(t_map *map, char **args);
 void	ft_create_first_and_last_points(t_map *map);
-int		**ft_create_map(t_map *map);
-void	ft_fill_map_arr(t_map *map);
-void	ft_superposition(void *param, int j, int i, int k);
-t_real	ft_sigmoida(int i, int k);
+void	ft_superposition(t_map *map, int i, int k);
 
 /*
 **	ground.c
 */
 int		**ft_create_complex_ground_from_simple(int **simple_ground);
-void	ft_bicube_interpolate_y(void *param, int j, int i, int k);
-void	ft_bicube_interpolate_x(void *param, int j, int i, int k);
-int		ft_cube_interpolate(int *arr, t_real x);
-
-int		ft_create_relief(t_vis *vis, int **ground);
-t_vektr	*ft_create_points_of_relief(int **ground, t_vektr **p);
-int		ft_create_points_from_string(t_vektr **begin, int *ground, int k);
-void	ft_points_push_back(t_vektr *begin, t_vektr *last);
-int		ft_color_from_z(int value);
-t_plgn	*ft_create_poligons_of_relief(t_vektr **p_arr);
-int		ft_create_line_of_poligons_of_relief(t_plgn **plgn,
-			t_vektr *p1, t_vektr *p2);
-int		ft_create_rectang_poligon2(t_plgn **plgn, t_vektr **p, int color);
 
 /*
 **	cells.c
 */
-int		ft_change_obstacles(t_arr *cell, int cell_number, int button,
-			t_param *param);
 int		ft_get_index(int j, int i, int k);
+t_point	ft_get_index_d3(int cell_number);
 int		ft_is_cell_obstacle(int **ground, int cell_number);
 void	ft_fill_cells_from_ground(t_arr *cells, int **ground);
+void	ft_move_water_cell(t_arr *cells, t_param *param);
+
+/*
+**	cell_change.c
+*/
+int		ft_is_need_print_cell(t_arr *cells, int j, int i, int k);
 void	ft_print_all_cell(t_arr *cells, t_pict *pic, t_param *param);
 void	ft_print_water_cell(t_arr *cells, t_pict *pic, t_param *param);
-void	ft_move_water_cell(t_arr *cells, t_param *param);
+
+/*
+**	cell_change.c
+*/
+void	ft_del_cell(void *ptr, int j, int i, int k);
+void	ft_add_cell(void *ptr, int j, int i, int k);
+void	ft_mark_extern_cell(void *ptr, int j, int i, int k);
+void	ft_mark_cell_as_water(void *ptr, int j, int i, int k);
+int		ft_change_obstacles(t_arr *cell, int cell_number, int button,
+			t_param *param);
+
+/*
+**	cell_print.c
+*/
+void	print_one_cell(t_point cell, t_pict *pic, t_param *param, t_prop prop);
 
 /*
 **	read_program.c
@@ -340,9 +338,17 @@ void	*ft_solver(void *param);
 */
 t_earth	*ft_create_earth(void);
 void	ft_del_earth(t_earth **earth);
-int		ft_create_relief2(t_earth *earth, int **ground);
+
+/*
+**	print_smooth_earth.c
+*/
 void	ft_print_relief(t_earth *earth, t_arr *cells,
 			t_pict *pic, t_param *param);
+
+/*
+**	create_smooth_earth.c
+*/
+int		ft_create_relief(t_earth *earth, int **ground);
 
 /*
 **	print_shapes.c

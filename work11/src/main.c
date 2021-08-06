@@ -51,7 +51,6 @@ void	print_img_as_water(t_arr *ipoints, t_vis *vis, t_pict *from)
 	}
 }
 
-// todo ipart->is_surface fix
 void	print_rect_as_water(t_arr *ipoints, t_vis *vis)
 {
 	t_iter	iter;
@@ -148,8 +147,8 @@ int	main(int ac, char **av)
 		ft_del_all("some problem with malloc in relief\n");
 	ft_initialization_of_global_variable();
 	ft_fill_cells_from_ground(g_cell, g_ground);
-	if (!ft_create_relief2(g_earth, g_comlex_ground))
-		ft_del_all("some problem with malloc in ground\n");
+	if (!ft_create_relief(g_earth, g_comlex_ground))
+		ft_del_all("some problem with malloc in model\n");
 	ft_init_buffers(&(g_cl->buff[PARTS]), g_parts);
 	ft_init_buffers(&(g_cl->buff[CELLS]), g_cell);
 	ft_init_buffers(&(g_cl->buff[INTERFACE]), g_iparts);
