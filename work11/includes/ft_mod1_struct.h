@@ -21,11 +21,11 @@
 typedef struct s_map
 {
 	int				count;
-	int				delta;
+	double			delta;
 	t_point			p[MAX_POINT];
 	t_point			p_max;
 	t_point			p_min;
-	t_point			first;
+	t_dpoint		first;
 	int				**arr;
 }					t_map;
 

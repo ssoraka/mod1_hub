@@ -88,11 +88,9 @@ int	**ft_read_ground_from_file(char *name)
 	ft_bzero((void *)&map, sizeof(t_map));
 	ft_fill_point(&(map.p_min), 0, 0x7FFFFFFF, 0x7FFFFFFF);
 	str = ft_read_string_from_file(name);
-	if (str)
-		arr = ft_strsplit(str, ' ');
-	free(str);
-	if (arr && ft_find_points(&map, arr))
+	if (str && ft_find_points(&map, str))
 		ground = ft_create_map(&map);
+	free(str);
 	ft_mem_arr_free((void ***)&arr);
 	return (ground);
 }

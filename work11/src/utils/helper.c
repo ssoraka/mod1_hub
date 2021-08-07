@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/ft_mod1.h"
+#include "../../includes/ft_mod1.h"
 
 void	ft_prepare_one_buffer(t_buff *buff)
 {

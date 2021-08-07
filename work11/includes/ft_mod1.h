@@ -35,7 +35,7 @@
 */
 # define ADD_POINT 4
 
-# define MAP_KOEF 0.7
+# define MAP_KOEF 0.5
 # define HEIGTH_KOEF 0.9
 //# define MAP_HEIGTH2 ((JMAX + J0) * 100)
 # define COLOR_UP 0xFFFFFF
@@ -44,8 +44,6 @@
 # define WATER_COLOR 0xFFFF
 # define MAGMA_COLOR 0xFF0000
 # define OBSTACLES_FRONT_COLOR 0x5b432d
-
-# define MSG_ERROR1 "Malloc error\n"
 
 // 0.05 / 180.0
 # define ROTATE_ANGLE 0.0003
@@ -255,7 +253,7 @@ int		**ft_read_ground_from_file(char *name);
 /*
 ** map_math.c
 */
-int		ft_find_points(t_map *map, char **arr);
+int		ft_find_points(t_map *map, char *arr);
 void	ft_create_first_and_last_points(t_map *map);
 void	ft_superposition(t_map *map, int i, int k);
 
@@ -386,6 +384,11 @@ void	ft_refresh_picture(t_vis *vis, t_arr *cell, t_arr *ipart);
 */
 int		ft_mouse_on_window(int x, int y);
 int		ft_mouse_get_new_pos(int x, int y, t_param *param);
+
+/*
+** validator.c
+*/
+t_bool	ft_get_nums_from_string(char **string, t_point *p);
 
 /*
 ** helper.c

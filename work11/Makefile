@@ -35,7 +35,6 @@ FILES = grathics/color_interpolation.c	grathics/picture.c \
 		grathics/images.c	grathics/lines_vektrs.c \
 		grathics/polygons.c	grathics/polygons2.c \
 		grathics/rotate.c	grathics/shapes.c \
-		helper.c \
 		hooks/animation.c	hooks/mouse.c	hooks/keys.c	hooks/hooks.c \
 		hooks/keys2.c \
 		open_cl/open_cl_buffers.c open_cl/open_cl_free.c \
@@ -45,6 +44,7 @@ FILES = grathics/color_interpolation.c	grathics/picture.c \
 		model/earth.c model/print_smooth_earth.c model/create_smooth_earth.c \
 		model/cells.c model/cell_change.c model/cell_print.c model/cells_print.c \
 		view/print.c view/sprite.c \
+		utils/helper.c utils/validator.c \
 		main.c  initialization.c \
 		thread_solver.c
 
@@ -83,6 +83,7 @@ $(PATH_OBJ)/%.o: $(addprefix $(PATH_SRC)/,%.c)  ${PATH_HEADERS}
 	@mkdir -p $(PATH_OBJ)/open_cl
 	@mkdir -p $(PATH_OBJ)/model
 	@mkdir -p $(PATH_OBJ)/view
+	@mkdir -p $(PATH_OBJ)/utils
 	$(GCC) -c $< -o $@  $(COMPILE_HEADER)
 
 $(NAME): $(OBJECTS) $(MAKES) $(LIBFT)
