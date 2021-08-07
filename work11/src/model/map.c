@@ -22,12 +22,22 @@ char	*ft_read_string_from_file(char *name)
 {
 	int		fd;
 	char	*str;
+	char	*tmp;
 
 	str = NULL;
 	fd = open(name, O_RDWR);
-	if (fd == -1)
+	if (get_next_line(fd, &str) == -1)
+	{
+		free(str);
+		close(fd);
 		return (NULL);
-	get_next_line(fd, &str);
+	}
+	tmp = NULL;
+	while (get_next_line(fd, &tmp) > 0)
+	{
+		str = ft_strjoin_free(str, tmp, TRUE, TRUE);
+		tmp = NULL;
+	}
 	close(fd);
 	return (str);
 }
@@ -43,8 +53,9 @@ void	ft_fill_map_arr(t_map *map)
 		i = 0;
 		while (i <= IMAX + 1)
 		{
-			map->arr[k][i] = -map->p_min.y * ((JMAX + J0) * 100)
-				/ (map->p_max.y - map->p_min.y);
+			if (map->p_max.y != map->p_min.y)
+				map->arr[k][i] = -map->p_min.y * ((JMAX + J0) * 100)
+					/ (map->p_max.y - map->p_min.y);
 			if (k > K0 && k < KMAX && i > I0 && i < IMAX)
 				ft_superposition(map, i, k);
 			i++;
@@ -64,7 +75,7 @@ int	**ft_create_map(t_map *map)
 	return (map->arr);
 }
 
-int	**ft_read_ground_from_file3(char *name)
+int	**ft_read_ground_from_file(char *name)
 {
 	char	*str;
 	char	**arr;

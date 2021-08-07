@@ -21,7 +21,7 @@
 
 # define IMAX 100
 # define JMAX 100
-# define KMAX 10
+# define KMAX 100
 # define I0 1
 # define J0 1
 # define K0 1

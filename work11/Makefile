@@ -34,17 +34,19 @@ FILES = grathics/color_interpolation.c	grathics/picture.c \
 		grathics/points.c	grathics/points2.c	grathics/print_shapes.c \
 		grathics/images.c	grathics/lines_vektrs.c \
 		grathics/polygons.c	grathics/polygons2.c \
-		grathics/sprite.c	\
+		grathics/rotate.c	grathics/shapes.c \
 		helper.c \
 		hooks/animation.c	hooks/mouse.c	hooks/keys.c	hooks/hooks.c \
+		hooks/keys2.c \
 		open_cl/open_cl_buffers.c open_cl/open_cl_free.c \
 		open_cl/open_cl_init.c open_cl/open_cl_read_build_run.c \
 		model/ground.c model/parts.c \
 		model/map.c model/map_math.c \
 		model/earth.c model/print_smooth_earth.c model/create_smooth_earth.c \
 		model/cells.c model/cell_change.c model/cell_print.c model/cells_print.c \
+		view/print.c view/sprite.c \
 		main.c  initialization.c \
-		rotate.c  thread_solver.c
+		thread_solver.c
 
 SRC		= $(addprefix $(PATH_SRC)/,$(FILES))
 OBJECTS		= $(patsubst %.c, $(PATH_OBJ)/%.o, $(FILES))
@@ -68,7 +70,7 @@ ifeq ($(detected_OS),Darwin)
 endif
 
 all: libs_refresh $(NAME)
-	./$(NAME)
+	./$(NAME) demo.txt
 
 libs_refresh:
 	@make -C ./$(PATH_LIB)/
@@ -80,6 +82,7 @@ $(PATH_OBJ)/%.o: $(addprefix $(PATH_SRC)/,%.c)  ${PATH_HEADERS}
 	@mkdir -p $(PATH_OBJ)/hooks
 	@mkdir -p $(PATH_OBJ)/open_cl
 	@mkdir -p $(PATH_OBJ)/model
+	@mkdir -p $(PATH_OBJ)/view
 	$(GCC) -c $< -o $@  $(COMPILE_HEADER)
 
 $(NAME): $(OBJECTS) $(MAKES) $(LIBFT)

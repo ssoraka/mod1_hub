@@ -122,12 +122,6 @@ typedef enum e_form
 	IMAGE
 }				t_form;
 
-typedef enum e_obst
-{
-	OBSTACLE = 1,
-	DYNAMIC_OBSTACLE = 2
-}				t_obst;
-
 typedef enum e_earth_view
 {
 	CUB_EARTH,
@@ -148,8 +142,6 @@ typedef enum e_stat_g
 /*
 **	main.c
 */
-void	ft_refresh_picture(t_vis *vis);
-int		loop_hook(void *param);
 void	ft_prepare_one_buffer(t_buff *buff);
 
 /*
@@ -171,10 +163,6 @@ int		ft_int_interpolation(int y, int delta_y, int x1, int x2);
 **	rotate.c
 */
 void	ft_rotate_vek_around_vek_by_ang(t_dpoint *ox, t_dpoint *oy, double ang);
-void	ft_change_points4(t_param *vis, t_vektr *p);
-void	ft_rotate_xyz(t_oxyz *oxyz, t_dpoint *ang);
-void	ft_ret_zoom_xyz(t_vektr *ox, t_param *vis);
-void	ft_change_points5(t_param *param, t_vektr *p);
 void	ft_rotate_point_around_point(t_param *param, t_vektr *p);
 void	ft_rotate_oxyz_around_v(t_param *param, t_dpoint *v, t_real ang);
 t_dpnt	ft_rot_dpoint(t_dpoint *v, t_oxyz *oxyz);
@@ -225,6 +213,12 @@ void	ft_prepare_plgn_for_printing(t_plgn *plgn, t_param *param);
 int		ft_rotate_and_csale(t_param *vis, int key);
 int		ft_shift(t_param *vis, int key);
 int		deal_key(int key, void *param);
+
+/*
+**	keys2.c
+*/
+int		ft_change_brush(t_param *param, int key);
+void	change_gravity(t_param *param);
 int		ft_csale_picture(t_param *param, int button, t_point *mouse);
 
 /*
@@ -256,7 +250,7 @@ void	ft_create_new_area_of_water(t_arr *parts,
 **	map.c
 */
 t_real	ft_return_heigth(t_real value);
-int		**ft_read_ground_from_file3(char *name);
+int		**ft_read_ground_from_file(char *name);
 
 /*
 ** map_math.c
@@ -302,11 +296,6 @@ int		ft_change_obstacles(t_arr *cell, int cell_number, int button,
 void	print_one_cell(t_point cell, t_pict *pic, t_param *param, t_prop prop);
 
 /*
-**	read_program.c
-*/
-int		is_read_programm(char *buffer, char *filename);
-
-/*
 **	open_cl_buffers.c
 */
 int		ft_create_all_buffers(t_open_cl *cl);
@@ -319,7 +308,7 @@ int		recreate_buffers(t_open_cl *cl, int num, size_t new_elem_count,
 /*
 **	open_cl_read_build_run.c
 */
-int		is_read_programm(char *buffer, char *filename);
+int		is_read_file(char *buffer, char *filename, unsigned int size);
 int		ft_read_and_build_programs(t_open_cl *cl, t_prog *compile);
 int		ft_run_kernels(t_open_cl *cl);
 int		ft_set_kernel_arg(t_open_cl *cl, t_prog *compile);
@@ -366,6 +355,14 @@ void	ft_init_shape(t_shape *shape, t_form form, t_prop print);
 t_prop	set_param(size_t params, size_t index, int color);
 
 /*
+**	shapes.c
+*/
+t_bool	ft_put_pixel_to_img2(t_pict *pic, t_point *p, t_shape *shape);
+t_bool	ft_print_rect(t_pict *pic, t_point *center, t_shape *shape);
+t_bool	circle(t_pict *pic, t_point *center, t_shape *shape);
+t_bool	print_img_to_img(t_pict *pic, t_point *center, t_shape *shape);
+
+/*
 ** animation.c
 */
 int		ft_move_camera(t_param *param);
@@ -376,7 +373,13 @@ int		ft_auto_rotate(t_param *param);
 /*
 ** hooks.c
 */
+int		loop_hook(void *parameters);
 void	ft_init_hooks(t_vis *vis);
+
+/*
+** print.c
+*/
+void	ft_refresh_picture(t_vis *vis, t_arr *cell, t_arr *ipart);
 
 /*
 ** mouse.c

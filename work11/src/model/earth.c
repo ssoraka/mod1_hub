@@ -15,6 +15,8 @@
 
 void	ft_del_earth(t_earth **earth)
 {
+	if (!earth || !*earth)
+		return ;
 	ft_del_arr(&(*earth)->points);
 	ft_del_arr(&(*earth)->poligons);
 	ft_memdel((void **)earth);

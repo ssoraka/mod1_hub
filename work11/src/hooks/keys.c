@@ -83,31 +83,6 @@ int	ft_is_water_cell_shift(t_param *param, int key)
 	return (TRUE);
 }
 
-int	ft_change_brush(t_param *param, int key)
-{
-	if (key == KEY_PLUS && param->brush < IMAX / 2)
-		param->brush++;
-	else if (key == KEY_MINUS && param->brush > 1)
-		param->brush--;
-	else
-		return (FALSE);
-	return (TRUE);
-}
-
-void	change_gravity(t_param *param)
-{
-	param->update_mode = !param->update_mode;
-	if (!param->update_mode)
-	{
-		ft_fill_dpoint(&param->g, -CONST_G, 0, 0);
-		param->update_status = LAST_UPDATE_PARAM_ON_CL;
-	}
-	else
-	{
-		ft_rotate_oxyz_around_v(param, &param->oxyz.ox, 0.0);
-	}
-}
-
 void	use_key(int key, t_param *param)
 {
 	if (key == KEY_ESC)
@@ -142,27 +117,5 @@ int	deal_key(int key, void *parameters)
 		param->need_refresh = TRUE;
 	use_key(key, param);
 	printf("%d\n", key);
-	return (TRUE);
-}
-
-int	ft_csale_picture(t_param *param, int button, t_point *mouse)
-{
-	if (button == MIDDLE_FORW_BUTTON && param->len < MAX_SCALE)
-		param->len *= CAM_SCALE;
-	else if (button == MIDDLE_BACK_BUTTON && param->len > MIN_SCALE)
-		param->len /= CAM_SCALE;
-	else if (button == LEFT_BUTTON)
-	{
-		ft_fill_point(&param->first_pos, mouse->y, mouse->x, 0);
-		param->left_button_press = TRUE;
-	}
-	else if (button == MIDDLE_BUTTON)
-	{
-		ft_fill_point(&param->pos, mouse->y, mouse->x, 0);
-		param->right_button_press = TRUE;
-	}
-	else
-		return (FALSE);
-	param->need_refresh = TRUE;
 	return (TRUE);
 }

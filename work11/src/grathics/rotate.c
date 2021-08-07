@@ -10,11 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/ft_mod1.h"
-
-/*
-**	избавление от погрешности
-*/
+#include "../../includes/ft_mod1.h"
 
 void	ft_rotate_vek_around_vek_by_ang(t_dpoint *ox, t_dpoint *oy, double ang)
 {

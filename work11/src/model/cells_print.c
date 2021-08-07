@@ -17,9 +17,7 @@ int	ft_is_need_print_cell(t_arr *cells, int j, int i, int k)
 	t_cell	*cell;
 
 	cell = cells->elems;
-	if ((!cell[ft_get_index(j, i, k)].obstacle
-			&& !cell[ft_get_index(j, i, k)].water) || (j <= J0 || j >= JMAX
-			|| i <= I0 || i >= IMAX || k <= K0 || k >= KMAX))
+	if (j <= J0 || j >= JMAX || i <= I0 || i >= IMAX || k <= K0 || k >= KMAX)
 		return (FALSE);
 	if (j == JMAX - 1 || i == I0 + 1 || i == IMAX - 1
 		|| k == K0 + 1 || k == KMAX - 1)
@@ -59,9 +57,8 @@ void	ft_print_all_cell(t_arr *cells, t_pict *pic, t_param *param)
 		cell = (t_cell *)iter.value;
 		prop.index = i;
 		jik = ft_get_index_d3(i);
-		if (((cell->surface == 1 && param->is_smooth_relief != SMOOTH_EARTH)
-				|| cell->obstacle == DYNAMIC_OBSTACLE)
-			&& ft_is_need_print_cell(cells, jik.y, jik.x, jik.z))
+		if (cell->obstacle && cell->surface == 1
+			&& param->is_smooth_relief != SMOOTH_EARTH)
 			print_one_cell(jik, pic, param, prop);
 		i++;
 	}
@@ -81,11 +78,10 @@ void	ft_print_water_cell(t_arr *cells, t_pict *pic, t_param *param)
 	while (iter.get_next_elem(&iter))
 	{
 		cell = (t_cell *)iter.value;
-		if (cell->water)
+		if (cell->water && cell->surface)
 		{
 			jik = ft_get_index_d3(i);
-			if (ft_is_need_print_cell(cells, jik.y, jik.x, jik.z))
-				print_one_cell(jik, pic, param, prop);
+			print_one_cell(jik, pic, param, prop);
 		}
 		i++;
 	}

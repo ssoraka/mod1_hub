@@ -12,7 +12,7 @@
 
 #include "../../includes/ft_mod1.h"
 
-int	is_read_programm(char *buffer, char *filename)
+int	is_read_file(char *buffer, char *filename, unsigned int size)
 {
 	int	fd;
 	int	ret;
@@ -22,7 +22,7 @@ int	is_read_programm(char *buffer, char *filename)
 		return (FALSE);
 	if (read(fd, NULL, 0) == -1)
 		return (FALSE);
-	ret = read(fd, buffer, PROGRAMM_SIZE);
+	ret = read(fd, buffer, size);
 	buffer[ret] = '\0';
 	close(fd);
 	return (TRUE);
@@ -39,7 +39,7 @@ int	ft_read_and_build_programs(t_open_cl *cl, t_prog *compile)
 	i = -1;
 	while (++i < PROGRAMS_COUNT)
 	{
-		if (!is_read_programm((char *)buffer, compile[i].file))
+		if (!is_read_file((char *)buffer, compile[i].file, PROGRAMM_SIZE))
 			return (FALSE);
 		lengths[0] = ft_strlen(buffer);
 		arr[0] = (char *)&buffer;

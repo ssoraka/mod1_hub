@@ -26,120 +26,47 @@ t_prog	g_compile[PROGRAMS_COUNT + 2] =
 	{"", "", 0, {-1, -1, -1}}
 };
 
-void	print_img_as_water(t_arr *ipoints, t_vis *vis, t_pict *from)
+void	usage(void)
 {
-	t_iter	iter;
-	t_ipart	*ipart;
-	t_shape	printer;
-	t_pict	*to;
-	t_vektr	v;
-
-	ft_bzero((void *)&v, sizeof(t_vektr));
-	ft_init_shape(&printer, IMAGE,
-		set_param(DEFAULT_IMAGE, DEFAULT_INDEX, WATER_COLOR));
-	printer.pic = from;
-	to = &vis->pic;
-	iter = get_arr_iter(ipoints);
-	while (iter.get_next_elem(&iter))
-	{
-		ipart = (t_ipart *)iter.value;
-		ft_fill_dpoint(&v.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
-		ft_rotate_point_around_point(&(vis->param), &v);
-		printer.params.index = ipart->type;
-		if (printer.params.index != NOTHING)
-			printer.print(to, &v.zoom, &printer);
-	}
+	ft_putendl("USAGE:");
+	ft_putendl("./mod1 file_name");
+	ft_putendl("\nFILE_CONTENT:");
+	ft_putendl("(x1,z1,y1) (x2,z2,y2) ... (xn,zn,yn)");
+	ft_putendl("where n <= 50");
+	ft_putendl("\nKEY CONTROL:");
+	ft_putendl("Q,W,E,A,S,D, LEFT MOUSE - rotate");
+	ft_putendl("UP,DOWN,LEFT,RIGHT,MIDDLE MOUSE - shift");
+	ft_putendl("1,2,MIDDLE ROTATE MOUSE - backtrack");
+	ft_putendl("+/- - increase/decrease virtual fluid or ground");
+	ft_putendl("4,5,6,8,1,2 - shift virtual fluid or ground");
+	ft_putendl("LEFT MOUSE/RIGHT MOUSE  - add/cut ground");
+	ft_putendl("V - change fluid visualisation");
+	ft_putendl("R/T - create water/magma in virtual area");
+	ft_putendl("G - change gravitation direction");
+	ft_putendl("Z - change ground visualisation");
+	ft_putendl("X - hide ground");
+	ft_putendl("C - gradient");
 }
 
-void	print_rect_as_water(t_arr *ipoints, t_vis *vis)
+void	init_all_buffers_param(void)
 {
-	t_iter	iter;
-	t_ipart	*ipart;
-	t_shape	printer;
-	t_pict	*to;
-	t_vektr	v;
-
-	ft_bzero((void *)&v, sizeof(t_vektr));
-	ft_init_shape(&printer, RECTANGLE,
-		set_param(DEFAULT_IMAGE, WATER, WATER_COLOR));
-	printer.len = RADIUS;
-	to = &vis->pic;
-	iter = get_arr_iter(ipoints);
-	while (iter.get_next_elem(&iter))
-	{
-		ipart = (t_ipart *)iter.value;
-		ft_fill_dpoint(&v.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
-		ft_rotate_point_around_point(&(vis->param), &v);
-		printer.color = (ipart->type == WATER) * WATER_COLOR
-			+ (ipart->type == MAGMA) * MAGMA_COLOR;
-		if (printer.params.index != NOTHING)
-			printer.print(to, &v.zoom, &printer);
-	}
+	ft_init_buffers(&(g_cl->buff[PARTS]), g_parts);
+	ft_init_buffers(&(g_cl->buff[CELLS]), g_cell);
+	ft_init_buffers(&(g_cl->buff[INTERFACE]), g_iparts);
+	ft_init_buffers(&(g_cl->buff[CELL_MAPS]), g_cell_map);
+	ft_init_buffers(&(g_cl->buff[NEIGHS]), g_neighs);
+	ft_init_buffers(&(g_cl->buff[PARAMS]), g_cl_prop);
 }
 
-void	ft_print_water(t_arr *iparts, t_vis *vis)
-{
-	if (vis->param.print_sprite == FALSE)
-	{
-		print_rect_as_water(iparts, vis);
-		return ;
-	}
-	if (!ft_init_picture(vis->fluids + WATER, vis->param.len, WATER_COLOR)
-		|| !ft_init_picture(vis->fluids + MAGMA, vis->param.len, MAGMA_COLOR))
-	{
-		ft_memdel((void **)&vis->fluids[WATER].addr);
-		ft_memdel((void **)&vis->fluids[MAGMA].addr);
-		ft_del_all("malloc error\n");
-	}
-	print_img_as_water(iparts, vis, vis->fluids);
-	ft_memdel((void **)&vis->fluids[WATER].addr);
-	ft_memdel((void **)&vis->fluids[MAGMA].addr);
-}
-
-void	ft_refresh_picture(t_vis *vis)
-{
-	mlx_clear_window(vis->mlx, vis->win);
-	ft_clear_image(&(vis->pic));
-	if (vis->param.is_water_change)
-	{
-		ft_move_water_cell(g_cell, &(vis->param));
-		vis->param.is_water_change = FALSE;
-	}
-	ft_print_relief(g_earth, g_cell, &(vis->pic), &(vis->param));
-	if (vis->param.is_need_print_water)
-		ft_print_water_cell(g_cell, &(vis->pic), &(vis->param));
-	ft_print_water(g_iparts_copy, vis);
-	mlx_put_image_to_window(vis->mlx, vis->win, vis->pic.img, 0, 0);
-}
-
-int	loop_hook(void *parameters)
-{
-	t_vis	*vis;
-	t_param	*param;
-
-	vis = (t_vis *)parameters;
-	if (vis->param.exit)
-		return (0);
-	param = &vis->param;
-	if ((ft_move_camera(param) + ft_auto_rotate(param)))
-	{
-		ft_rotate_point_around_point(param, &param->centr);
-		param->centr.zoom.x = param->cam_x;
-		param->centr.zoom.y = param->cam_y;
-		param->need_refresh = TRUE;
-	}
-	pthread_mutex_lock(&g_mutex);
-	if (!ft_copy_arrs(g_iparts_copy, g_cl->buff[INTERFACE].arr))
-		ft_del_all("read error\n");
-	pthread_mutex_unlock(&g_mutex);
-	ft_refresh_picture(vis);
-	return (0);
-}
-
-int	main(int ac, char **av)
+int	main(int argc, char **argv)
 {
 	ft_init();
-	g_ground = ft_read_ground_from_file3("demo.txt");
+	if (argc != 2)
+	{
+		usage();
+		return (0);
+	}
+	g_ground = ft_read_ground_from_file(argv[1]);
 	if (!g_ground)
 		ft_del_all("some problem with file\n");
 	g_comlex_ground = ft_create_complex_ground_from_simple(g_ground);
@@ -149,12 +76,7 @@ int	main(int ac, char **av)
 	ft_fill_cells_from_ground(g_cell, g_ground);
 	if (!ft_create_relief(g_earth, g_comlex_ground))
 		ft_del_all("some problem with malloc in model\n");
-	ft_init_buffers(&(g_cl->buff[PARTS]), g_parts);
-	ft_init_buffers(&(g_cl->buff[CELLS]), g_cell);
-	ft_init_buffers(&(g_cl->buff[INTERFACE]), g_iparts);
-	ft_init_buffers(&(g_cl->buff[CELL_MAPS]), g_cell_map);
-	ft_init_buffers(&(g_cl->buff[NEIGHS]), g_neighs);
-	ft_init_buffers(&(g_cl->buff[PARAMS]), g_cl_prop);
+	init_all_buffers_param();
 	if (!ft_create_all_buffers(g_cl))
 		ft_del_all("some problem with openCl buffers\n");
 	if (!ft_set_kernel_arg(g_cl, g_compile))

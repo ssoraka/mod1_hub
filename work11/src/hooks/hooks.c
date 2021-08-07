@@ -65,6 +65,30 @@ int	ft_mouse_move(int x, int y, void *parameters)
 	return (0);
 }
 
+int	loop_hook(void *parameters)
+{
+	t_vis	*vis;
+	t_param	*param;
+
+	vis = (t_vis *)parameters;
+	if (vis->param.exit)
+		return (0);
+	param = &vis->param;
+	if ((ft_move_camera(param) + ft_auto_rotate(param)))
+	{
+		ft_rotate_point_around_point(param, &param->centr);
+		param->centr.zoom.x = param->cam_x;
+		param->centr.zoom.y = param->cam_y;
+		param->need_refresh = TRUE;
+	}
+	pthread_mutex_lock(&g_mutex);
+	if (!ft_copy_arrs(g_iparts_copy, g_cl->buff[INTERFACE].arr))
+		ft_del_all("read error\n");
+	pthread_mutex_unlock(&g_mutex);
+	ft_refresh_picture(vis, g_cell, g_iparts_copy);
+	return (0);
+}
+
 void	ft_init_hooks(t_vis *vis)
 {
 	void	*param;

@@ -41,11 +41,11 @@ int	ft_is_cell_obstacle(int **ground, int cell_number)
 	i = cell.x;
 	k = cell.z;
 	if (j == J0 || i == IMAX || i == I0 || k == K0 || k == KMAX)
-		return (OBSTACLE);
+		return (TRUE);
 	if (j < J0 || j > JMAX || i > IMAX || i < I0 || k < K0 || k > KMAX)
 		return (FALSE);
 	if (j <= (int)ft_return_heigth(ground[k][i]))
-		return (OBSTACLE);
+		return (TRUE);
 	return (FALSE);
 }
 
@@ -92,4 +92,5 @@ void	ft_move_water_cell(t_arr *cells, t_param *param)
 		cell->water = FALSE;
 	}
 	ft_cycle_cube(cells->elems, ft_mark_cell_as_water, &start, &end);
+	ft_cycle_cube(cells, ft_mark_extern_cell, &start, &end);
 }

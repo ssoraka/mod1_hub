@@ -34,9 +34,6 @@ void	ft_init(void)
 	g_vis = NULL;
 	g_parts = NULL;
 	g_neighs = NULL;
-	g_vis = NULL;
-	g_parts = NULL;
-	g_neighs = NULL;
 	g_iparts = NULL;
 	g_iparts_copy = NULL;
 	g_cell = NULL;

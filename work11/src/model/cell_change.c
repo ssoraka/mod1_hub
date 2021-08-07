@@ -36,20 +36,23 @@ void	ft_add_cell(void *ptr, int j, int i, int k)
 	if (!cell_number)
 		return ;
 	cell = (t_cell *)ptr;
-	cell[cell_number].obstacle = DYNAMIC_OBSTACLE;
+	cell[cell_number].obstacle = TRUE;
 }
 
 void	ft_mark_extern_cell(void *ptr, int j, int i, int k)
 {
 	int		cell_number;
 	t_arr	*cells;
+	t_cell	*cell;
 
 	cell_number = ft_get_index(j, i, k);
 	if (!cell_number)
 		return ;
 	cells = (t_arr *)ptr;
-	((t_cell *)ft_arr_get(cells, cell_number))->surface
-	= ft_is_need_print_cell(cells, j, i, k);
+	cell = (t_cell *)ft_arr_get(cells, cell_number);
+	if (!cell->obstacle && !cell->water)
+		return ;
+	cell->surface = ft_is_need_print_cell(cells, j, i, k);
 }
 
 void	ft_mark_cell_as_water(void *ptr, int j, int i, int k)
@@ -86,6 +89,8 @@ int	ft_change_obstacles(t_arr *cells, int cell_numb, int button, t_param *param)
 		ft_cycle_cube(cells->elems, ft_add_cell, &start, &end);
 	else
 		return (FALSE);
+	ft_fill_point(&start, start.y - 1, start.x - 1, start.z - 1);
+	ft_fill_point(&end, end.y + 1, end.x + 1, end.z + 1);
 	ft_cycle_cube(cells, ft_mark_extern_cell, &start, &end);
 	return (TRUE);
 }
