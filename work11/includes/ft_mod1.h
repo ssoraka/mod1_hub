@@ -31,12 +31,12 @@
 # include "ft_buttons.h"
 
 /*
-**	добавляем по 2 вершины между вершинами расчетной модели для сплайна
+**	добавляем по ADD_POINT вершины между вершинами расчетной модели для сплайна
 */
 # define ADD_POINT 4
 
-# define MAP_KOEF 0.5
-# define HEIGTH_KOEF 0.9
+# define MAP_KOEF 0.6
+# define HEIGTH_KOEF 0.8
 //# define MAP_HEIGTH2 ((JMAX + J0) * 100)
 # define COLOR_UP 0xFFFFFF
 # define COLOR_DOWN 0x704214

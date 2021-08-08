@@ -54,10 +54,12 @@ void	ft_fill_map_arr(t_map *map)
 		while (i <= IMAX + 1)
 		{
 			if (map->p_max.y != map->p_min.y)
+			{
 				map->arr[k][i] = -map->p_min.y * ((JMAX + J0) * 100)
 					/ (map->p_max.y - map->p_min.y);
-			if (k > K0 && k < KMAX && i > I0 && i < IMAX)
-				ft_superposition(map, i, k);
+				if (k > K0 && k < KMAX && i > I0 && i < IMAX)
+					ft_superposition(map, i, k);
+			}
 			i++;
 		}
 		k++;
@@ -78,19 +80,16 @@ int	**ft_create_map(t_map *map)
 int	**ft_read_ground_from_file(char *name)
 {
 	char	*str;
-	char	**arr;
 	int		**ground;
 	t_map	map;
 
 	ground = NULL;
 	str = NULL;
-	arr = NULL;
 	ft_bzero((void *)&map, sizeof(t_map));
 	ft_fill_point(&(map.p_min), 0, 0x7FFFFFFF, 0x7FFFFFFF);
 	str = ft_read_string_from_file(name);
 	if (str && ft_find_points(&map, str))
 		ground = ft_create_map(&map);
 	free(str);
-	ft_mem_arr_free((void ***)&arr);
 	return (ground);
 }

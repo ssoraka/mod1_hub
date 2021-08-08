@@ -116,6 +116,5 @@ int	deal_key(int key, void *parameters)
 		|| key == KEY_C || key == KEY_X || key == KEY_G || key == KEY_V)
 		param->need_refresh = TRUE;
 	use_key(key, param);
-	printf("%d\n", key);
 	return (TRUE);
 }

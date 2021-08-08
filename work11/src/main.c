@@ -29,7 +29,7 @@ t_prog	g_compile[PROGRAMS_COUNT + 2] =
 void	usage(void)
 {
 	ft_putendl("USAGE:");
-	ft_putendl("./mod1 file_name");
+	ft_putendl("./mod1 file.mod1");
 	ft_putendl("\nFILE_CONTENT:");
 	ft_putendl("(x1,z1,y1) (x2,z2,y2) ... (xn,zn,yn)");
 	ft_putendl("where n <= 50");
@@ -58,10 +58,18 @@ void	init_all_buffers_param(void)
 	ft_init_buffers(&(g_cl->buff[PARAMS]), g_cl_prop);
 }
 
+t_bool	valid_file_name(char *str)
+{
+	int	len;
+
+	len = ft_strlen(str);
+	return (len > 5 && ft_strequ(".mod1", str + len - 5));
+}
+
 int	main(int argc, char **argv)
 {
 	ft_init();
-	if (argc != 2)
+	if (argc != 2 || !valid_file_name(argv[1]))
 	{
 		usage();
 		return (0);

@@ -34,6 +34,7 @@ void	ft_bicube_interpolate_x2(void *param, int j, int i, int k)
 	int			n;
 	int			tmp[4];
 
+	(void)j;
 	gr = (t_ground *)param;
 	gr->complex[k * (1 + ADD_POINT)][i * (1 + ADD_POINT)] = gr->simple[k][i];
 	n = 1;
@@ -63,6 +64,7 @@ void	ft_bicube_interpolate_x(void *param, int j, int i, int k)
 	int			tmp[4];
 	int			value;
 
+	(void)j;
 	gr = (t_ground *)param;
 	gr->complex[k * (1 + ADD_POINT)][i * (1 + ADD_POINT)] = gr->simple[k][i];
 	if (i > IMAX)
@@ -89,6 +91,7 @@ void	ft_bicube_interpolate_y(void *param, int j, int i, int k)
 	int			tmp[4];
 	int			value;
 
+	(void)j;
 	ground = (t_ground *)param;
 	tmp[1] = ground->complex[k * (1 + ADD_POINT)][i];
 	tmp[2] = ground->complex[(k + 1) *(1 + ADD_POINT)][i];

@@ -10,8 +10,7 @@
 #                                                                              #
 #******************************************************************************#
 
-GCC = gcc
-#GCC = gcc -Wall -Wextra -Werror
+GCC = gcc -Wall -Wextra -Werror
 
 NAME = mod1
 
@@ -70,7 +69,7 @@ ifeq ($(detected_OS),Darwin)
 endif
 
 all: libs_refresh $(NAME)
-	./$(NAME) demo.txt
+	./$(NAME) demo.mod1
 
 libs_refresh:
 	@make -C ./$(PATH_LIB)/
@@ -87,7 +86,7 @@ $(PATH_OBJ)/%.o: $(addprefix $(PATH_SRC)/,%.c)  ${PATH_HEADERS}
 	$(GCC) -c $< -o $@  $(COMPILE_HEADER)
 
 $(NAME): $(OBJECTS) $(MAKES) $(LIBFT)
-	$(GCC) -o $@ $(OBJECTS) $(LIBFT) $(COMPILE_HEADER) $(LIB)
+	$(GCC) $(C_FLAGS) -o $@ $(OBJECTS) $(LIBFT) $(COMPILE_HEADER) $(LIB)
 
 norm:
 	norminette -R CheckForbiddenSourceHeader
@@ -98,7 +97,7 @@ clean:
 
 fclean: clean
 	rm -f $(NAME)
-	#make -C libft fclean
-	#make -C $(LIBMAKE) clean
+	make -C libft fclean
+	make -C $(LIBMAKE) clean
 
 re: fclean all
