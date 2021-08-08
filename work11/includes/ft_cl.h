@@ -19,9 +19,9 @@
 
 # define PI 3.141592
 
-# define IMAX 100
-# define JMAX 100
-# define KMAX 100
+# define IMAX 50
+# define JMAX 50
+# define KMAX 50
 # define I0 1
 # define J0 1
 # define K0 1
@@ -49,14 +49,11 @@
 # define SPEED_OF_SOUND_C 120.0
 //для расчета искусственной вязкости
 //коэффициент квадратичной искусственной вязкости (0.02 - 0.03)
-# define CONST_B 0.00
+# define CONST_B 0.03
 //коэффициент линнейной искусственной вязкости (0.02 - 0.03)
-# define CONST_A 0.00
+# define CONST_A 0.03
 
 # define CONST_G 10.0
-# define CONST_GY -10.0
-# define CONST_GX 0.0
-# define CONST_GZ 0.0
 
 //коэффициент влияния
 # define CONST_EP 0.3

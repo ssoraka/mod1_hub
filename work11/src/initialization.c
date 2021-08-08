@@ -21,7 +21,7 @@ void	init_cl_properties(void)
 	g_prop.f[WATER] = (t_fluid){WATER_COLOR, 3, PART_H, 120.0,
 		PART_MASS_0, 220000000.0, 1000.0, 0000.0};
 	g_prop.f[MAGMA] = (t_fluid){MAGMA_COLOR, 5, PART_H, 120.0,
-		PART_MASS_0 * 10.0, 2200000000.0, 10000.0, 2000.0};
+		PART_MASS_0 * 10.0, 2200000000.0, 10000.0, 3000.0};
 	ft_arr_add(g_cl_prop, &g_prop);
 	ft_bzero(&part, sizeof(t_part));
 	ft_arr_add(g_parts, (void *)&part);
