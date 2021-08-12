@@ -31,7 +31,7 @@ void	ft_init_params(t_param *param)
 	param->update_mode = FALSE;
 	ft_rotate_oxyz_around_v(param, &param->oxyz.oz, M_PI);
 	param->need_refresh = TRUE;
-	param->print_sprite = TRUE;
+	param->print_sprite = BALL_WATER;
 }
 
 int	ft_create_img(t_pict *pic, void *mlx, int width, int heigth)

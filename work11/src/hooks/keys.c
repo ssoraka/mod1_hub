@@ -100,7 +100,7 @@ void	use_key(int key, t_param *param)
 	else if (key == KEY_C)
 		param->grad = !param->grad;
 	else if (key == KEY_V)
-		param->print_sprite = !param->print_sprite;
+		param->print_sprite = (param->print_sprite + 1) % 3;
 	else if (key == KEY_G)
 		change_gravity(param);
 }

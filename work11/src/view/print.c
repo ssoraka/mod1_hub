@@ -12,6 +12,15 @@
 
 #include "../../includes/ft_mod1.h"
 
+t_bool	is_visible(int pic_size, t_point p)
+{
+	pic_size = pic_size / 2;
+	if (p.x + pic_size < 0 || p.y + pic_size < 0
+		|| p.x - pic_size >= CONST_WIDTH || p.y - pic_size >= CONST_HEINTH)
+		return (FALSE);
+	return (TRUE);
+}
+
 void	print_img_as_water(t_arr *ipoints, t_vis *vis, t_pict *from)
 {
 	t_iter	iter;
@@ -32,7 +41,8 @@ void	print_img_as_water(t_arr *ipoints, t_vis *vis, t_pict *from)
 		ft_fill_dpoint(&v.abs, ipart->pos.y, ipart->pos.x, ipart->pos.z);
 		ft_rotate_point_around_point(&(vis->param), &v);
 		printer.params.index = ipart->type;
-		if (printer.params.index != NOTHING)
+		if (printer.params.index != NOTHING
+			&& is_visible(from[ipart->type].size_line, v.zoom))
 			printer.print(to, &v.zoom, &printer);
 	}
 }
@@ -65,13 +75,13 @@ void	print_rect_as_water(t_arr *ipoints, t_vis *vis)
 
 void	ft_print_water(t_arr *iparts, t_vis *vis)
 {
-	if (vis->param.print_sprite == FALSE)
+	if (vis->param.print_sprite == SIMPLE_WATER)
 	{
 		print_rect_as_water(iparts, vis);
 		return ;
 	}
-	if (!ft_init_picture(vis->fluids + WATER, vis->param.len, WATER_COLOR)
-		|| !ft_init_picture(vis->fluids + MAGMA, vis->param.len, MAGMA_COLOR))
+	if (!ft_init_picture(vis->fluids + WATER, &vis->param, WATER_COLOR)
+		|| !ft_init_picture(vis->fluids + MAGMA, &vis->param, MAGMA_COLOR))
 	{
 		ft_memdel((void **)&vis->fluids[WATER].addr);
 		ft_memdel((void **)&vis->fluids[MAGMA].addr);

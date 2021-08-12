@@ -127,6 +127,13 @@ typedef enum e_earth_view
 	COLORED_EARTH
 }				t_earth_view;
 
+typedef enum e_water_view
+{
+	SIMPLE_WATER,
+	BALL_WATER,
+	HOLLOW_BALL_WATER
+}				t_water_view;
+
 typedef enum e_stat_g
 {
 	OFF_UPDATING_PARAM,
@@ -183,7 +190,7 @@ void	ft_return_image(t_pict *pic);
 /*
 **	sprite.c
 */
-t_bool	ft_init_picture(t_pict *pict, int diameter, int color);
+t_bool	ft_init_picture(t_pict *pict, t_param *param, int color);
 
 /*
 **	lines_vektrs.c
