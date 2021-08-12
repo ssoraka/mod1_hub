@@ -10,9 +10,9 @@
 #                                                                              #
 #******************************************************************************#
 
-GCC = gcc -Wall -Wextra -Werror
-
 NAME = mod1
+
+GCC = gcc -Wall -Wextra -Werror
 
 C_FLAGS = -g -Ofast
 
@@ -69,7 +69,7 @@ ifeq ($(detected_OS),Darwin)
 endif
 
 all: libs_refresh $(NAME)
-	./$(NAME) demo.mod1
+	./$(NAME) resources/demo1.mod1
 
 libs_refresh:
 	@make -C ./$(PATH_LIB)/
@@ -89,7 +89,7 @@ $(NAME): $(OBJECTS) $(MAKES) $(LIBFT)
 	$(GCC) $(C_FLAGS) -o $@ $(OBJECTS) $(LIBFT) $(COMPILE_HEADER) $(LIB)
 
 norm:
-	norminette -R CheckForbiddenSourceHeader
+	norminette src/* includes/*
 
 clean:
 	rm -f $(OBJECTS)
