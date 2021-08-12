@@ -34,6 +34,8 @@
 **	добавляем по ADD_POINT вершины между вершинами расчетной модели для сплайна
 */
 # define ADD_POINT 4
+# define DEVICE_TYPE CL_DEVICE_TYPE_GPU
+//# define DEVICE_TYPE CL_DEVICE_TYPE_CPU
 
 # define MAP_KOEF 0.6
 # define HEIGTH_KOEF 0.8
@@ -122,8 +124,8 @@ typedef enum e_form
 
 typedef enum e_earth_view
 {
-	CUB_EARTH,
 	SMOOTH_EARTH,
+	CUB_EARTH,
 	COLORED_EARTH,
 	V_EARTH_COUNT
 }				t_earth_view;

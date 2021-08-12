@@ -59,7 +59,7 @@ void	ft_initialization_of_global_variable(void)
 	g_cell_map = ft_create_arr(sizeof(t_cell_map), cell_count(), NULL);
 	g_earth = ft_create_earth();
 	g_cl_prop = ft_create_arr(sizeof(t_cl_prop), 1, NULL);
-	g_cl = ft_init_open_cl(CL_DEVICE_TYPE_GPU);
+	g_cl = ft_init_open_cl(DEVICE_TYPE);
 	if (!g_earth || !g_cell || !g_parts || !g_iparts || !g_cl
 		|| !g_iparts_copy || !g_cell_map || !g_neighs || !g_cl_prop)
 		ft_del_all("malloc error\n");
