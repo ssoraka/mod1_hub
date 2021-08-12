@@ -94,6 +94,8 @@ void	ft_print_water(t_arr *iparts, t_vis *vis)
 
 void	ft_refresh_picture(t_vis *vis, t_arr *cell, t_arr *ipart)
 {
+	char	*str;
+
 	mlx_clear_window(vis->mlx, vis->win);
 	ft_clear_image(&(vis->pic));
 	if (vis->param.is_water_change)
@@ -106,4 +108,8 @@ void	ft_refresh_picture(t_vis *vis, t_arr *cell, t_arr *ipart)
 		ft_print_water_cell(cell, &(vis->pic), &(vis->param));
 	ft_print_water(ipart, vis);
 	mlx_put_image_to_window(vis->mlx, vis->win, vis->pic.img, 0, 0);
+	str = ft_itoa(ipart->elems_used);
+	if (str && ipart->elems_used > 1)
+		mlx_string_put(vis->mlx, vis->win, 100, 100, 0xFFFFFF, str);
+	free(str);
 }

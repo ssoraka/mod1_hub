@@ -21,6 +21,7 @@ void	ft_init_params(t_param *param)
 	param->len = (CONST_HEINTH / JMAX);
 	param->pause = 1;
 	param->is_need_print_obstacles = TRUE;
+	param->is_smooth_relief = TRUE;
 	param->brush = 1;
 	ft_fill_dpoint(&param->light, -1.0, 0.5, 1.0);
 	ft_fill_point(&param->water, JMAX - 1, I0 + 1, K0 + 1);

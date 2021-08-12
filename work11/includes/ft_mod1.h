@@ -124,14 +124,16 @@ typedef enum e_earth_view
 {
 	CUB_EARTH,
 	SMOOTH_EARTH,
-	COLORED_EARTH
+	COLORED_EARTH,
+	V_EARTH_COUNT
 }				t_earth_view;
 
 typedef enum e_water_view
 {
 	SIMPLE_WATER,
 	BALL_WATER,
-	HOLLOW_BALL_WATER
+	HOLLOW_BALL_WATER,
+	V_WATER_COUNT
 }				t_water_view;
 
 typedef enum e_stat_g
